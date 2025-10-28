@@ -13,6 +13,7 @@ export default function ImageKitUploader() {
   const ikRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState("");
+  const [result, setResult] = useState<{ url: string; name: string } | null>(null);
 
   useEffect(() => {
     // When the SDK is loaded, initialize ImageKit
@@ -49,7 +50,8 @@ export default function ImageKitUploader() {
         folder: "/AUDIOJONES.COM/uploads",
         tags: ["site-upload"],
       });
-      setStatus(`✔ Uploaded: ${resp.name} → ${resp.url}`);
+      setResult({ url: resp.url, name: resp.name });
+      setStatus("Upload complete");
       // eslint-disable-next-line no-console
       console.log(resp);
     } catch (err) {
@@ -74,7 +76,21 @@ export default function ImageKitUploader() {
         </button>
       </div>
       <p className="text-white/80 mt-3 text-sm" data-testid="ik-status">{status}</p>
+      {result && (
+        <div className="mt-3 flex items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${result.url}?tr=w-120,h-120,fo-auto`}
+            alt={result.name}
+            width={120}
+            height={120}
+            className="rounded-md ring-1 ring-white/10"
+          />
+          <a href={result.url} target="_blank" className="underline">
+            {result.name}
+          </a>
+        </div>
+      )}
     </div>
   );
 }
-

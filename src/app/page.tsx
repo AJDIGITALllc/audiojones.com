@@ -102,10 +102,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ImageKit Uploader */}
+      {/* Uploader CTA */}
       <section className="mx-auto max-w-6xl px-6 py-16">
-        <h3 className="text-2xl font-bold mb-4">Upload an Image to ImageKit</h3>
-        <ImageKitUploader />
+        <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-6">
+          <div>
+            <h3 className="text-2xl font-bold">Need to upload assets?</h3>
+            <p className="text-white/75">Use the uploader to push images directly to ImageKit.</p>
+          </div>
+          <a href="/uploader" className="rounded-full px-6 py-3 font-bold text-black bg-white hover:opacity-90 transition">
+            Open Uploader
+          </a>
+        </div>
       </section>
     </main>
   );
