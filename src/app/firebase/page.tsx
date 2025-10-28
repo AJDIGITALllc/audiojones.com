@@ -21,16 +21,17 @@ export default function FirebasePage() {
 
         <section className="rounded-xl border border-white/10 bg-white/5 p-6">
           <h2 className="text-xl font-bold">Callable Functions</h2>
-          <p className="text-white/75 text-sm">Client is ready via firebase/functions. Once you deploy a callable (e.g., `helloWorld`), we can invoke it here.</p>
-          <code className="block mt-3 text-xs text-white/70">// Example:
-// import { httpsCallable } from "firebase/functions";
-// const fn = httpsCallable(functions, "helloWorld");
-// const res = await fn({ name: "Audio" });
-// console.log(res.data);
-          </code>
+          <p className="text-white/75 text-sm">Client is ready via firebase/functions. Once you deploy a callable (e.g., <code>helloWorld</code>), we can invoke it here.</p>
+          <pre className="block mt-3 text-xs text-white/70 bg-black/30 p-3 rounded-md overflow-auto">
+            <code>{`// Example:
+import { httpsCallable } from "firebase/functions";
+const fn = httpsCallable(functions, "helloWorld");
+const res = await fn({ name: "Audio" });
+console.log(res.data);
+`}</code>
+          </pre>
         </section>
       </div>
     </main>
   );
 }
-
