@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 
 export default function Home() {
   return (
@@ -37,7 +37,7 @@ export default function Home() {
         {/* Right: Portrait */}
         <div className="flex items-start justify-center lg:justify-end">
           <Image
-            src="/assets/audio-jones-hero.webp"
+            src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/AUDIOJONES_HERO_IMAGE_03.svg?tr=q-90"
             alt="Audio Jones — Miami brand consultant and AI marketing expert"
             width={540}
             height={675} // ~4:5
@@ -49,3 +49,5 @@ export default function Home() {
     </main>
   );
 }
+
+
