@@ -2,6 +2,7 @@ import * as admin from "firebase-admin";
 import * as f from "firebase-functions";
 import Stripe from "stripe";
 import fetch from "node-fetch";
+import { google } from "googleapis";
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -217,5 +218,100 @@ export const whopWebhook = f.https.onRequest(async (req, res) => {
     return res.json({ ok: true });
   } catch (e: any) {
     return res.status(500).json({ error: e?.message || "Failed to handle webhook" });
+  }
+});
+
+/** Scheduled: Sync Whop customers into Firestore users */
+export const syncWhopCustomers = f.pubsub.schedule("every 6 hours").onRun(async () => {
+  const apiKey = process.env.WHOP_API_KEY;
+  const base = process.env.WHOP_API_URL || "https://api.whop.com/v2";
+  if (!apiKey) {
+    console.warn("WHOP_API_KEY not set; skipping sync");
+    return null;
+  }
+  const res = await fetch(`${base}/customers`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
+  if (!res.ok) {
+    console.error("Whop sync failed", res.status, await res.text());
+    return null;
+  }
+  const data = (await res.json()) as any;
+  const list = data?.data || [];
+  for (const c of list) {
+    const id = String(c.id);
+    await db.collection("users").doc(id).set(
+      {
+        email: c.email ?? null,
+        name: c.name ?? null,
+        plan: c.plan_name ?? null,
+        status: c.status ?? null,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }
+  return null;
+});
+
+/** Generate contract from Docs template and store PDF to Drive */
+export const generateContract = f.https.onRequest(async (req, res) => {
+  if (req.method !== "POST") return res.status(405).end();
+  try {
+    const authHeader = req.headers.authorization || "";
+    if (!authHeader.startsWith("Bearer ")) return res.status(401).send("Unauthorized");
+    const idToken = authHeader.slice(7);
+    const decoded = await admin.auth().verifyIdToken(idToken);
+
+    const { uid, templateId, folderId, name, fields } = req.body || {};
+    if (!templateId || !folderId || !name) return res.status(400).send("Missing templateId, folderId, name");
+    if (!decoded.admin && decoded.uid !== uid) return res.status(403).send("Forbidden");
+
+    const scopes = [
+      "https://www.googleapis.com/auth/drive",
+      "https://www.googleapis.com/auth/documents",
+    ];
+    const auth = await google.auth.getClient({ scopes });
+    const drive = google.drive({ version: "v3", auth });
+    const docs = google.docs({ version: "v1", auth });
+
+    // 1) Copy the template Doc
+    const copyResp = await drive.files.copy({ fileId: templateId, requestBody: { name, parents: [folderId] } });
+    const newDocId = copyResp.data.id!;
+
+    // 2) Replace merge fields via Docs batchUpdate
+    const requests = Object.entries(fields || {}).map(([key, value]) => ({
+      replaceAllText: {
+        containsText: { text: `{{${key}}}`, matchCase: false },
+        replaceText: String(value ?? ""),
+      },
+    }));
+    if (requests.length) {
+      await docs.documents.batchUpdate({ documentId: newDocId, requestBody: { requests } });
+    }
+
+    // 3) Export to PDF and upload back to Drive in same folder
+    const pdfResp = await drive.files.export({ fileId: newDocId, mimeType: "application/pdf" }, { responseType: "arraybuffer" });
+    const pdfMedia = Buffer.from(pdfResp.data as ArrayBuffer);
+    const pdfUpload = await drive.files.create({
+      requestBody: { name: `${name}.pdf`, parents: [folderId], mimeType: "application/pdf" },
+      media: { mimeType: "application/pdf", body: Buffer.from(pdfMedia) as any },
+    });
+    const pdfFileId = pdfUpload.data.id!;
+
+    // 4) Record in Firestore
+    const ref = await db.collection("contracts").add({
+      uid: uid || decoded.uid,
+      status: "generated",
+      driveFileId: newDocId,
+      pdfFileId,
+      signedUrl: null,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return res.json({ contractId: ref.id, docId: newDocId, pdfFileId });
+  } catch (e: any) {
+    console.error(e);
+    return res.status(500).send(e?.message || "Contract generation failed");
   }
 });
