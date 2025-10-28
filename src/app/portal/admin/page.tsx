@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/client";
 import { useToast } from "@/components/Toast";
+import { fetchJsonWithToast } from "@/lib/client/fetchJson";
 
 type AdminUser = {
   uid: string;
@@ -30,14 +31,15 @@ export default function AdminUsersPage() {
       if (!idToken) throw new Error("No ID token");
       const qs = new URLSearchParams();
       if (token) qs.set("pageToken", token);
-      const res = await fetch(`/api/admin/users?${qs.toString()}`, {
-        headers: { authorization: `Bearer ${idToken}` },
-        cache: "no-store",
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Failed to load users");
-      setUsers(data.users || []);
-      setPageToken(data.nextPageToken || null);
+      const resp = await fetchJsonWithToast<{ users: AdminUser[]; nextPageToken?: string }>(
+        `/api/admin/users?${qs.toString()}`,
+        { headers: { authorization: `Bearer ${idToken}` }, cache: "no-store" },
+        { show },
+        { failure: { title: "Load users failed" } }
+      );
+      if (!resp.ok) throw new Error(resp.error);
+      setUsers(resp.data?.users || []);
+      setPageToken(resp.data?.nextPageToken || null);
     } catch (e: any) {
       setError(e?.message || "Failed to load users");
     } finally {
@@ -55,17 +57,16 @@ export default function AdminUsersPage() {
     try {
       const idToken = await auth.currentUser?.getIdToken();
       if (!idToken) throw new Error("No ID token");
-      const res = await fetch(`/api/admin/users`, {
-        method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ uid, admin }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Failed to update role");
+      const resp = await fetchJsonWithToast(
+        `/api/admin/users`,
+        { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` }, body: JSON.stringify({ uid, admin }) },
+        { show },
+        { success: { title: admin ? "Admin granted" : "Admin revoked" }, failure: { title: "Update failed" } }
+      );
+      if (!resp.ok) throw new Error(resp.error);
       setUsers((prev) => prev.map((u) => (u.uid === uid ? { ...u, admin } : u)));
-      show({ title: admin ? "Admin granted" : "Admin revoked", variant: "success" });
     } catch (e: any) {
-      show({ title: "Update failed", description: e?.message || "Failed to update role", variant: "error" });
+      // toast handled in fetchJsonWithToast
     } finally {
       setSavingUid(null);
     }

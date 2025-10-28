@@ -5,6 +5,7 @@ import { db, auth } from "@/lib/firebase/client";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/Toast";
+import { fetchJsonWithToast } from "@/lib/client/fetchJson";
 
 type Contract = {
   id: string;
@@ -54,14 +55,16 @@ export default function ContractsPage() {
     try { fields = JSON.parse(fieldsJson || "{}"); } catch {}
     try {
       const idToken = await user.getIdToken();
-      const res = await fetch("/api/contracts/generate", {
-        method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ uid: user.uid, templateId, folderId, name, fields }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Failed to generate contract");
-      show({ title: "Contract generated", variant: "success" });
+      await fetchJsonWithToast(
+        "/api/contracts/generate",
+        {
+          method: "POST",
+          headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
+          body: JSON.stringify({ uid: user.uid, templateId, folderId, name, fields }),
+        },
+        { show },
+        { success: { title: "Contract generated" }, failure: { title: "Generate failed" } }
+      );
     } catch (err: any) {
       show({ title: "Generate failed", description: err?.message || "Error generating contract", variant: "error" });
     }
@@ -154,18 +157,20 @@ export default function ContractsPage() {
                         setVerifying(c.id);
                         setVerifyMsg((m) => ({ ...m, [c.id]: "Verifying…" }));
                         const idToken = await auth.currentUser?.getIdToken();
-                        const resp = await fetch("/api/contracts/verify", {
-                          method: "POST",
-                          headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
-                          body: JSON.stringify({ id: c.id }),
-                        });
-                        const data = await resp.json();
-                        if (resp.ok && data.ok) {
+                        const resp = await fetchJsonWithToast(
+                          "/api/contracts/verify",
+                          {
+                            method: "POST",
+                            headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
+                            body: JSON.stringify({ id: c.id }),
+                          },
+                          { show },
+                          { success: { title: "Signature verified" }, failure: { title: "Verification failed" } }
+                        );
+                        if (resp.ok && (resp.data as any)?.ok) {
                           setVerifyMsg((m) => ({ ...m, [c.id]: "Verified ✓" }));
-                          show({ title: "Signature verified", variant: "success" });
                         } else {
                           setVerifyMsg((m) => ({ ...m, [c.id]: `Failed ✗` }));
-                          show({ title: "Verification failed", description: data?.message || "Try again", variant: "error" });
                         }
                       } finally {
                         setVerifying(null);
