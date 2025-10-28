@@ -3,8 +3,7 @@ import * as f from "firebase-functions";
 import Stripe from "stripe";
 import fetch from "node-fetch";
 import { google } from "googleapis";
-import * as DropboxSign from "@dropbox/sign";
-import { PDFDocument, rgb } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -265,7 +264,7 @@ export const generateContract = f.https.onRequest(async (req, res) => {
     const idToken = authHeader.slice(7);
     const decoded = await admin.auth().verifyIdToken(idToken);
 
-    const { uid, templateId, folderId, name, fields, sendForSignature, signerEmail, signerName, ccEmail } = req.body || {};
+    const { uid, templateId, folderId, name, fields } = req.body || {};
     if (!templateId || !folderId || !name) return res.status(400).send("Missing templateId, folderId, name");
     if (!decoded.admin && decoded.uid !== uid) return res.status(403).send("Forbidden");
 
@@ -301,60 +300,13 @@ export const generateContract = f.https.onRequest(async (req, res) => {
     });
     const pdfFileId = pdfUpload.data.id!;
 
-    // 4) Optionally send for signature via Dropbox Sign (email delivery)
-    let signatureRequestId: string | null = null;
-    if (sendForSignature && signerEmail && process.env.DROPBOX_SIGN_API_KEY) {
-      const hs = new DropboxSign.SignatureRequestApi();
-      hs.username = process.env.DROPBOX_SIGN_API_KEY;
-      const signer = { emailAddress: String(signerEmail), name: String(signerName || signerEmail) } as any;
-      const reqBody: any = {
-        title: name,
-        subject: `Signature Request: ${name}`,
-        message: "Please review and sign the attached agreement.",
-        signers: [signer],
-        ccEmailAddresses: ccEmail ? [String(ccEmail)] : undefined,
-        fileUrls: [
-          // Use signed URL for the generated PDF
-          (await drive.files.get({ fileId: pdfFileId, alt: "media" /* placeholder */ })) &&
-            (await storage.bucket().file("/devnull").getSignedUrl({ action: "read", expires: Date.now() + 15 * 60 * 1000 })) &&
-            // Fallback if above fails: export URL; however we cannot trivially produce a direct URL without auth.
-            undefined,
-        ],
-      };
-      // Instead of fileUrls (since Drive signed URL from here is cumbersome), export bytes and send as file content is not supported by SDK directly without fs.
-      // Therefore, we send using file_url after creating a public link temporarily.
-      try {
-        const driveGet = await drive.files.get({ fileId: pdfFileId, fields: "webViewLink, webContentLink, permissions" });
-        // create anyone with link reader permission
-        await drive.permissions.create({ fileId: pdfFileId, requestBody: { role: "reader", type: "anyone" } });
-        const publicMeta = await drive.files.get({ fileId: pdfFileId, fields: "webViewLink, webContentLink" });
-        const fileUrl = publicMeta.data.webContentLink || publicMeta.data.webViewLink;
-        if (fileUrl) {
-          const sr = await hs.signatureRequestSend({
-            signatureRequestSendRequest: {
-              title: name,
-              subject: `Signature Request: ${name}`,
-              message: "Please review and sign the attached agreement.",
-              signers: [{ emailAddress: signer.emailAddress, name: signer.name }],
-              ccEmailAddresses: ccEmail ? [String(ccEmail)] : undefined,
-              fileUrls: [fileUrl],
-            },
-          });
-          signatureRequestId = (sr.body as any)?.signature_request?.signature_request_id || null;
-        }
-      } catch (e) {
-        console.error("Dropbox Sign send failed", e);
-      }
-    }
-
     // 5) Record in Firestore
     const ref = await db.collection("contracts").add({
       uid: uid || decoded.uid,
-      status: sendForSignature && signatureRequestId ? "sent_for_signature" : "generated",
+      status: "generated",
       driveFileId: newDocId,
       pdfFileId,
       signedUrl: null,
-      signatureRequestId: signatureRequestId || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -393,33 +345,7 @@ export const getDriveLinks = f.https.onRequest(async (req, res) => {
 });
 
 /** Dropbox Sign Webhook: mark contracts signed */
-export const dropboxSignWebhook = f.https.onRequest(async (req, res) => {
-  try {
-    const secret = process.env.DROPBOX_SIGN_WEBHOOK_SECRET;
-    if (!secret) return res.status(500).send("Webhook secret not set");
-    const header = (req.headers["dropbox-signature"] || req.headers["x-hellosign-signature"] || req.headers["x-dropbox-sign-signature"]) as string | undefined;
-    if (!header || header !== secret) return res.status(401).send("Invalid signature");
-
-    const body = req.body || {};
-    const type = body?.event?.event_type || body?.event?.type || "";
-    const sr = body?.signature_request || body?.data || {};
-    const srid = sr?.signature_request_id || sr?.id;
-    if (!srid) return res.json({ ok: true });
-
-    // Update contract by signatureRequestId
-    const snap = await db.collection("contracts").where("signatureRequestId", "==", srid).limit(1).get();
-    if (snap.empty) return res.json({ ok: true, note: "no-match" });
-    const ref = snap.docs[0].ref;
-
-    const filesUrl = sr?.files_url || sr?.final_copy_uri || null;
-    const status = type.includes("all_signed") || type.includes("fully_signed") || type.includes("signature_request_signed") ? "signed" : "sent_for_signature";
-    await ref.set({ status, signedUrl: filesUrl || null, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
-    return res.json({ ok: true });
-  } catch (e: any) {
-    console.error(e);
-    return res.status(500).send("Webhook error");
-  }
-});
+// Removed Dropbox Sign webhook — using Click-to-Sign path
 
 /** Click-to-Sign: stamp PDF and mark signed */
 export const signContract = f.https.onRequest(async (req, res) => {
@@ -433,10 +359,11 @@ export const signContract = f.https.onRequest(async (req, res) => {
     const { id, signerName, ip } = req.body || {};
     if (!id || !signerName) return res.status(400).json({ message: "Missing id or signerName" });
 
-    const ref = db.collection("contracts").doc(String(id));
-    const snap = await ref.get();
-    if (!snap.exists) return res.status(404).json({ message: "Contract not found" });
-    const data = snap.data() as any;
+    // Find contract by pdfFileId (Drive file ID used in UI for preview)
+    const snapQ = await db.collection("contracts").where("pdfFileId", "==", String(id)).limit(1).get();
+    if (snapQ.empty) return res.status(404).json({ message: "Contract not found" });
+    const ref = snapQ.docs[0].ref;
+    const data = snapQ.docs[0].data() as any;
     if (!data?.pdfFileId) return res.status(400).json({ message: "No PDF available to sign" });
     if (data?.uid && data.uid !== decoded.uid && !(decoded as any).admin) {
       return res.status(403).json({ message: "Forbidden" });
@@ -448,12 +375,49 @@ export const signContract = f.https.onRequest(async (req, res) => {
     const pdfResp = await drive.files.get({ fileId: data.pdfFileId, alt: "media" }, { responseType: "arraybuffer" });
     const inputBytes = Buffer.from(pdfResp.data as ArrayBuffer);
 
-    // Stamp signature footer
+    // Stamp footer on every page including logo and SHA-256 short
     const pdfDoc = await PDFDocument.load(inputBytes);
     const pages = pdfDoc.getPages();
-    const p = pages[pages.length - 1];
     const ts = new Date().toISOString();
-    p.drawText(`Signed by ${signerName}\nOn ${ts}\nIP ${ip || "unknown"}`, { x: 48, y: 48, size: 10, color: rgb(1, 0.27, 0) });
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    // Optional brand logo
+    let logoImg: any = null;
+    try {
+      const logoUrl = process.env.CONTRACT_FOOTER_LOGO_URL || "https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/aj-logo-dark.png";
+      const resp = await fetch(logoUrl);
+      const arr = await resp.arrayBuffer();
+      logoImg = await pdfDoc.embedPng(arr);
+    } catch {}
+
+    // Compute hash from canonical payload
+    const crypto = await import("node:crypto");
+    const payload = `${ref.id}|${decoded.uid}|${signerName}|${ts}|${ip || ""}`;
+    const hash = crypto.createHash("sha256").update(payload).digest("hex");
+    const hashShort = hash.slice(0, 12);
+
+    for (const p of pages) {
+      const { width } = p.getSize();
+      const bandH = 36;
+      const padX = 16;
+      const textSize = 9;
+      p.drawRectangle({ x: 0, y: 0, width, height: bandH, color: rgb(0, 0, 0), opacity: 0.85 });
+      if (logoImg) {
+        const logoH = 24;
+        const scale = logoH / (logoImg.height || 24);
+        const logoW = (logoImg.width || 24) * scale;
+        p.drawImage(logoImg, { x: padX, y: (bandH - logoH) / 2, width: logoW, height: logoH });
+        const line1 = `Signed by ${signerName} · ${ts} · IP ${ip || "unknown"}`;
+        const line2 = `Contract ID ${ref.id} · AJ DIGITAL LLC · audiojones.com`;
+        p.drawText(line1, { x: padX + logoW + 10, y: 20, size: textSize, color: rgb(1, 1, 1), font });
+        p.drawText(line2, { x: padX + logoW + 10, y: 8, size: textSize, color: rgb(1, 1, 1), font });
+      } else {
+        const line = `Signed by ${signerName} · ${ts} · IP ${ip || "unknown"} · Contract ${ref.id}`;
+        p.drawText(line, { x: padX, y: 14, size: textSize, color: rgb(1, 1, 1), font });
+      }
+      const hashLabel = `SHA256 ${hashShort}…`;
+      const hashW = font.widthOfTextAtSize(hashLabel, textSize);
+      p.drawText(hashLabel, { x: width - padX - hashW, y: 12, size: textSize, color: rgb(1, 0.84, 0), font });
+    }
     const stamped = await pdfDoc.save();
 
     // Upload stamped PDF to Storage and get signed URL
@@ -472,6 +436,9 @@ export const signContract = f.https.onRequest(async (req, res) => {
           ip: ip || null,
           date: admin.firestore.FieldValue.serverTimestamp(),
         },
+        signatureHash: hash,
+        signatureHashAlg: "SHA-256",
+        signaturePayload: { id: ref.id, uid: decoded.uid, signerName, signedAtISO: ts, ip: ip || null },
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true }
@@ -514,5 +481,23 @@ export const onContractSigned = f.firestore.document("contracts/{id}").onUpdate(
     }
   } catch (e) {
     console.error("onContractSigned error", e);
+  }
+});
+
+/** Verify signature hash by recomputing */
+export const verifySignature = f.https.onRequest(async (req, res) => {
+  try {
+    const id = (req.method === "GET" ? (req.query as any).id : req.body?.id) as string | undefined;
+    if (!id) return res.status(400).json({ ok: false, message: "id required" });
+    const snap = await db.collection("contracts").doc(String(id)).get();
+    if (!snap.exists) return res.status(404).json({ ok: false, message: "not found" });
+    const doc = snap.data() as any;
+    if (!doc?.signaturePayload || !doc?.signatureHash) return res.status(400).json({ ok: false, message: "no signature" });
+    const crypto = await import("node:crypto");
+    const pl = doc.signaturePayload;
+    const digest = crypto.createHash("sha256").update(`${pl.id}|${pl.uid}|${pl.signerName}|${pl.signedAtISO}|${pl.ip || ""}`).digest("hex");
+    return res.json({ ok: digest === doc.signatureHash, hash: doc.signatureHash, recomputed: digest });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, message: e?.message || "error" });
   }
 });

@@ -11,6 +11,7 @@ type Contract = {
   driveFileId?: string;
   pdfFileId?: string;
   signedUrl?: string | null;
+  signatureHash?: string | null;
 };
 
 export default function ContractsPage() {
@@ -147,6 +148,9 @@ export default function ContractsPage() {
                   >
                     Review & Sign
                   </a>
+                )}
+                {c.signatureHash && (
+                  <span className="text-xs text-white/60">Hash: {c.signatureHash.slice(0, 12)}…</span>
                 )}
               </div>
             </div>
