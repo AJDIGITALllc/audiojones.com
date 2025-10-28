@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/client";
+import { useToast } from "@/components/Toast";
 
 type AdminUser = {
   uid: string;
@@ -19,6 +20,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [savingUid, setSavingUid] = useState<string | null>(null);
+  const { show } = useToast();
 
   async function fetchUsers(token?: string | null) {
     setLoading(true);
@@ -61,8 +63,9 @@ export default function AdminUsersPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Failed to update role");
       setUsers((prev) => prev.map((u) => (u.uid === uid ? { ...u, admin } : u)));
+      show({ title: admin ? "Admin granted" : "Admin revoked", variant: "success" });
     } catch (e: any) {
-      alert(e?.message || "Failed to update role");
+      show({ title: "Update failed", description: e?.message || "Failed to update role", variant: "error" });
     } finally {
       setSavingUid(null);
     }
@@ -119,4 +122,3 @@ export default function AdminUsersPage() {
     </div>
   );
 }
-

@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { auth, googleProvider } from "@/lib/firebase/client";
+import { useToast } from "@/components/Toast";
 import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
 
 export default function AuthWidget() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { show } = useToast();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -22,7 +24,7 @@ export default function AuthWidget() {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
-      alert("Sign-in failed");
+      show({ title: "Sign-in failed", variant: "error" });
     }
   };
 
@@ -32,7 +34,7 @@ export default function AuthWidget() {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
-      alert("Sign-out failed");
+      show({ title: "Sign-out failed", variant: "error" });
     }
   };
 
@@ -65,4 +67,3 @@ export default function AuthWidget() {
     </div>
   );
 }
-
