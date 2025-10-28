@@ -80,6 +80,13 @@ export default function ContractsPage() {
           <input name="folderId" placeholder="Drive Folder ID" className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white" required />
           <input name="name" placeholder="Document Name" className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white" required />
           <textarea name="fields" placeholder='Merge fields JSON, e.g. {"client_name":"John"}' className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white sm:col-span-2" rows={3} />
+          <div className="sm:col-span-2 flex items-center gap-2 mt-2">
+            <input id="sendForSignature" name="sendForSignature" type="checkbox" className="h-4 w-4" />
+            <label htmlFor="sendForSignature" className="text-sm text-white/80">Send for eSignature (Dropbox Sign)</label>
+          </div>
+          <input name="signerEmail" placeholder="Signer Email" className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white" />
+          <input name="signerName" placeholder="Signer Name (optional)" className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white" />
+          <input name="ccEmail" placeholder="CC Email (optional)" className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white sm:col-span-2" />
           <div className="sm:col-span-2 text-right">
             <button type="submit" className="rounded-full bg-gradient-to-r from-[#FF4500] to-[#FFD700] text-black font-semibold px-5 py-2">Generate</button>
           </div>
@@ -116,7 +123,7 @@ export default function ContractsPage() {
                 )}
                 {c.pdfFileId && (
                   <button
-                    className="rounded-full border border-white/20 px-3 py-1 text-xs hover:bg白/10"
+                    className="rounded-full border border-white/20 px-3 py-1 text-xs hover:bg-white/10"
                     onClick={async () => {
                       const idToken = await auth.currentUser?.getIdToken();
                       const res = await fetch("/api/contracts/links", {

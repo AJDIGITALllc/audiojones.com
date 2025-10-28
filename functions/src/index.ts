@@ -390,3 +390,32 @@ export const getDriveLinks = f.https.onRequest(async (req, res) => {
     return res.status(500).send(e?.message || "Failed to get links");
   }
 });
+
+/** Dropbox Sign Webhook: mark contracts signed */
+export const dropboxSignWebhook = f.https.onRequest(async (req, res) => {
+  try {
+    const secret = process.env.DROPBOX_SIGN_WEBHOOK_SECRET;
+    if (!secret) return res.status(500).send("Webhook secret not set");
+    const header = (req.headers["dropbox-signature"] || req.headers["x-hellosign-signature"] || req.headers["x-dropbox-sign-signature"]) as string | undefined;
+    if (!header || header !== secret) return res.status(401).send("Invalid signature");
+
+    const body = req.body || {};
+    const type = body?.event?.event_type || body?.event?.type || "";
+    const sr = body?.signature_request || body?.data || {};
+    const srid = sr?.signature_request_id || sr?.id;
+    if (!srid) return res.json({ ok: true });
+
+    // Update contract by signatureRequestId
+    const snap = await db.collection("contracts").where("signatureRequestId", "==", srid).limit(1).get();
+    if (snap.empty) return res.json({ ok: true, note: "no-match" });
+    const ref = snap.docs[0].ref;
+
+    const filesUrl = sr?.files_url || sr?.final_copy_uri || null;
+    const status = type.includes("all_signed") || type.includes("fully_signed") || type.includes("signature_request_signed") ? "signed" : "sent_for_signature";
+    await ref.set({ status, signedUrl: filesUrl || null, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    return res.json({ ok: true });
+  } catch (e: any) {
+    console.error(e);
+    return res.status(500).send("Webhook error");
+  }
+});

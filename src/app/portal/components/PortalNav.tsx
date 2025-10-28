@@ -26,7 +26,7 @@ export default function PortalNav() {
     return () => unsub();
   }, []);
 
-  const items = isAdmin ? [...baseItems, { name: "CRM", path: "/portal/crm" }] : baseItems;
+  const items = isAdmin ? [...baseItems, { name: "CRM", path: "/portal/crm" }, { name: "Admin", path: "/portal/admin" }] : baseItems;
 
   return (
     <nav className="border-b border-white/10 bg-black/80 backdrop-blur-md sticky top-0 z-50">
