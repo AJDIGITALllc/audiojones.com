@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/Toast";
+import { useApi } from "@/lib/client/useApi";
 
 type WhopCustomer = {
   id: string;
@@ -16,15 +17,15 @@ export default function CRMPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { show } = useToast();
+  const api = useApi({ toast: { show } });
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
-        const res = await fetch("/api/whop/customers", { cache: "no-store" });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error || "Failed to load customers");
-        setRows(data?.data || []);
+        const res = await api.getJson<{ data: WhopCustomer[] }>("/api/whop/customers", { failure: { title: "CRM load failed" } });
+        if (!res.ok) throw new Error(res.error);
+        setRows(res.data?.data || []);
       } catch (e: any) {
         const msg = e?.message || "Error fetching customers";
         setError(msg);

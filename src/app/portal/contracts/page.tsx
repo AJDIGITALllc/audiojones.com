@@ -5,7 +5,7 @@ import { db, auth } from "@/lib/firebase/client";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/Toast";
-import { fetchJsonWithToast } from "@/lib/client/fetchJson";
+import { useApi } from "@/lib/client/useApi";
 
 type Contract = {
   id: string;
@@ -24,6 +24,7 @@ export default function ContractsPage() {
   const [verifying, setVerifying] = useState<string | null>(null);
   const [verifyMsg, setVerifyMsg] = useState<Record<string, string>>({});
   const { show } = useToast();
+  const api = useApi({ toast: { show } });
 
   useEffect(() => {
     if (!user) return;
@@ -54,15 +55,9 @@ export default function ContractsPage() {
     let fields: Record<string, string> = {};
     try { fields = JSON.parse(fieldsJson || "{}"); } catch {}
     try {
-      const idToken = await user.getIdToken();
-      await fetchJsonWithToast(
+      await api.postJson(
         "/api/contracts/generate",
-        {
-          method: "POST",
-          headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
-          body: JSON.stringify({ uid: user.uid, templateId, folderId, name, fields }),
-        },
-        { show },
+        { uid: user.uid, templateId, folderId, name, fields },
         { success: { title: "Contract generated" }, failure: { title: "Generate failed" } }
       );
     } catch (err: any) {
@@ -156,15 +151,9 @@ export default function ContractsPage() {
                       try {
                         setVerifying(c.id);
                         setVerifyMsg((m) => ({ ...m, [c.id]: "Verifying…" }));
-                        const idToken = await auth.currentUser?.getIdToken();
-                        const resp = await fetchJsonWithToast(
+                        const resp = await api.postJson(
                           "/api/contracts/verify",
-                          {
-                            method: "POST",
-                            headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
-                            body: JSON.stringify({ id: c.id }),
-                          },
-                          { show },
+                          { id: c.id },
                           { success: { title: "Signature verified" }, failure: { title: "Verification failed" } }
                         );
                         if (resp.ok && (resp.data as any)?.ok) {

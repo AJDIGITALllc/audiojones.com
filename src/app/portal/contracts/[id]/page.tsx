@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase/client";
 import { collection, query, where, limit, getDocs } from "firebase/firestore";
 import { useToast } from "@/components/Toast";
-import { fetchJsonWithToast } from "@/lib/client/fetchJson";
+import { useApi } from "@/lib/client/useApi";
 
 export default function ContractSignPage() {
   const params = useParams<{ id: string }>();
@@ -17,6 +17,7 @@ export default function ContractSignPage() {
   const [msg, setMsg] = useState("");
   const [meta, setMeta] = useState<{ signedUrl?: string; signatureHash?: string } | null>(null);
   const { show } = useToast();
+  const api = useApi({ toast: { show } });
 
   useEffect(() => {
     (async () => {
@@ -37,16 +38,9 @@ export default function ContractSignPage() {
     if (!agree || !name) return setMsg("Please agree and enter your full name.");
     try {
       setLoading(true);
-      const idToken = await auth.currentUser?.getIdToken();
-      if (!idToken) throw new Error("Not authenticated");
-      const resp = await fetchJsonWithToast(
+      const resp = await api.postJson(
         "/api/contracts/sign",
-        {
-          method: "POST",
-          headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
-          body: JSON.stringify({ id, signerName: name, ip: (typeof window !== "undefined" ? (window as any).clientIp : undefined) }),
-        },
-        { show },
+        { id, signerName: name, ip: (typeof window !== "undefined" ? (window as any).clientIp : undefined) },
         { success: { title: "Contract signed" }, failure: { title: "Sign failed" } }
       );
       if (!resp.ok) throw new Error(resp.error || "Failed to sign");

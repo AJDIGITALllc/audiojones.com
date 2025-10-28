@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/client";
 import { useToast } from "@/components/Toast";
-import { fetchJsonWithToast } from "@/lib/client/fetchJson";
+import { useApi } from "@/lib/client/useApi";
 
 type AdminUser = {
   uid: string;
@@ -22,6 +22,7 @@ export default function AdminUsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [savingUid, setSavingUid] = useState<string | null>(null);
   const { show } = useToast();
+  const api = useApi({ toast: { show } });
 
   async function fetchUsers(token?: string | null) {
     setLoading(true);
@@ -31,12 +32,7 @@ export default function AdminUsersPage() {
       if (!idToken) throw new Error("No ID token");
       const qs = new URLSearchParams();
       if (token) qs.set("pageToken", token);
-      const resp = await fetchJsonWithToast<{ users: AdminUser[]; nextPageToken?: string }>(
-        `/api/admin/users?${qs.toString()}`,
-        { headers: { authorization: `Bearer ${idToken}` }, cache: "no-store" },
-        { show },
-        { failure: { title: "Load users failed" } }
-      );
+      const resp = await api.getJson<{ users: AdminUser[]; nextPageToken?: string }>(`/api/admin/users?${qs.toString()}`, { failure: { title: "Load users failed" } });
       if (!resp.ok) throw new Error(resp.error);
       setUsers(resp.data?.users || []);
       setPageToken(resp.data?.nextPageToken || null);
@@ -57,12 +53,7 @@ export default function AdminUsersPage() {
     try {
       const idToken = await auth.currentUser?.getIdToken();
       if (!idToken) throw new Error("No ID token");
-      const resp = await fetchJsonWithToast(
-        `/api/admin/users`,
-        { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` }, body: JSON.stringify({ uid, admin }) },
-        { show },
-        { success: { title: admin ? "Admin granted" : "Admin revoked" }, failure: { title: "Update failed" } }
-      );
+      const resp = await api.postJson(`/api/admin/users`, { uid, admin }, { success: { title: admin ? "Admin granted" : "Admin revoked" }, failure: { title: "Update failed" } });
       if (!resp.ok) throw new Error(resp.error);
       setUsers((prev) => prev.map((u) => (u.uid === uid ? { ...u, admin } : u)));
     } catch (e: any) {
