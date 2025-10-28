@@ -19,6 +19,8 @@ export default function ContractsPage() {
   const [items, setItems] = useState<Contract[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [verifying, setVerifying] = useState<string | null>(null);
+  const [verifyMsg, setVerifyMsg] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!user) return;
@@ -81,13 +83,6 @@ export default function ContractsPage() {
           <input name="folderId" placeholder="Drive Folder ID" className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white" required />
           <input name="name" placeholder="Document Name" className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white" required />
           <textarea name="fields" placeholder='Merge fields JSON, e.g. {"client_name":"John"}' className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white sm:col-span-2" rows={3} />
-          <div className="sm:col-span-2 flex items-center gap-2 mt-2">
-            <input id="sendForSignature" name="sendForSignature" type="checkbox" className="h-4 w-4" />
-            <label htmlFor="sendForSignature" className="text-sm text-white/80">Send for eSignature (Dropbox Sign)</label>
-          </div>
-          <input name="signerEmail" placeholder="Signer Email" className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white" />
-          <input name="signerName" placeholder="Signer Name (optional)" className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white" />
-          <input name="ccEmail" placeholder="CC Email (optional)" className="rounded-md bg-white/10 px-3 py-2 border border-white/10 text-white sm:col-span-2" />
           <div className="sm:col-span-2 text-right">
             <button type="submit" className="rounded-full bg-gradient-to-r from-[#FF4500] to-[#FFD700] text-black font-semibold px-5 py-2">Generate</button>
           </div>
@@ -153,24 +148,46 @@ export default function ContractsPage() {
                   <button
                     className="rounded-full border border-white/20 px-3 py-1 text-xs hover:bg-white/10"
                     onClick={async () => {
-                      const idToken = await auth.currentUser?.getIdToken();
-                      const resp = await fetch("/api/contracts/verify", {
-                        method: "POST",
-                        headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
-                        body: JSON.stringify({ id: c.id }),
-                      });
-                      const data = await resp.json();
-                      if (resp.ok && data.ok) alert(`Verified. Hash: ${data.hash}`);
-                      else alert(`Verification failed: ${data?.message || "error"}`);
+                      try {
+                        setVerifying(c.id);
+                        setVerifyMsg((m) => ({ ...m, [c.id]: "Verifying…" }));
+                        const idToken = await auth.currentUser?.getIdToken();
+                        const resp = await fetch("/api/contracts/verify", {
+                          method: "POST",
+                          headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
+                          body: JSON.stringify({ id: c.id }),
+                        });
+                        const data = await resp.json();
+                        if (resp.ok && data.ok) setVerifyMsg((m) => ({ ...m, [c.id]: "Verified ✓" }));
+                        else setVerifyMsg((m) => ({ ...m, [c.id]: `Failed ✗` }));
+                      } finally {
+                        setVerifying(null);
+                      }
                     }}
                   >
-                    Verify
+                    {verifying === c.id ? "Verifying…" : "Verify"}
                   </button>
                 )}
                 {c.signatureHash && (
-                  <span className="text-xs text-white/60">Hash: {c.signatureHash.slice(0, 12)}…</span>
+                  <>
+                    <span className="text-xs text-white/60">Hash: {c.signatureHash.slice(0, 12)}…</span>
+                    <button
+                      className="rounded-full border border-white/20 px-2 py-1 text-[10px] hover:bg-white/10"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(c.signatureHash || "");
+                          setVerifyMsg((m) => ({ ...m, [c.id]: "Hash copied" }));
+                        } catch {}
+                      }}
+                    >
+                      Copy Hash
+                    </button>
+                  </>
                 )}
               </div>
+              {verifyMsg[c.id] && (
+                <div className="text-[11px] text-white/60 mt-1">{verifyMsg[c.id]}</div>
+              )}
             </div>
           ))}
         </div>
