@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
+import { useToast } from "@/components/Toast";
 
 declare global {
   interface Window {
@@ -14,6 +15,7 @@ export default function ImageKitUploader() {
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState("");
   const [result, setResult] = useState<{ url: string; name: string } | null>(null);
+  const { show } = useToast();
 
   useEffect(() => {
     // When the SDK is loaded, initialize ImageKit
@@ -52,12 +54,14 @@ export default function ImageKitUploader() {
       });
       setResult({ url: resp.url, name: resp.name });
       setStatus("Upload complete");
+      show({ title: "Uploaded", description: resp.name, variant: "success" });
       // eslint-disable-next-line no-console
       console.log(resp);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);
       setStatus("Upload failed");
+      show({ title: "Upload failed", variant: "error" });
     }
   };
 

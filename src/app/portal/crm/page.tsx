@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useToast } from "@/components/Toast";
 
 type WhopCustomer = {
   id: string;
@@ -14,6 +15,7 @@ export default function CRMPage() {
   const [rows, setRows] = useState<WhopCustomer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { show } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -24,7 +26,9 @@ export default function CRMPage() {
         if (!res.ok) throw new Error(data?.error || "Failed to load customers");
         setRows(data?.data || []);
       } catch (e: any) {
-        setError(e?.message || "Error fetching customers");
+        const msg = e?.message || "Error fetching customers";
+        setError(msg);
+        show({ title: "CRM load failed", description: msg, variant: "error" });
       } finally {
         setLoading(false);
       }
@@ -55,4 +59,3 @@ export default function CRMPage() {
     </div>
   );
 }
-

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/components/Toast";
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
+  const { show } = useToast();
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,9 +26,12 @@ export default function NewsletterForm() {
       setMessage("Subscribed. Check your inbox.");
       setEmail("");
       setName("");
+      show({ title: "Subscribed", description: "Check your inbox", variant: "success" });
     } catch (e: any) {
       setStatus("error");
-      setMessage(e?.message || "Something went wrong");
+      const m = e?.message || "Something went wrong";
+      setMessage(m);
+      show({ title: "Subscribe failed", description: m, variant: "error" });
     }
   };
 
@@ -66,4 +71,3 @@ export default function NewsletterForm() {
     </section>
   );
 }
-

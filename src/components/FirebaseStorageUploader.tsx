@@ -4,12 +4,14 @@ import { useState } from "react";
 import { storage, auth } from "@/lib/firebase/client";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
+import { useToast } from "@/components/Toast";
 
 export default function FirebaseStorageUploader() {
   const [progress, setProgress] = useState<number>(0);
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userUid, setUserUid] = useState<string | null>(null);
+  const { show } = useToast();
 
   // Track auth for path scoping
   onAuthStateChanged(auth, (u) => setUserUid(u?.uid || null));
@@ -31,10 +33,15 @@ export default function FirebaseStorageUploader() {
         const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
         setProgress(pct);
       },
-      (err) => setError(err?.message || "Upload failed"),
+      (err) => {
+        const m = err?.message || "Upload failed";
+        setError(m);
+        show({ title: "Upload failed", description: m, variant: "error" });
+      },
       async () => {
         const downloadURL = await getDownloadURL(task.snapshot.ref);
         setUrl(downloadURL);
+        show({ title: "Uploaded", variant: "success" });
       }
     );
   };
@@ -54,4 +61,3 @@ export default function FirebaseStorageUploader() {
     </div>
   );
 }
-
