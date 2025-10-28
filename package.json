@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated",
     "clsx": "^2.1.1",
+    "imagekit": "^6.0.0",
     "lucide-react": "^0.546.0",
     "next": "16.0.0",
     "react": "19.2.0",
