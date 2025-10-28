@@ -8,25 +8,25 @@ service cloud.firestore {
 
     // Bookings – owner read; writes from Functions only
     match /bookings/{id} {
-      allow read: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
       allow write: if false; // Functions only
     }
 
     // Contracts – owner read; Functions write
     match /contracts/{id} {
-      allow read: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
       allow write: if false; // Functions only
     }
 
     // Payments – owner read; Functions write
     match /payments/{id} {
-      allow read: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
       allow write: if false; // Functions only
     }
 
     // Subscriptions – owner read; Functions write
     match /subscriptions/{id} {
-      allow read: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
       allow write: if false; // Functions only
     }
 
@@ -38,7 +38,7 @@ service cloud.firestore {
 
     // Licenses – owner read; Functions write
     match /licenses/{id} {
-      allow read: if request.auth != null && request.resource.data.email == request.auth.token.email;
+      allow read: if request.auth != null && resource.data.email == request.auth.token.email;
       allow write: if false; // Functions only
     }
 
