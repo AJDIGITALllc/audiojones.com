@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/Toast";
 import { useApi } from "@/lib/client/useApi";
+import { useRequireAuth } from "@/lib/client/useRequireAuth";
 
 type WhopCustomer = {
   id: string;
@@ -13,6 +14,7 @@ type WhopCustomer = {
 };
 
 export default function CRMPage() {
+  useRequireAuth({ redirectTo: "/portal", requireAdmin: true });
   const [rows, setRows] = useState<WhopCustomer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/client";
 import { useToast } from "@/components/Toast";
 import { useApi } from "@/lib/client/useApi";
+import { useRequireAuth } from "@/lib/client/useRequireAuth";
 
 type AdminUser = {
   uid: string;
@@ -16,6 +17,7 @@ type AdminUser = {
 };
 
 export default function AdminUsersPage() {
+  useRequireAuth({ redirectTo: "/portal", requireAdmin: true });
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [pageToken, setPageToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
