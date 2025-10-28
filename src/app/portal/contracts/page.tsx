@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { db, auth } from "@/lib/firebase/client";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/Toast";
 
 type Contract = {
   id: string;
@@ -21,6 +22,7 @@ export default function ContractsPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [verifying, setVerifying] = useState<string | null>(null);
   const [verifyMsg, setVerifyMsg] = useState<Record<string, string>>({});
+  const { show } = useToast();
 
   useEffect(() => {
     if (!user) return;
@@ -59,9 +61,9 @@ export default function ContractsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Failed to generate contract");
-      alert("Contract generated.");
+      show({ title: "Contract generated", variant: "success" });
     } catch (err: any) {
-      alert(err?.message || "Error generating contract");
+      show({ title: "Generate failed", description: err?.message || "Error generating contract", variant: "error" });
     }
   }
 
@@ -158,8 +160,13 @@ export default function ContractsPage() {
                           body: JSON.stringify({ id: c.id }),
                         });
                         const data = await resp.json();
-                        if (resp.ok && data.ok) setVerifyMsg((m) => ({ ...m, [c.id]: "Verified ✓" }));
-                        else setVerifyMsg((m) => ({ ...m, [c.id]: `Failed ✗` }));
+                        if (resp.ok && data.ok) {
+                          setVerifyMsg((m) => ({ ...m, [c.id]: "Verified ✓" }));
+                          show({ title: "Signature verified", variant: "success" });
+                        } else {
+                          setVerifyMsg((m) => ({ ...m, [c.id]: `Failed ✗` }));
+                          show({ title: "Verification failed", description: data?.message || "Try again", variant: "error" });
+                        }
                       } finally {
                         setVerifying(null);
                       }
@@ -177,6 +184,7 @@ export default function ContractsPage() {
                         try {
                           await navigator.clipboard.writeText(c.signatureHash || "");
                           setVerifyMsg((m) => ({ ...m, [c.id]: "Hash copied" }));
+                          show({ title: "Hash copied", variant: "info" });
                         } catch {}
                       }}
                     >

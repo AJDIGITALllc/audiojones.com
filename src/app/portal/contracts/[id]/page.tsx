@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase/client";
 import { collection, query, where, limit, getDocs } from "firebase/firestore";
+import { useToast } from "@/components/Toast";
 
 export default function ContractSignPage() {
   const params = useParams<{ id: string }>();
@@ -14,6 +15,7 @@ export default function ContractSignPage() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
   const [meta, setMeta] = useState<{ signedUrl?: string; signatureHash?: string } | null>(null);
+  const { show } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -44,9 +46,11 @@ export default function ContractSignPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Failed to sign");
       setMsg("Signed successfully.");
+      show({ title: "Contract signed", variant: "success" });
       router.push("/portal/contracts");
     } catch (e: any) {
       setMsg(e?.message || "Error");
+      show({ title: "Sign failed", description: e?.message || "Error", variant: "error" });
     } finally {
       setLoading(false);
     }

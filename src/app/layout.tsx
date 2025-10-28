@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { ToastProvider } from "@/components/Toast";
 import Footer from "@/components/Footer";
 import "./globals.css";
 
@@ -43,8 +44,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}>
-        {children}
-        <Footer />
+        <ToastProvider>
+          {children}
+          <Footer />
+        </ToastProvider>
         <Script
           src="https://widget.beacon.ai/audiojones?theme=dark"
           strategy="afterInteractive"
