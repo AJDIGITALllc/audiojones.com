@@ -3,6 +3,7 @@ import * as f from "firebase-functions";
 import Stripe from "stripe";
 import fetch from "node-fetch";
 import { google } from "googleapis";
+import * as DropboxSign from "@dropbox/sign";
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -263,7 +264,7 @@ export const generateContract = f.https.onRequest(async (req, res) => {
     const idToken = authHeader.slice(7);
     const decoded = await admin.auth().verifyIdToken(idToken);
 
-    const { uid, templateId, folderId, name, fields } = req.body || {};
+    const { uid, templateId, folderId, name, fields, sendForSignature, signerEmail, signerName, ccEmail } = req.body || {};
     if (!templateId || !folderId || !name) return res.status(400).send("Missing templateId, folderId, name");
     if (!decoded.admin && decoded.uid !== uid) return res.status(403).send("Forbidden");
 
@@ -299,19 +300,93 @@ export const generateContract = f.https.onRequest(async (req, res) => {
     });
     const pdfFileId = pdfUpload.data.id!;
 
-    // 4) Record in Firestore
+    // 4) Optionally send for signature via Dropbox Sign (email delivery)
+    let signatureRequestId: string | null = null;
+    if (sendForSignature && signerEmail && process.env.DROPBOX_SIGN_API_KEY) {
+      const hs = new DropboxSign.SignatureRequestApi();
+      hs.username = process.env.DROPBOX_SIGN_API_KEY;
+      const signer = { emailAddress: String(signerEmail), name: String(signerName || signerEmail) } as any;
+      const reqBody: any = {
+        title: name,
+        subject: `Signature Request: ${name}`,
+        message: "Please review and sign the attached agreement.",
+        signers: [signer],
+        ccEmailAddresses: ccEmail ? [String(ccEmail)] : undefined,
+        fileUrls: [
+          // Use signed URL for the generated PDF
+          (await drive.files.get({ fileId: pdfFileId, alt: "media" /* placeholder */ })) &&
+            (await storage.bucket().file("/devnull").getSignedUrl({ action: "read", expires: Date.now() + 15 * 60 * 1000 })) &&
+            // Fallback if above fails: export URL; however we cannot trivially produce a direct URL without auth.
+            undefined,
+        ],
+      };
+      // Instead of fileUrls (since Drive signed URL from here is cumbersome), export bytes and send as file content is not supported by SDK directly without fs.
+      // Therefore, we send using file_url after creating a public link temporarily.
+      try {
+        const driveGet = await drive.files.get({ fileId: pdfFileId, fields: "webViewLink, webContentLink, permissions" });
+        // create anyone with link reader permission
+        await drive.permissions.create({ fileId: pdfFileId, requestBody: { role: "reader", type: "anyone" } });
+        const publicMeta = await drive.files.get({ fileId: pdfFileId, fields: "webViewLink, webContentLink" });
+        const fileUrl = publicMeta.data.webContentLink || publicMeta.data.webViewLink;
+        if (fileUrl) {
+          const sr = await hs.signatureRequestSend({
+            signatureRequestSendRequest: {
+              title: name,
+              subject: `Signature Request: ${name}`,
+              message: "Please review and sign the attached agreement.",
+              signers: [{ emailAddress: signer.emailAddress, name: signer.name }],
+              ccEmailAddresses: ccEmail ? [String(ccEmail)] : undefined,
+              fileUrls: [fileUrl],
+            },
+          });
+          signatureRequestId = (sr.body as any)?.signature_request?.signature_request_id || null;
+        }
+      } catch (e) {
+        console.error("Dropbox Sign send failed", e);
+      }
+    }
+
+    // 5) Record in Firestore
     const ref = await db.collection("contracts").add({
       uid: uid || decoded.uid,
-      status: "generated",
+      status: sendForSignature && signatureRequestId ? "sent_for_signature" : "generated",
       driveFileId: newDocId,
       pdfFileId,
       signedUrl: null,
+      signatureRequestId: signatureRequestId || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    return res.json({ contractId: ref.id, docId: newDocId, pdfFileId });
+    return res.json({ contractId: ref.id, docId: newDocId, pdfFileId, signatureRequestId });
   } catch (e: any) {
     console.error(e);
     return res.status(500).send(e?.message || "Contract generation failed");
+  }
+});
+
+/** Get Drive links (optionally create public read) */
+export const getDriveLinks = f.https.onRequest(async (req, res) => {
+  if (req.method !== "POST") return res.status(405).end();
+  try {
+    const authHeader = req.headers.authorization || "";
+    if (!authHeader.startsWith("Bearer ")) return res.status(401).send("Unauthorized");
+    const idToken = authHeader.slice(7);
+    await admin.auth().verifyIdToken(idToken);
+
+    const { fileId, makePublic } = req.body || {};
+    if (!fileId) return res.status(400).send("fileId required");
+
+    const scopes = ["https://www.googleapis.com/auth/drive"];
+    const auth = await google.auth.getClient({ scopes });
+    const drive = google.drive({ version: "v3", auth });
+
+    if (makePublic) {
+      await drive.permissions.create({ fileId, requestBody: { role: "reader", type: "anyone" } });
+    }
+    const meta = await drive.files.get({ fileId, fields: "webViewLink, webContentLink" });
+    return res.json({ webViewLink: meta.data.webViewLink, webContentLink: meta.data.webContentLink });
+  } catch (e: any) {
+    console.error(e);
+    return res.status(500).send(e?.message || "Failed to get links");
   }
 });

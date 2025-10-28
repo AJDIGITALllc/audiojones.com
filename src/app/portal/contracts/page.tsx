@@ -91,11 +91,49 @@ export default function ContractsPage() {
       ) : (
         <div className="divide-y divide-white/10 rounded-xl border border-white/10 bg-white/5">
           {items.map((c) => (
-            <div key={c.id} className="grid grid-cols-4 gap-4 p-4">
+            <div key={c.id} className="grid grid-cols-1 sm:grid-cols-5 gap-4 p-4 items-center">
               <div className="text-white/90">{c.id}</div>
               <div className="text-white/80">{c.status || "generated"}</div>
               <div className="text-white/70">Doc: {c.driveFileId || "—"}</div>
               <div className="text-white/70">PDF: {c.pdfFileId || "—"}</div>
+              <div className="flex gap-2">
+                {c.driveFileId && (
+                  <button
+                    className="rounded-full border border-white/20 px-3 py-1 text-xs hover:bg-white/10"
+                    onClick={async () => {
+                      const idToken = await auth.currentUser?.getIdToken();
+                      const res = await fetch("/api/contracts/links", {
+                        method: "POST",
+                        headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
+                        body: JSON.stringify({ fileId: c.driveFileId, makePublic: true }),
+                      });
+                      const data = await res.json();
+                      if (res.ok && data.webViewLink) window.open(data.webViewLink, "_blank");
+                    }}
+                  >
+                    Open Doc
+                  </button>
+                )}
+                {c.pdfFileId && (
+                  <button
+                    className="rounded-full border border-white/20 px-3 py-1 text-xs hover:bg白/10"
+                    onClick={async () => {
+                      const idToken = await auth.currentUser?.getIdToken();
+                      const res = await fetch("/api/contracts/links", {
+                        method: "POST",
+                        headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
+                        body: JSON.stringify({ fileId: c.pdfFileId, makePublic: true }),
+                      });
+                      const data = await res.json();
+                      if (res.ok && (data.webContentLink || data.webViewLink)) {
+                        window.open(data.webContentLink || data.webViewLink, "_blank");
+                      }
+                    }}
+                  >
+                    Open PDF
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
