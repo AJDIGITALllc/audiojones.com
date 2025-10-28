@@ -2,7 +2,8 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { auth } from "@/lib/firebase/client";
+import { auth, db } from "@/lib/firebase/client";
+import { collection, query, where, limit, getDocs } from "firebase/firestore";
 
 export default function ContractSignPage() {
   const params = useParams<{ id: string }>();
@@ -12,6 +13,21 @@ export default function ContractSignPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
+  const [meta, setMeta] = useState<{ signedUrl?: string; signatureHash?: string } | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      if (!id) return;
+      try {
+        const q = query(collection(db, "contracts"), where("pdfFileId", "==", String(id)), limit(1));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const d = snap.docs[0].data() as any;
+          setMeta({ signedUrl: d.signedUrl, signatureHash: d.signatureHash });
+        }
+      } catch {}
+    })();
+  }, [id]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,6 +61,14 @@ export default function ContractSignPage() {
           className="w-full h-[70vh] rounded-lg border border-white/10"
         />
       )}
+      {meta && (
+        <div className="text-sm text-white/70">
+          {meta.signedUrl && (
+            <a href={meta.signedUrl} target="_blank" className="underline text-[#FFD700] mr-4">View signed PDF</a>
+          )}
+          {meta.signatureHash && <span>Hash: {meta.signatureHash.slice(0, 12)}…</span>}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="h-4 w-4" />
@@ -69,4 +93,3 @@ export default function ContractSignPage() {
     </div>
   );
 }
-

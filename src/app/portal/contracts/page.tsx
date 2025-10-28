@@ -149,6 +149,24 @@ export default function ContractsPage() {
                     Review & Sign
                   </a>
                 )}
+                {c.status === "signed" && (
+                  <button
+                    className="rounded-full border border-white/20 px-3 py-1 text-xs hover:bg-white/10"
+                    onClick={async () => {
+                      const idToken = await auth.currentUser?.getIdToken();
+                      const resp = await fetch("/api/contracts/verify", {
+                        method: "POST",
+                        headers: { "content-type": "application/json", authorization: `Bearer ${idToken}` },
+                        body: JSON.stringify({ id: c.id }),
+                      });
+                      const data = await resp.json();
+                      if (resp.ok && data.ok) alert(`Verified. Hash: ${data.hash}`);
+                      else alert(`Verification failed: ${data?.message || "error"}`);
+                    }}
+                  >
+                    Verify
+                  </button>
+                )}
                 {c.signatureHash && (
                   <span className="text-xs text-white/60">Hash: {c.signatureHash.slice(0, 12)}…</span>
                 )}
