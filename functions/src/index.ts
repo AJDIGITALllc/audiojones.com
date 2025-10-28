@@ -159,3 +159,63 @@ export const publishTestimonial = f.https.onRequest(async (req, res) => {
   return res.json({ published: true });
 });
 
+/** Whop Webhook (order.created, license.activated) */
+export const whopWebhook = f.https.onRequest(async (req, res) => {
+  // Basic shared-secret verification. Configure your secret in Functions env.
+  const secret = process.env.WHOP_WEBHOOK_SECRET;
+  if (!secret) return res.status(500).send("WHOP_WEBHOOK_SECRET not set");
+
+  const headerSig = (req.headers["whop-signature"] || req.headers["x-whop-signature"] || "") as string;
+  const auth = (req.headers["authorization"] || "") as string; // allow Bearer <secret>
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  const ok = headerSig === secret || token === secret;
+  if (!ok) return res.status(401).send("Invalid signature");
+
+  const event = req.body || {};
+  const type = event.type || event.event || "unknown";
+  const data = event.data || event.payload || {};
+
+  try {
+    switch (type) {
+      case "order.created": {
+        const id = String(data.id || data.order_id || Date.now());
+        await db.collection("orders").doc(id).set(
+          {
+            id,
+            email: data.customer?.email ?? null,
+            name: data.customer?.name ?? null,
+            amount: data.amount ?? null,
+            product: data.product?.name ?? data.product_name ?? null,
+            status: data.status ?? "created",
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+        break;
+      }
+      case "license.activated": {
+        const id = String(data.id || data.license_id || Date.now());
+        await db.collection("licenses").doc(id).set(
+          {
+            id,
+            uid: data.customer?.id ?? null,
+            email: data.customer?.email ?? null,
+            product: data.product?.name ?? data.product_name ?? null,
+            active: true,
+            expires: data.expires_at ?? null,
+            status: data.status ?? "active",
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+        break;
+      }
+      default:
+        // noop for other events
+        break;
+    }
+    return res.json({ ok: true });
+  } catch (e: any) {
+    return res.status(500).json({ error: e?.message || "Failed to handle webhook" });
+  }
+});

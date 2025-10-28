@@ -30,6 +30,18 @@ service cloud.firestore {
       allow write: if false; // Functions only
     }
 
+    // Orders – admin only read; Functions write (no direct client writes)
+    match /orders/{id} {
+      allow read: if request.auth != null && request.auth.token.admin == true;
+      allow write: if false; // Functions only
+    }
+
+    // Licenses – owner read; Functions write
+    match /licenses/{id} {
+      allow read: if request.auth != null && request.resource.data.email == request.auth.token.email;
+      allow write: if false; // Functions only
+    }
+
     // Files – owner read; owner write; public read if visibility == "public"
     match /files/{id} {
       allow read: if resource.data.visibility == "public" || (request.auth != null && request.auth.uid == resource.data.uid);
@@ -37,4 +49,3 @@ service cloud.firestore {
     }
   }
 }
-
