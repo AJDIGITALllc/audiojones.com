@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import fetch from "node-fetch";
 import { google } from "googleapis";
 import * as DropboxSign from "@dropbox/sign";
+import { PDFDocument, rgb } from "pdf-lib";
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -417,5 +418,101 @@ export const dropboxSignWebhook = f.https.onRequest(async (req, res) => {
   } catch (e: any) {
     console.error(e);
     return res.status(500).send("Webhook error");
+  }
+});
+
+/** Click-to-Sign: stamp PDF and mark signed */
+export const signContract = f.https.onRequest(async (req, res) => {
+  if (req.method !== "POST") return res.status(405).end();
+  try {
+    const authHeader = req.headers.authorization || "";
+    if (!authHeader.startsWith("Bearer ")) return res.status(401).send("Unauthorized");
+    const idToken = authHeader.slice(7);
+    const decoded = await admin.auth().verifyIdToken(idToken);
+
+    const { id, signerName, ip } = req.body || {};
+    if (!id || !signerName) return res.status(400).json({ message: "Missing id or signerName" });
+
+    const ref = db.collection("contracts").doc(String(id));
+    const snap = await ref.get();
+    if (!snap.exists) return res.status(404).json({ message: "Contract not found" });
+    const data = snap.data() as any;
+    if (!data?.pdfFileId) return res.status(400).json({ message: "No PDF available to sign" });
+    if (data?.uid && data.uid !== decoded.uid && !(decoded as any).admin) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    // Download PDF bytes from Drive
+    const driveAuth = await google.auth.getClient({ scopes: ["https://www.googleapis.com/auth/drive"] });
+    const drive = google.drive({ version: "v3", auth: driveAuth });
+    const pdfResp = await drive.files.get({ fileId: data.pdfFileId, alt: "media" }, { responseType: "arraybuffer" });
+    const inputBytes = Buffer.from(pdfResp.data as ArrayBuffer);
+
+    // Stamp signature footer
+    const pdfDoc = await PDFDocument.load(inputBytes);
+    const pages = pdfDoc.getPages();
+    const p = pages[pages.length - 1];
+    const ts = new Date().toISOString();
+    p.drawText(`Signed by ${signerName}\nOn ${ts}\nIP ${ip || "unknown"}`, { x: 48, y: 48, size: 10, color: rgb(1, 0.27, 0) });
+    const stamped = await pdfDoc.save();
+
+    // Upload stamped PDF to Storage and get signed URL
+    const bucket = admin.storage().bucket();
+    const dest = `contracts/signed/${id}.pdf`;
+    await bucket.file(dest).save(Buffer.from(stamped), { contentType: "application/pdf" });
+    const [signedUrl] = await bucket.file(dest).getSignedUrl({ action: "read", expires: "2099-01-01" });
+
+    await ref.set(
+      {
+        status: "signed",
+        signedUrl,
+        signer: {
+          uid: decoded.uid,
+          name: signerName,
+          ip: ip || null,
+          date: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    return res.json({ message: "Signed", signedUrl });
+  } catch (e: any) {
+    console.error(e);
+    return res.status(500).json({ message: e?.message || "Signing failed" });
+  }
+});
+
+/** On contract signed → onboarding */
+export const onContractSigned = f.firestore.document("contracts/{id}").onUpdate(async (change, context) => {
+  const before = change.before.data() as any;
+  const after = change.after.data() as any;
+  if (!after || before?.status === "signed" || after.status !== "signed") return;
+  try {
+    // Activate account state
+    if (after?.uid) {
+      await db.collection("users").doc(String(after.uid)).set({ status: "active" }, { merge: true });
+    }
+    // Send onboarding email via MailerLite (optional)
+    if (process.env.MAILERLITE_TOKEN && after?.email) {
+      await fetch("https://connect.mailerlite.com/api/subscribers", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.MAILERLITE_TOKEN}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ email: after.email, fields: { name: after?.signer?.name || "" } }),
+      }).catch(() => undefined);
+    }
+    // Optionally activate Whop plan if present
+    if (process.env.WHOP_API_KEY && after?.whopLicenseId) {
+      await fetch(`https://api.whop.com/v2/licenses/${after.whopLicenseId}/activate`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${process.env.WHOP_API_KEY}` },
+      }).catch(() => undefined);
+    }
+  } catch (e) {
+    console.error("onContractSigned error", e);
   }
 });

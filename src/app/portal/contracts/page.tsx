@@ -103,7 +103,7 @@ export default function ContractsPage() {
               <div className="text-white/80">{c.status || "generated"}</div>
               <div className="text-white/70">Doc: {c.driveFileId || "—"}</div>
               <div className="text-white/70">PDF: {c.pdfFileId || "—"}</div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {c.driveFileId && (
                   <button
                     className="rounded-full border border-white/20 px-3 py-1 text-xs hover:bg-white/10"
@@ -139,6 +139,14 @@ export default function ContractsPage() {
                   >
                     Open PDF
                   </button>
+                )}
+                {c.status !== "signed" && c.pdfFileId && (
+                  <a
+                    href={`/portal/contracts/${c.pdfFileId}`}
+                    className="rounded-full border border-white/20 px-3 py-1 text-xs hover:bg-white/10"
+                  >
+                    Review & Sign
+                  </a>
                 )}
               </div>
             </div>
