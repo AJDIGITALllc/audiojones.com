@@ -1,7 +1,5 @@
 ﻿import Image from "next/image";
-import dynamic from "next/dynamic";
-
-const ImageKitUploader = dynamic(() => import("@/components/ImageKitUploader"), { ssr: false });
+import ImageKitUploader from "@/components/ImageKitUploader";
 
 export default function Home() {
   return (
