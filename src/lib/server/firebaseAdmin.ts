@@ -8,7 +8,7 @@ let adminApp: App | null = null;
 
 function requireEnv(name: string): string {
   const v = process.env[name];
-  if (!v) throw new Error(`[firebaseAdmin] Missing env var: ${name}`);
+  if (!v) throw new Error(`Missing env var: ${name}`);
   return v;
 }
 
@@ -31,3 +31,6 @@ export function getAdminApp(): App {
 export function adminAuth() {
   return getAuth(getAdminApp());
 }
+
+/** Back-compat alias for existing imports */
+export const getAdminAuth = adminAuth;
