@@ -3,18 +3,27 @@ import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 
+/**
+ * Renders the password reset page.
+ * This page displays a form for users to enter their email address and request
+ * a password reset link.
+ * @returns {JSX.Element} The password reset page component.
+ */
 export default function ResetPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  /**
+   *
+   */
   async function handleReset(e: React.FormEvent) {
     e.preventDefault();
     try {
       await sendPasswordResetEmail(auth, email);
       setMessage("Reset link sent. Check your inbox.");
       setError("");
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     }
   }

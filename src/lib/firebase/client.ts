@@ -14,6 +14,11 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+/**
+ * Creates and initializes a Firebase app instance.
+ * @returns {FirebaseApp} The initialized Firebase app.
+ * @throws {Error} If Firebase environment variables are missing.
+ */
 function createFirebaseApp(): FirebaseApp {
   if (!firebaseConfig.apiKey) {
     throw new Error("Missing Firebase env vars");
@@ -21,9 +26,15 @@ function createFirebaseApp(): FirebaseApp {
   return getApps().length ? getApp() : initializeApp(firebaseConfig);
 }
 
+/** The initialized Firebase app instance. */
 export const app = createFirebaseApp();
+/** The Firebase Auth instance. */
 export const auth = getAuth(app);
+/** The Firebase Storage instance. */
 export const storage = getStorage(app);
+/** The Firebase Functions instance. */
 export const functions = getFunctions(app);
+/** The Firebase Firestore instance. */
 export const db = getFirestore(app);
+/** The Google Auth provider instance. */
 export const googleProvider = new GoogleAuthProvider();

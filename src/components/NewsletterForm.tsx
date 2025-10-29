@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
 
+/**
+ * Renders a form for subscribing to the newsletter.
+ * It handles form submission, loading states, and success/error messages.
+ * @returns {JSX.Element} The newsletter form component.
+ */
 export default function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -10,6 +15,9 @@ export default function NewsletterForm() {
   const [message, setMessage] = useState<string>("");
   const { show } = useToast();
 
+  /**
+   *
+   */
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
@@ -27,7 +35,7 @@ export default function NewsletterForm() {
       setEmail("");
       setName("");
       show({ title: "Subscribed", description: "Check your inbox", variant: "success" });
-    } catch (e: any) {
+    } catch (e: unknown) {
       setStatus("error");
       const m = e?.message || "Something went wrong";
       setMessage(m);

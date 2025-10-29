@@ -1,5 +1,8 @@
 "use client";
 
+/**
+ * The result of a fetchJson call.
+ */
 export type FetchJsonResult<T = any> = {
   ok: boolean;
   status: number;
@@ -8,6 +11,12 @@ export type FetchJsonResult<T = any> = {
   response?: Response;
 };
 
+/**
+ * Fetches JSON from a URL and returns a standardized result object.
+ * @param {string} url - The URL to fetch.
+ * @param {RequestInit} [init] - The request initialization options.
+ * @returns {Promise<FetchJsonResult<T>>} A promise that resolves to the result object.
+ */
 export async function fetchJson<T = any>(url: string, init?: RequestInit): Promise<FetchJsonResult<T>> {
   try {
     const res = await fetch(url, init);
@@ -18,19 +27,32 @@ export async function fetchJson<T = any>(url: string, init?: RequestInit): Promi
       return { ok: false, status: res.status, error: String(msg), response: res };
     }
     return { ok: true, status: res.status, data: body as T, response: res };
-  } catch (e: any) {
+  } catch (e: unknown) {
     return { ok: false, status: 0, error: e?.message || "Network error" };
   }
 }
 
+/**
+ * An object that can show a toast notification.
+ */
 export type ToastLike = { show: (o: { title?: string; description?: string; variant?: "success" | "error" | "info"; duration?: number }) => void };
 
+/**
+ * Options for retrying a fetch request.
+ */
 export type RetryOptions = {
   retries?: number; // default 2
   retryDelayBaseMs?: number; // default 400
   isRetryable?: (res: FetchJsonResult) => boolean; // default: network or 5xx
 };
 
+/**
+ * Fetches JSON from a URL with automatic retries on failure.
+ * @param {string} url - The URL to fetch.
+ * @param {RequestInit} [init] - The request initialization options.
+ * @param {RetryOptions} [retry] - The retry options.
+ * @returns {Promise<FetchJsonResult<T>>} A promise that resolves to the result object.
+ */
 export async function fetchJsonRetry<T = any>(
   url: string,
   init?: RequestInit,
@@ -42,7 +64,7 @@ export async function fetchJsonRetry<T = any>(
     isRetryable: retry?.isRetryable ?? ((r) => !r.ok && (r.status === 0 || (r.status >= 500 && r.status <= 599))),
   };
   let attempt = 0;
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     const res = await fetchJson<T>(url, init);
     if (!cfg.isRetryable(res) || attempt >= cfg.retries) return res;
@@ -52,6 +74,14 @@ export async function fetchJsonRetry<T = any>(
   }
 }
 
+/**
+ * Fetches JSON from a URL and shows a toast notification on success or failure.
+ * @param {string} url - The URL to fetch.
+ * @param {RequestInit | undefined} init - The request initialization options.
+ * @param {ToastLike} toast - The toast object.
+ * @param {{ success?: { title?: string; description?: string }; failure?: { title?: string; description?: string } }} [opts] - The toast options.
+ * @returns {Promise<FetchJsonResult<T>>} A promise that resolves to the result object.
+ */
 export async function fetchJsonWithToast<T = any>(
   url: string,
   init: RequestInit | undefined,
@@ -67,6 +97,14 @@ export async function fetchJsonWithToast<T = any>(
   return res;
 }
 
+/**
+ * Fetches JSON from a URL with automatic retries and shows a toast notification on success or failure.
+ * @param {string} url - The URL to fetch.
+ * @param {RequestInit | undefined} init - The request initialization options.
+ * @param {ToastLike} toast - The toast object.
+ * @param {{ success?: { title?: string; description?: string }; failure?: { title?: string; description?: string }; retry?: RetryOptions }} [opts] - The toast and retry options.
+ * @returns {Promise<FetchJsonResult<T>>} A promise that resolves to the result object.
+ */
 export async function fetchJsonWithToastRetry<T = any>(
   url: string,
   init: RequestInit | undefined,

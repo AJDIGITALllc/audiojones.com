@@ -6,6 +6,11 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import { useToast } from "@/components/Toast";
 
+/**
+ * Renders a component for uploading files to Firebase Storage.
+ * It displays the upload progress, a preview of the uploaded image, and any errors.
+ * @returns {JSX.Element} The Firebase Storage uploader component.
+ */
 export default function FirebaseStorageUploader() {
   const [progress, setProgress] = useState<number>(0);
   const [url, setUrl] = useState<string | null>(null);
@@ -16,6 +21,9 @@ export default function FirebaseStorageUploader() {
   // Track auth for path scoping
   onAuthStateChanged(auth, (u) => setUserUid(u?.uid || null));
 
+  /**
+   *
+   */
   const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;

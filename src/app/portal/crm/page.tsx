@@ -13,6 +13,11 @@ type WhopCustomer = {
   plan_name?: string;
 };
 
+/**
+ * Renders the CRM page, which displays a list of customers from Whop.
+ * This component is only accessible to admin users.
+ * @returns {JSX.Element} The CRM page component.
+ */
 export default function CRMPage() {
   useRequireAuth({ redirectTo: "/portal", requireAdmin: true });
   const [rows, setRows] = useState<WhopCustomer[]>([]);
@@ -28,7 +33,7 @@ export default function CRMPage() {
         const res = await api.getJson<{ data: WhopCustomer[] }>("/api/whop/customers", { failure: { title: "CRM load failed" } });
         if (!res.ok) throw new Error(res.error);
         setRows(res.data?.data || []);
-      } catch (e: any) {
+      } catch (e: unknown) {
         const msg = e?.message || "Error fetching customers";
         setError(msg);
         show({ title: "CRM load failed", description: msg, variant: "error" });

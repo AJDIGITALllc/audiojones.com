@@ -1,6 +1,12 @@
 import AuthWidget from "@/components/AuthWidget";
 import FirebaseStorageUploader from "@/components/FirebaseStorageUploader";
 
+/**
+ * Renders a demonstration page for Firebase client integrations.
+ * This page includes components for authentication, file uploads to Firebase Storage,
+ * and an example of how to call a Firebase Function.
+ * @returns {JSX.Element} The Firebase integration demo page.
+ */
 export default function FirebasePage() {
   return (
     <main className="min-h-screen bg-[#111] text-white">

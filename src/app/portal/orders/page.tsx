@@ -12,6 +12,11 @@ type Order = {
   status: string | null;
 };
 
+/**
+ * Renders the orders page, which is an admin-only view of all orders.
+ * This component fetches all orders from Firestore and displays them in a list.
+ * @returns {JSX.Element} The orders page component.
+ */
 export default function OrdersPage() {
   const [items, setItems] = useState<Order[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +31,7 @@ export default function OrdersPage() {
         const rows: Order[] = [];
         snap.forEach((d) => rows.push({ id: d.id, ...(d.data() as any) }));
         setItems(rows);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(e?.message || "Failed to load orders (admin only)");
       } finally {
         setLoading(false);

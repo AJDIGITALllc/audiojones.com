@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Handles GET requests to /api/whop/products.
+ * This function fetches a list of products from the Whop API.
+ * @param {NextRequest} _req - The request object.
+ * @returns {Promise<NextResponse>} A promise that resolves to the response.
+ */
 export async function GET(_req: NextRequest) {
   const apiKey = process.env.WHOP_API_KEY;
   const base = process.env.WHOP_API_URL || "https://api.whop.com/v2";
@@ -15,7 +21,7 @@ export async function GET(_req: NextRequest) {
       return NextResponse.json({ error: data?.message || "Whop API error" }, { status: res.status });
     }
     return NextResponse.json(data);
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json({ error: e?.message || "Failed to fetch Whop products" }, { status: 500 });
   }
 }

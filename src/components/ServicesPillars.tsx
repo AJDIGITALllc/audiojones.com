@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * Renders a section displaying the three main service pillars of the company.
+ * @returns {JSX.Element} The services pillars component.
+ */
 export default function ServicesPillars() {
   return (
     <section className="font-display bg-background-light dark:bg-background-dark flex min-h-screen w-full items-center justify-center p-4 sm:p-6 md:p-8">

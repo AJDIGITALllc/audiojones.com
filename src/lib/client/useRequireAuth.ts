@@ -10,6 +10,12 @@ type Options = {
   requireAdmin?: boolean;
 };
 
+/**
+ * A hook for protecting routes that require authentication.
+ * It redirects the user to a specified page if they are not authenticated.
+ * @param {Options} [options] - The options for the hook.
+ * @returns {{user: User | null, loading: boolean, isAdmin: boolean}} An object containing the user, loading state, and admin status.
+ */
 export function useRequireAuth(options?: Options) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);

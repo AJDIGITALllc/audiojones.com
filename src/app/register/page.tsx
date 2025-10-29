@@ -1,6 +1,12 @@
 import AuthForm from "@/components/AuthForm";
 import Link from "next/link";
 
+/**
+ * Renders the registration page.
+ * This page displays an authentication form in "register" mode and includes a link
+ * to the login page for existing users.
+ * @returns {JSX.Element} The registration page component.
+ */
 export default function RegisterPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white px-6">

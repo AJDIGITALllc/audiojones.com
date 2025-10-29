@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import ImageKit from "imagekit";
 
+/**
+ * Handles GET requests to /api/imagekit-files.
+ * This function returns a list of recently uploaded files from ImageKit.
+ * @returns {Promise<NextResponse>} A promise that resolves to the response.
+ */
 export async function GET() {
   const publicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY;
   const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
@@ -25,7 +30,7 @@ export async function GET() {
       { files },
       { headers: { "Cache-Control": "no-store" } }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
       { error: err?.message || "Failed to list files" },
       { status: 500, headers: { "Cache-Control": "no-store" } }

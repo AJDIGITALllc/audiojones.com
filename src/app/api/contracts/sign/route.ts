@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Handles POST requests to /api/contracts/sign.
+ * This function proxies the request to a Firebase Function that signs a contract.
+ * @param {NextRequest} req - The request object.
+ * @returns {Promise<NextResponse>} A promise that resolves to the response.
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -16,7 +22,7 @@ export async function POST(req: NextRequest) {
     });
     const data = await resp.json().catch(() => ({}));
     return NextResponse.json(data, { status: resp.status });
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json({ message: e?.message || "Server error" }, { status: 500 });
   }
 }

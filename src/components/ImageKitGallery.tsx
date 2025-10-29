@@ -9,12 +9,19 @@ type IkFile = {
   thumbnailUrl?: string;
 };
 
+/**
+ * Renders a gallery of recently uploaded files from ImageKit.
+ * @returns {JSX.Element} The ImageKit gallery component.
+ */
 export default function ImageKitGallery() {
   const [files, setFiles] = useState<IkFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    /**
+     *
+     */
     const run = async () => {
       try {
         setLoading(true);
@@ -22,7 +29,7 @@ export default function ImageKitGallery() {
         const data = await res.json();
         if (!res.ok) throw new Error(data?.error || "Failed to load files");
         setFiles(data.files || []);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(e?.message || "Failed loading gallery");
       } finally {
         setLoading(false);

@@ -7,6 +7,12 @@ import { collection, query, where, limit, getDocs } from "firebase/firestore";
 import { useToast } from "@/components/Toast";
 import { useApi } from "@/lib/client/useApi";
 
+/**
+ * Renders the contract signing page.
+ * This component displays a contract from Google Drive, allows the user to agree to the terms,
+ * and submits their signature.
+ * @returns {JSX.Element} The contract signing page component.
+ */
 export default function ContractSignPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
@@ -33,6 +39,9 @@ export default function ContractSignPage() {
     })();
   }, [id]);
 
+  /**
+   *
+   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!agree || !name) return setMsg("Please agree and enter your full name.");
@@ -46,7 +55,7 @@ export default function ContractSignPage() {
       if (!resp.ok) throw new Error(resp.error || "Failed to sign");
       setMsg("Signed successfully.");
       router.push("/portal/contracts");
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMsg(e?.message || "Error");
       show({ title: "Sign failed", description: e?.message || "Error", variant: "error" });
     } finally {

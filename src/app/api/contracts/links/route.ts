@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Handles POST requests to /api/contracts/links.
+ * This function proxies the request to a Firebase Function that gets Google Drive links for a file.
+ * @param {NextRequest} req - The request object.
+ * @returns {Promise<NextResponse>} A promise that resolves to the response.
+ */
 export async function POST(req: NextRequest) {
   try {
     const auth = req.headers.get("authorization") || "";
@@ -16,7 +22,7 @@ export async function POST(req: NextRequest) {
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) return NextResponse.json({ error: data?.error || "Function error" }, { status: resp.status });
     return NextResponse.json(data);
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json({ error: e?.message || "Server error" }, { status: 500 });
   }
 }

@@ -13,6 +13,12 @@ type Booking = {
   status?: string;
 };
 
+/**
+ * Renders the bookings page for the authenticated user.
+ * This component fetches the user's bookings from Firestore and displays them in a list.
+ * It handles loading, authentication, and error states.
+ * @returns {JSX.Element} The bookings page component.
+ */
 export default function BookingsPage() {
   const { user, loading } = useAuth();
   const [items, setItems] = useState<Booking[]>([]);
@@ -28,7 +34,7 @@ export default function BookingsPage() {
         const rows: Booking[] = [];
         snap.forEach((d) => rows.push({ id: d.id, ...(d.data() as any) }));
         setItems(rows);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(e?.message || "Failed to load bookings");
       }
     })();

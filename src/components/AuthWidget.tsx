@@ -5,6 +5,11 @@ import { auth, googleProvider } from "@/lib/firebase/client";
 import { useToast } from "@/components/Toast";
 import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
 
+/**
+ * Renders a simple authentication widget that displays the user's avatar and a
+ * sign-in/sign-out button.
+ * @returns {JSX.Element} The authentication widget component.
+ */
 export default function AuthWidget() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -18,21 +23,27 @@ export default function AuthWidget() {
     return () => unsub();
   }, []);
 
+  /**
+   *
+   */
   const signIn = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (e) {
-      // eslint-disable-next-line no-console
+
       console.error(e);
       show({ title: "Sign-in failed", variant: "error" });
     }
   };
 
+  /**
+   *
+   */
   const signOutUser = async () => {
     try {
       await signOut(auth);
     } catch (e) {
-      // eslint-disable-next-line no-console
+
       console.error(e);
       show({ title: "Sign-out failed", variant: "error" });
     }
@@ -44,7 +55,7 @@ export default function AuthWidget() {
     <div className="flex items-center gap-3">
       {user ? (
         <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          { }
           {user.photoURL && (
             <img src={user.photoURL} alt="avatar" className="h-8 w-8 rounded-full" />
           )}

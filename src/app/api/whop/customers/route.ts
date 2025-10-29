@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminAuth } from "@/lib/server/firebaseAdmin";
 
+/**
+ *
+ */
 export async function GET(req: NextRequest) {
   // Verify Firebase ID token and require admin claim
   try {
@@ -9,8 +12,8 @@ export async function GET(req: NextRequest) {
     if (!idToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const adminAuth = getAdminAuth();
     const decoded = await adminAuth.verifyIdToken(idToken);
-    if (!(decoded as any).admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  } catch (e: any) {
+    if (!(decoded as { admin?: boolean }).admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  } catch (e: unknown) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const apiKey = process.env.WHOP_API_KEY;
@@ -27,7 +30,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: data?.message || "Whop API error" }, { status: res.status });
     }
     return NextResponse.json(data);
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json({ error: e?.message || "Failed to fetch Whop" }, { status: 500 });
   }
 }

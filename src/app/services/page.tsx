@@ -13,6 +13,10 @@ type WhopProduct = {
   prices?: WhopPrice[];
 };
 
+/**
+ * Fetches the list of products from the Whop API.
+ * @returns {Promise<WhopProduct[]>} A promise that resolves to an array of products.
+ */
 async function getProducts() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/whop/products`, {
@@ -28,6 +32,11 @@ async function getProducts() {
   }
 }
 
+/**
+ * Formats a Whop price object into a human-readable string.
+ * @param {WhopPrice} p - The price object to format.
+ * @returns {string} The formatted price string (e.g., "$100 /mo").
+ */
 function formatPrice(p?: WhopPrice) {
   if (!p || p.amount == null) return "";
   const amt = (p.amount / 100).toFixed(0);
@@ -36,6 +45,10 @@ function formatPrice(p?: WhopPrice) {
   return `$${amt} ${cycle}`.trim();
 }
 
+/**
+ * Renders the services page, which displays a list of products from Whop.
+ * @returns {Promise<JSX.Element>} A promise that resolves to the services page component.
+ */
 export default async function ServicesPage() {
   const products = await getProducts();
 

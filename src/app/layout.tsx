@@ -36,6 +36,9 @@ export const metadata: Metadata = {
   themeColor: "#111111",
 };
 
+/**
+ *
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

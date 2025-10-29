@@ -16,6 +16,12 @@ type ToastContextValue = {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
+/**
+ * Provides a context for showing toasts.
+ * @param {object} props - The component props.
+ * @param {React.ReactNode} props.children - The child components.
+ * @returns {JSX.Element} The toast provider component.
+ */
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
@@ -39,12 +45,23 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * A hook for accessing the toast context.
+ * @returns {ToastContextValue} The toast context value.
+ */
 export function useToast() {
   const ctx = useContext(ToastContext);
   if (!ctx) throw new Error("useToast must be used within ToastProvider");
   return ctx;
 }
 
+/**
+ * Renders the toast container and the toasts.
+ * @param {object} props - The component props.
+ * @param {ToastItem[]} props.toasts - The list of toasts to display.
+ * @param {(id: string) => void} props.onClose - A function to close a toast.
+ * @returns {JSX.Element} The toaster component.
+ */
 export function Toaster({ toasts, onClose }: { toasts: ToastItem[]; onClose: (id: string) => void }) {
   return (
     <div className="fixed bottom-4 right-4 z-[1000] flex flex-col gap-2">

@@ -14,6 +14,13 @@ import {
 import { setDoc, doc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase/client";
 
+/**
+ * Renders a multi-purpose authentication form for login, registration,
+ * and social sign-in.
+ * @param {object} props - The component props.
+ * @param {"login" | "register"} props.mode - The mode of the form.
+ * @returns {JSX.Element} The authentication form component.
+ */
 export default function AuthForm({ mode }: { mode: "login" | "register" }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -23,6 +30,9 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
   const [loading, setLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
+  /**
+   *
+   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -41,13 +51,16 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
         await signInWithEmailAndPassword(auth, email, password);
       }
       router.push("/portal");
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   }
 
+  /**
+   *
+   */
   async function handleGoogle() {
     try {
       const provider = new GoogleAuthProvider();
@@ -63,11 +76,14 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
         { merge: true }
       );
       router.push("/portal");
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     }
   }
 
+  /**
+   *
+   */
   async function handleApple() {
     try {
       const provider = new OAuthProvider("apple.com");
@@ -83,11 +99,14 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
         { merge: true }
       );
       router.push("/portal");
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     }
   }
 
+  /**
+   *
+   */
   async function handleReset() {
     if (!email) {
       setError("Enter your email to reset password.");
@@ -96,7 +115,7 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
     try {
       await sendPasswordResetEmail(auth, email);
       setResetSent(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     }
   }

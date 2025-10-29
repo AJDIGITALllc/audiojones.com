@@ -1,6 +1,12 @@
 ﻿import Image from "next/image";
 import ImageKitUploader from "@/components/ImageKitUploader";
 
+/**
+ * Renders the homepage for the application.
+ * This component serves as the main landing page, featuring a hero section,
+ * authority metrics, and a call-to-action for the uploader.
+ * @returns {JSX.Element} The homepage component.
+ */
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#111] text-white">

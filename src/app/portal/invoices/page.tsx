@@ -10,9 +10,14 @@ type Payment = {
   amount: number | null;
   currency: string | null;
   status: string | null;
-  createdAt?: any;
+  createdAt?: unknown;
 };
 
+/**
+ * Renders the invoices page for the authenticated user.
+ * This component fetches the user's payment history from Firestore and displays it in a list.
+ * @returns {JSX.Element} The invoices page component.
+ */
 export default function InvoicesPage() {
   const { user, loading } = useAuth();
   const [items, setItems] = useState<Payment[]>([]);
@@ -28,7 +33,7 @@ export default function InvoicesPage() {
         const rows: Payment[] = [];
         snap.forEach((d) => rows.push({ id: d.id, ...(d.data() as any) }));
         setItems(rows);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(e?.message || "Failed to load payments");
       }
     })();

@@ -1,6 +1,11 @@
 import ImageKitUploader from "@/components/ImageKitUploader";
 import ImageKitGallery from "@/components/ImageKitGallery";
 
+/**
+ * Renders the uploader page, which allows users to upload files to ImageKit.
+ * This page also displays a gallery of recently uploaded files.
+ * @returns {JSX.Element} The uploader page component.
+ */
 export default function UploaderPage() {
   return (
     <main className="min-h-screen bg-[#111] text-white">

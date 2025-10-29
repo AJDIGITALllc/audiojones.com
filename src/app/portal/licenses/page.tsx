@@ -9,9 +9,14 @@ type License = {
   id: string;
   product: string | null;
   status: string | null;
-  expires?: any;
+  expires?: unknown;
 };
 
+/**
+ * Renders the licenses page for the authenticated user.
+ * This component fetches the user's software licenses from Firestore and displays them in a list.
+ * @returns {JSX.Element} The licenses page component.
+ */
 export default function LicensesPage() {
   const { user, loading } = useAuth();
   const [items, setItems] = useState<License[]>([]);
@@ -27,7 +32,7 @@ export default function LicensesPage() {
         const rows: License[] = [];
         snap.forEach((d) => rows.push({ id: d.id, ...(d.data() as any) }));
         setItems(rows);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(e?.message || "Failed to load licenses");
       }
     })();

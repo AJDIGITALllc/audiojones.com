@@ -13,6 +13,12 @@ const baseItems = [
   { name: "Contracts", path: "/portal/contracts" },
 ];
 
+/**
+ * Renders the navigation bar for the user portal.
+ * This component displays navigation links based on the user's role (admin or regular user).
+ * It also includes a sign-out button.
+ * @returns {JSX.Element} The portal navigation component.
+ */
 export default function PortalNav() {
   const pathname = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);

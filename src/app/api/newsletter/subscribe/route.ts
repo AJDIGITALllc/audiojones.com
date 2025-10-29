@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Handles POST requests to /api/newsletter/subscribe.
+ * This function subscribes a user to the newsletter using the MailerLite API.
+ * @param {NextRequest} req - The request object.
+ * @returns {Promise<NextResponse>} A promise that resolves to the response.
+ */
 export async function POST(req: NextRequest) {
   const token = process.env.MAILERLITE_TOKEN;
   const base = process.env.MAILERLITE_API_BASE || "https://connect.mailerlite.com";
@@ -11,7 +17,7 @@ export async function POST(req: NextRequest) {
     const { email, name } = await req.json();
     if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
 
-    const body: any = { email, fields: {} as Record<string, string> };
+    const body: unknown = { email, fields: {} as Record<string, string> };
     if (name) body.fields.name = name;
     if (groupId) body.groups = [groupId];
 
@@ -32,7 +38,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
+  } catch (e: unknown) {
     return NextResponse.json({ error: e?.message || "Subscription failed" }, { status: 500 });
   }
 }

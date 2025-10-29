@@ -1,16 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminAuth } from "@/lib/server/firebaseAdmin";
 
+/**
+ * Requires the user to be an admin.
+ * @param {NextRequest} req - The request object.
+ * @returns {Promise<{adminAuth: import("firebase-admin/auth").Auth}>} A promise that resolves to an object containing the admin auth instance.
+ * @throws {Error} If the user is not an admin.
+ */
 async function requireAdmin(req: NextRequest) {
   const authHeader = req.headers.get("authorization") || "";
   const idToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
   if (!idToken) throw new Error("unauthorized");
   const adminAuth = getAdminAuth();
   const decoded = await adminAuth.verifyIdToken(idToken);
-  if (!(decoded as any).admin) throw new Error("forbidden");
+  if (!(decoded as { admin?: boolean }).admin) throw new Error("forbidden");
   return { adminAuth };
 }
 
+/**
+ * Handles GET requests to /api/admin/users.
+ * @param {NextRequest} req - The request object.
+ * @returns {Promise<NextResponse>} A promise that resolves to the response.
+ */
 export async function GET(req: NextRequest) {
   try {
     const { adminAuth } = await requireAdmin(req);
@@ -22,19 +33,24 @@ export async function GET(req: NextRequest) {
       uid: u.uid,
       email: u.email,
       displayName: u.displayName,
-      admin: !!(u.customClaims as any)?.admin,
+      admin: !!(u.customClaims as { admin?: boolean })?.admin,
       disabled: u.disabled,
       createdAt: u.metadata.creationTime,
       lastSignIn: u.metadata.lastSignInTime,
     }));
     return NextResponse.json({ users, nextPageToken: result.pageToken || null });
-  } catch (e: any) {
-    if (e.message === "unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (e.message === "forbidden") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  } catch (e: unknown) {
+    if (e instanceof Error && e.message === "unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (e instanceof Error && e.message === "forbidden") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     return NextResponse.json({ error: e?.message || "Server error" }, { status: 500 });
   }
 }
 
+/**
+ * Handles POST requests to /api/admin/users.
+ * @param {NextRequest} req - The request object.
+ * @returns {Promise<NextResponse>} A promise that resolves to the response.
+ */
 export async function POST(req: NextRequest) {
   try {
     const { adminAuth } = await requireAdmin(req);
@@ -44,13 +60,13 @@ export async function POST(req: NextRequest) {
     if (!uid) return NextResponse.json({ error: "uid required" }, { status: 400 });
     // Merge existing claims to avoid overwriting other custom claims.
     const user = await adminAuth.getUser(uid);
-    const claims = { ...(user.customClaims || {}), admin } as Record<string, any>;
+    const claims = { ...(user.customClaims || {}), admin };
     await adminAuth.setCustomUserClaims(uid, claims);
     return NextResponse.json({ ok: true, uid, admin });
-  } catch (e: any) {
-    if (e.message === "unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (e.message === "forbidden") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    return NextResponse.json({ error: e?.message || "Server error" }, { status: 500 });
+  } catch (e: unknown) {
+    if (e instanceof Error && e.message === "unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (e instanceof Error && e.message === "forbidden") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json({ error: e instanceof Error ? e.message : "Server error" }, { status: 500 });
   }
 }
 

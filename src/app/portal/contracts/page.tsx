@@ -16,6 +16,12 @@ type Contract = {
   signatureHash?: string | null;
 };
 
+/**
+ * Renders the contracts page for the authenticated user.
+ * This component fetches the user's contracts from Firestore and displays them in a list.
+ * Admins can also generate new contracts from this page.
+ * @returns {JSX.Element} The contracts page component.
+ */
 export default function ContractsPage() {
   const { user, loading } = useAuth();
   const [items, setItems] = useState<Contract[]>([]);
@@ -38,12 +44,15 @@ export default function ContractsPage() {
         const rows: Contract[] = [];
         snap.forEach((d) => rows.push({ id: d.id, ...(d.data() as any) }));
         setItems(rows);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(e?.message || "Failed to load contracts");
       }
     })();
   }, [user]);
 
+  /**
+   *
+   */
   async function generate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) return;
@@ -60,7 +69,7 @@ export default function ContractsPage() {
         { uid: user.uid, templateId, folderId, name, fields },
         { success: { title: "Contract generated" }, failure: { title: "Generate failed" } }
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       show({ title: "Generate failed", description: err?.message || "Error generating contract", variant: "error" });
     }
   }

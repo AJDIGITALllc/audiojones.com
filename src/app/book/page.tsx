@@ -1,3 +1,7 @@
+/**
+ * Renders the booking page, which embeds a Cal.com scheduling interface.
+ * @returns {JSX.Element} The booking page component.
+ */
 export default function BookPage() {
   return (
     <main className="min-h-screen bg-[#111] text-white">

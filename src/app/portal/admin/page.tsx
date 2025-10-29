@@ -16,6 +16,12 @@ type AdminUser = {
   lastSignIn?: string | null;
 };
 
+/**
+ * Renders the admin page for managing users and roles.
+ * This component fetches a list of users from the API and displays them in a table.
+ * Admins can grant or revoke admin privileges for each user.
+ * @returns {JSX.Element} The admin users page component.
+ */
 export default function AdminUsersPage() {
   useRequireAuth({ redirectTo: "/portal", requireAdmin: true });
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -26,6 +32,9 @@ export default function AdminUsersPage() {
   const { show } = useToast();
   const api = useApi({ toast: { show } });
 
+  /**
+   *
+   */
   async function fetchUsers(token?: string | null) {
     setLoading(true);
     setError(null);
@@ -38,7 +47,7 @@ export default function AdminUsersPage() {
       if (!resp.ok) throw new Error(resp.error);
       setUsers(resp.data?.users || []);
       setPageToken(resp.data?.nextPageToken || null);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e?.message || "Failed to load users");
     } finally {
       setLoading(false);
@@ -50,6 +59,9 @@ export default function AdminUsersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   *
+   */
   async function setAdmin(uid: string, admin: boolean) {
     setSavingUid(uid);
     try {
@@ -58,7 +70,7 @@ export default function AdminUsersPage() {
       const resp = await api.postJson(`/api/admin/users`, { uid, admin }, { success: { title: admin ? "Admin granted" : "Admin revoked" }, failure: { title: "Update failed" } });
       if (!resp.ok) throw new Error(resp.error);
       setUsers((prev) => prev.map((u) => (u.uid === uid ? { ...u, admin } : u)));
-    } catch (e: any) {
+    } catch (e: unknown) {
       // toast handled in fetchJsonWithToast
     } finally {
       setSavingUid(null);

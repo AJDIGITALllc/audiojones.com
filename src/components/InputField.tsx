@@ -5,6 +5,11 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
 }
 
+/**
+ * Renders a styled input field with a label.
+ * @param {InputFieldProps} props - The component props.
+ * @returns {JSX.Element} The input field component.
+ */
 export default function InputField({ label, ...props }: InputFieldProps) {
   return (
     <div className="flex flex-col gap-1 text-sm w-full">

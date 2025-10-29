@@ -12,6 +12,11 @@ type FileDoc = {
   visibility?: "public" | "private";
 };
 
+/**
+ * Renders the files page for the authenticated user.
+ * This component fetches the user's files from Firestore and displays them in a gallery.
+ * @returns {JSX.Element} The files page component.
+ */
 export default function FilesPage() {
   const { user, loading } = useAuth();
   const [items, setItems] = useState<FileDoc[]>([]);
@@ -27,7 +32,7 @@ export default function FilesPage() {
         const rows: FileDoc[] = [];
         snap.forEach((d) => rows.push({ id: d.id, ...(d.data() as any) }));
         setItems(rows);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setError(e?.message || "Failed to load files");
       }
     })();

@@ -6,10 +6,15 @@ import { useToast } from "@/components/Toast";
 
 declare global {
   interface Window {
-    ImageKit: any;
+    ImageKit: unknown;
   }
 }
 
+/**
+ * Renders a component for uploading files to ImageKit.
+ * It uses the ImageKit JavaScript SDK to handle the upload process.
+ * @returns {JSX.Element} The ImageKit uploader component.
+ */
 export default function ImageKitUploader() {
   const ikRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
@@ -19,6 +24,9 @@ export default function ImageKitUploader() {
 
   useEffect(() => {
     // When the SDK is loaded, initialize ImageKit
+    /**
+     *
+     */
     const onReady = () => {
       if (window.ImageKit && !ikRef.current) {
         ikRef.current = new window.ImageKit({
@@ -38,6 +46,9 @@ export default function ImageKitUploader() {
     return () => {};
   }, []);
 
+  /**
+   *
+   */
   const onUpload = async () => {
     const input = document.getElementById("ik-file") as HTMLInputElement | null;
     const file = input?.files?.[0];
@@ -55,10 +66,10 @@ export default function ImageKitUploader() {
       setResult({ url: resp.url, name: resp.name });
       setStatus("Upload complete");
       show({ title: "Uploaded", description: resp.name, variant: "success" });
-      // eslint-disable-next-line no-console
+
       console.log(resp);
     } catch (err) {
-      // eslint-disable-next-line no-console
+
       console.error(err);
       setStatus("Upload failed");
       show({ title: "Upload failed", variant: "error" });

@@ -2,6 +2,9 @@
 import { useRequireAuth } from "@/lib/client/useRequireAuth";
 import PortalNav from "@/app/portal/components/PortalNav";
 
+/**
+ *
+ */
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const { loading } = useRequireAuth({ redirectTo: "/login" });
 

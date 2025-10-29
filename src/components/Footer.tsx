@@ -1,6 +1,11 @@
 import Link from "next/link";
 import NewsletterForm from "@/components/NewsletterForm";
 
+/**
+ * Renders the site-wide footer.
+ * This component includes navigation links, a newsletter signup form, and legal information.
+ * @returns {JSX.Element} The footer component.
+ */
 export default function Footer() {
   return (
     <footer className="bg-black border-t border-white/10 text-white/80 pt-16 mt-24">
