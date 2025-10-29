@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "imagekit:convert": "node scripts/convert-to-ikimage.js",
+    "imagekit:setup": "node scripts/setup-imagekit.js",
     "repo:init": "node tools/repo.js init",
     "repo:link": "node tools/repo.js link",
     "repo:sync": "node tools/repo.js sync",

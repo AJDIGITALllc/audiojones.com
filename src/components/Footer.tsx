@@ -1,5 +1,6 @@
 import Link from "next/link";
 import NewsletterForm from "@/components/NewsletterForm";
+import BuildStamp from "@/components/BuildStamp";
 
 export default function Footer() {
   return (
@@ -52,7 +53,10 @@ export default function Footer() {
       <NewsletterForm />
 
       <div className="text-center text-xs text-white/50 mt-2 pb-10">
-        © {new Date().getFullYear()} AJ DIGITAL LLC · Audio Jones · All Rights Reserved.
+        <div>© {new Date().getFullYear()} AJ DIGITAL LLC · Audio Jones · All Rights Reserved.</div>
+        <div className="mt-2">
+          <BuildStamp />
+        </div>
       </div>
     </footer>
   );

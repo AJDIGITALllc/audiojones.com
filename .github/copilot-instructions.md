@@ -44,13 +44,21 @@ Two-tier env setup (see README.md):
 
 Critical vars: Firebase config, Stripe keys, Whop API, MailerLite, admin credentials JSON
 
-## Development Workflows
+### Development Workflows
 
 ### Getting Started
 ```bash
 npm ci                           # Install dependencies
 npm run dev                      # Start dev server
 npm --prefix functions ci        # Install function dependencies
+```
+
+### Image Conversion (when adding ImageKit)
+```bash
+# Convert all Image imports to IKImage automatically
+node scripts/convert-to-ikimage.js
+git diff                         # Review changes
+git add -A && git commit -m "chore: convert to IKImage loader"
 ```
 
 ### Codex Integration (Deployment)
@@ -77,8 +85,23 @@ Three-layer protection for admin routes:
 
 ### ImageKit Integration
 - **Config**: `next.config.ts` allows `ik.imagekit.io` domain
-- **Components**: `ImageKitUploader`, `ImageKitGallery` for file management
+- **Components**: `IKImage` automatically routes through ImageKit in production, serves locally in dev
+- **Loader**: `src/lib/imagekit.ts` maps local paths to ImageKit URLs with cache-busting
 - **Auth endpoint**: `src/app/api/imagekit-auth/route.ts`
+- **Smart fallback**: Works without ImageKit in dev, automatically uses ImageKit in production
+
+### Image Optimization Patterns
+```typescript
+// Use IKImage instead of Image for automatic ImageKit routing
+import IKImage from "@/components/IKImage";
+
+// Automatically maps /assets/Icons/mic.svg -> ik.imagekit.io/.../icons/mic.svg?v=<sha>
+<IKImage src="/assets/Icons/mic.svg" alt="Mic" width={64} height={64} />
+
+// For raw img tags, use getImageSrc helper
+import { getImageSrc } from "@/lib/imagekit";
+<img src={getImageSrc("/assets/Icons/mic.svg", 64)} alt="Mic" />
+```
 
 ### Toast System
 - **Provider**: Wrap layouts with `<ToastProvider>`
