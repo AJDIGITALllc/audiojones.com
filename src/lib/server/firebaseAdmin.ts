@@ -1,18 +1,32 @@
-import { initializeApp, getApps, cert, type App } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
+// src/lib/server/firebaseAdmin.ts
+import 'server-only';
+import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 
-let adminApp: App | null = null;
+let adminApp: App;
 
-export function getAdminApp() {
-  if (adminApp) return adminApp;
-  const json = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-  if (!json) throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON for firebase-admin");
-  const creds = JSON.parse(json);
-  adminApp = getApps().length ? (getApps()[0] as App) : initializeApp({ credential: cert(creds) });
-  return adminApp;
+function required(name: string): string {
+  const v = process.env[name];
+  if (!v) throw new Error(`Missing required env var: ${name}`);
+  return v;
 }
 
-export function getAdminAuth() {
-  return getAuth(getAdminApp());
+/**
+ * Initializes a singleton Firebase Admin app for server-side usage only.
+ * Works on Vercel by converting literal "\n" into real newlines in PRIVATE_KEY.
+ */
+function initAdmin(): App {
+  const existing = getApps();
+  if (existing.length) return existing[0]!;
+  return initializeApp({
+    credential: cert({
+      projectId: required('FIREBASE_PROJECT_ID'),
+      clientEmail: required('FIREBASE_CLIENT_EMAIL'),
+      privateKey: required('FIREBASE_PRIVATE_KEY').replace(/\\n/g, '\n')
+    })
+  });
 }
 
+adminApp = initAdmin();
+
+export const adminAuth = getAuth(adminApp);
