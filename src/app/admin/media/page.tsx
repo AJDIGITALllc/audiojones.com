@@ -1,12 +1,16 @@
-// app/admin/media/page.tsx
-import AdminOnly from '@/components/AdminOnly';
-import Uploader from '@/components/ImageKitUploader';
+'use client';
+import { AdminOnly } from '@/components/AdminOnly';
+import ImageKitUploader from '@/components/ImageKitUploader';
 
-export default function MediaPage() {
-  const isAdmin = true; // Simulate admin user for now
+export default function AdminMediaPage() {
+  const isAdmin = true; // This should be replaced with real auth check
+
   return (
-    <AdminOnly isAdmin={isAdmin}>
-      <Uploader />
-    </AdminOnly>
+    <main className="min-h-screen bg-[#111] text-white p-8">
+      <h1 className="text-3xl font-bold mb-4">Admin Media Uploader</h1>
+      <AdminOnly isAdmin={isAdmin}>
+        <ImageKitUploader />
+      </AdminOnly>
+    </main>
   );
 }

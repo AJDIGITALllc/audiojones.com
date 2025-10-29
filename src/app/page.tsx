@@ -1,4 +1,5 @@
 import IKImage from "@/components/IKImage";
+import Faq from "@/components/Faq";
 
 export default function Home() {
   return (
@@ -110,6 +111,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <Faq />
 
       {/* Final CTA Band */}
       <section className="relative py-16 sm:py-20">
