@@ -9,6 +9,7 @@
     "lint": "eslint",
     "imagekit:convert": "node scripts/convert-to-ikimage.js",
     "imagekit:setup": "node scripts/setup-imagekit.js",
+    "stripe:verify": "node scripts/verify-stripe.js",
     "repo:init": "node tools/repo.js init",
     "repo:link": "node tools/repo.js link",
     "repo:sync": "node tools/repo.js sync",
