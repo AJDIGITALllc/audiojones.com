@@ -29,3 +29,21 @@ body {
 .gradient-bg {
   background: linear-gradient(90deg, #FF4500, #FFD700);
 }
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #FF4500, #FFD700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Marquee scroll animation for brand logos */
+@keyframes scroll-x {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll {
+  animation: scroll-x 30s linear infinite;
+}

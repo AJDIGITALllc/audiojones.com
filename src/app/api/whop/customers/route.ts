@@ -1,5 +1,6 @@
+export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminAuth } from "@/lib/server/firebaseAdmin";
+import { adminAuth } from "@/lib/server/firebaseAdmin";
 
 export async function GET(req: NextRequest) {
   // Verify Firebase ID token and require admin claim
@@ -7,8 +8,8 @@ export async function GET(req: NextRequest) {
     const authHeader = req.headers.get("authorization") || "";
     const idToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
     if (!idToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    const adminAuth = getAdminAuth();
-    const decoded = await adminAuth.verifyIdToken(idToken);
+    const auth = adminAuth();
+    const decoded = await auth.verifyIdToken(idToken);
     if (!(decoded as any).admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   } catch (e: any) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

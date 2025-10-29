@@ -62,7 +62,7 @@ export default function NewsletterForm() {
           disabled={status === "loading"}
           className="gradient-bg h-12 px-8 rounded-full font-bold text-black disabled:opacity-60"
         >
-          {status === "loading" ? "Subscribing…" : "Subscribe"}
+          {status === "loading" ? "Subscribing..." : "Subscribe"}
         </button>
       </form>
       {message && (

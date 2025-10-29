@@ -102,6 +102,73 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Scrolling Brand Logos */}
+      <section id="brands" className="bg-black py-10 border-y border-white/10">
+        <div className="max-w-7xl mx-auto px-6 overflow-hidden">
+          <h3 className="text-center text-white/70 text-sm tracking-widest mb-6 uppercase">Trusted by Brands & Partners</h3>
+          <div className="relative">
+            <div className="flex items-center gap-12 whitespace-nowrap will-change-transform animate-scroll">
+              {/* Primary set */}
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/GOOGLE.png?updatedAt=1761672351007" alt="Google" className="h-8 opacity-70 hover:opacity-100 transition" />
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/QUALITY%20CONTROL.png?updatedAt=1761672351054" alt="Quality Control" className="h-8 opacity-70 hover:opacity-100 transition" />
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/UNIVERSAL%20MUSIC.png?updatedAt=1761672350908" alt="Universal Music" className="h-8 opacity-70 hover:opacity-100 transition" />
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/THE%20ORCHARD.png?updatedAt=1761672350733" alt="The Orchard" className="h-8 opacity-70 hover:opacity-100 transition" />
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/CAPITAL.png?updatedAt=1761672350877" alt="Capitol Records" className="h-8 opacity-70 hover:opacity-100 transition" />
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/WE%20THE%20BEST.png?updatedAt=1761672350945" alt="We The Best" className="h-8 opacity-70 hover:opacity-100 transition" />
+              {/* Duplicate set for seamless loop */}
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/GOOGLE.png?updatedAt=1761672351007" alt="Google" className="h-8 opacity-70 hover:opacity-100 transition" />
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/QUALITY%20CONTROL.png?updatedAt=1761672351054" alt="Quality Control" className="h-8 opacity-70 hover:opacity-100 transition" />
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/UNIVERSAL%20MUSIC.png?updatedAt=1761672350908" alt="Universal Music" className="h-8 opacity-70 hover:opacity-100 transition" />
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/THE%20ORCHARD.png?updatedAt=1761672350733" alt="The Orchard" className="h-8 opacity-70 hover:opacity-100 transition" />
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/CAPITAL.png?updatedAt=1761672350877" alt="Capitol Records" className="h-8 opacity-70 hover:opacity-100 transition" />
+              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/WE%20THE%20BEST.png?updatedAt=1761672350945" alt="We The Best" className="h-8 opacity-70 hover:opacity-100 transition" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="w-full bg-[#111111] py-16 sm:py-24">
+        <div className="mx-auto max-w-5xl px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <h4 className="text-sm font-bold uppercase tracking-widest gradient-text">Client Results</h4>
+            <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Trusted by South Florida Leaders & Creators</h2>
+            <p className="mt-4 text-white/80">Real outcomes from entrepreneurs, artists, and brands we support.</p>
+          </div>
+
+          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm shadow-lg">
+              <p className="text-white/90">“Within 60 days, our content pipeline and podcast drove inbound demos we couldn’t keep up with.”</p>
+              <div className="mt-4 text-sm text-white/60">— Founder, Miami SAAS</div>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm shadow-lg">
+              <p className="text-white/90">“Audio turned my story into a brand. Systems keep it publishing every week without me babysitting.”</p>
+              <div className="mt-4 text-sm text-white/60">— Creator & Host</div>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm shadow-lg">
+              <p className="text-white/90">“The studio system plus YouTube strategy made our team look and sound like pros.”</p>
+              <div className="mt-4 text-sm text-white/60">— Media Director</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Band */}
+      <section className="relative py-16 sm:py-20">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-[#FF4500] to-[#FFD700] p-[1px]">
+            <div className="rounded-2xl bg-black p-8 sm:p-12 text-center">
+              <h3 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Ready to Build Your Studio System?</h3>
+              <p className="mt-3 text-white/80 max-w-2xl mx-auto">Book a strategy call and we’ll map your brand, podcast, and growth engine in one plan.</p>
+              <div className="mt-6 flex items-center justify-center gap-4">
+                <a href="/book" className="inline-flex h-12 items-center justify-center rounded-full px-8 font-bold text-black bg-gradient-to-r from-[#FF4500] to-[#FFD700] hover:opacity-90 transition">Book a Call</a>
+                <a href="/services" className="inline-flex h-12 items-center justify-center rounded-full px-8 font-bold border border-white/20 text-white hover:bg-white/10 transition">Explore Services</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Uploader CTA */}
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-6">

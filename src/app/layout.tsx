@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { ToastProvider } from "@/components/Toast";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import "./globals.css";
 
@@ -45,7 +46,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}>
         <ToastProvider>
-          {children}
+          <Header />
+          <div className="pt-20">{children}</div>
           <Footer />
         </ToastProvider>
         <Script
