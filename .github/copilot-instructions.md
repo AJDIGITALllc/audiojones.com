@@ -63,8 +63,15 @@ npm run repo:commit             # Auto-commit via Codex
 ### Admin User Management
 ```bash
 # Grant admin claims (requires Firebase Admin setup)
-npx tsx tools/grant-admin.ts <email>
+npx tsx tools/set-admin-claim.ts <email>
+npx tsx tools/set-admin-claim.ts <uid>
 ```
+
+### Security Layer Architecture
+Three-layer protection for admin routes:
+1. **Edge Middleware**: `middleware.ts` - Checks for session cookies before allowing `/portal/admin/*`
+2. **Server Layout**: `src/app/portal/admin/layout.tsx` - Verifies Firebase session cookie + admin claim
+3. **API Guards**: Individual API routes verify Bearer tokens + admin claims
 
 ## Component Patterns
 
@@ -99,8 +106,9 @@ npx tsx tools/grant-admin.ts <email>
 
 ### Authentication Layers
 1. **Client Auth**: Firebase Auth for user sessions
-2. **Admin Claims**: Server-side custom claims verification
-3. **API Security**: Bearer token validation in protected routes
+2. **Edge Protection**: Middleware checks session cookies for admin routes
+3. **Server Verification**: Admin layout verifies session cookie + admin claims
+4. **API Security**: Bearer token validation in protected routes
 
 ### Admin Access Pattern
 ```typescript
@@ -110,6 +118,10 @@ async function requireAdmin(req: NextRequest) {
   const decoded = await adminAuth().verifyIdToken(token, true);
   if (!decoded.admin) throw new Error('Admin required');
 }
+
+// Server-side session cookie verification (admin layout)
+const decoded = await adminAuth().verifySessionCookie(sessionCookie, true);
+if (decoded.admin !== true) redirect('/not-authorized');
 ```
 
 ## File Organization
@@ -139,3 +151,10 @@ async function requireAdmin(req: NextRequest) {
 - Test Firebase Admin: `GET /api/test-firebase-admin`
 - Test auth state: `GET /api/admin/ping` (requires admin token)
 - N8N connectivity: `GET /api/n8n/me`
+- Admin permission test: Visit `/portal/admin` with different user types
+
+### Admin Security Testing
+1. **Logged out**: `/portal/admin` → redirects to `/login?next=/portal/admin`
+2. **Non-admin user**: `/portal/admin` → redirects to `/not-authorized` 
+3. **Admin user**: `/portal/admin` → shows admin interface
+4. **API 403 handling**: Use `/api/not-authorized` for consistent error responses
