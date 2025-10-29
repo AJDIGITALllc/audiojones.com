@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import IKImage from "@/components/IKImage";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -14,7 +14,7 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2">
               <span className="sr-only">Audio Jones</span>
-              <Image
+              <IKImage
                 src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/AUDIO_JONES_LOGO_2025/AUDIO_JONES_LOGO_2025_HORIZONTAL_TRANSPARENT.png?updatedAt=1761669548119"
                 alt="Audio Jones Logo"
                 width={160}

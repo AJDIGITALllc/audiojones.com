@@ -1,5 +1,5 @@
-﻿import Image from "next/image";
-import ImageKitUploader from "@/components/ImageKitUploader";
+import IKImage from "@/components/IKImage";
+﻿import ImageKitUploader from "@/components/ImageKitUploader";
 
 export default function Home() {
   return (
@@ -37,7 +37,7 @@ export default function Home() {
 
         {/* Right: Portrait */}
         <div className="flex items-start justify-center lg:justify-end">
-          <Image
+          <IKImage
             src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/AUDIOJONES_HERO_IMAGE_03.svg?tr=q-90"
             alt="Audio Jones — Miami brand consultant and AI marketing expert"
             width={540}

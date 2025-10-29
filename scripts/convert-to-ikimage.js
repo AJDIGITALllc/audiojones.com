@@ -8,6 +8,11 @@ const path = require('path');
 const glob = require('glob');
 
 function convertFile(filePath) {
+  // Skip the IKImage component itself
+  if (filePath.includes('IKImage.tsx')) {
+    return false;
+  }
+
   let content = fs.readFileSync(filePath, 'utf8');
   let changed = false;
 
