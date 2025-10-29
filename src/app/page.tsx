@@ -1,5 +1,6 @@
-﻿import Image from "next/image";
-import ImageKitUploader from "@/components/ImageKitUploader";
+import Image from "next/image";
+import ImageKitUploaderClient from "@/components/ImageKitUploaderClient";
+import ServicesPillars from "@/components/ServicesPillars";
 
 export default function Home() {
   return (
@@ -47,6 +48,8 @@ export default function Home() {
           />
         </div>
       </section>
+
+      <ServicesPillars />
 
       {/* Authority Metrics / AI Noise Section */}
       <section id="authority-metrics" className="relative py-24 sm:py-28">
@@ -114,10 +117,11 @@ export default function Home() {
           </a>
         </div>
       </section>
+
+      <section>
+        {/* client island */}
+        <ImageKitUploaderClient />
+      </section>
     </main>
   );
 }
-
-
-
-
