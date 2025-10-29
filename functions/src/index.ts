@@ -12,7 +12,14 @@ const storage = admin.storage();
 // Stripe
 const stripeSecret = process.env.stripe_secret as string | undefined;
 const stripeWebhookSecret = process.env.stripe_webhook_secret as string | undefined;
-const stripe = new Stripe(stripeSecret || "", { apiVersion: "2024-06-20" });
+
+// Future-proof Stripe initialization for Firebase Functions
+const stripeOpts: Stripe.StripeConfig = {};
+const envApiVersion = process.env.STRIPE_API_VERSION;
+if (envApiVersion) {
+  stripeOpts.apiVersion = envApiVersion as Stripe.LatestApiVersion;
+}
+const stripe = new Stripe(stripeSecret || "", stripeOpts);
 
 /** Stripe Webhook */
 export const stripeWebhook = f.https.onRequest(async (req, res) => {

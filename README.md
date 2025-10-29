@@ -18,3 +18,18 @@ This repo is initialized from `codex.init.yml`.
   - `MAILERLITE_TOKEN`
 
 The initialization created both files with placeholders; fill in missing secrets before running.
+
+## 🧾 Stripe Setup
+
+Add the following to your environment (Vercel or local `.env.local`):
+
+```bash
+stripe_secret=sk_live_xxxxxxxxxx
+# Optional – only if you want to pin a specific API version
+# STRIPE_API_VERSION=2025-01-27.clover
+```
+
+By default, Stripe SDK uses your account's default API version (managed in Stripe Dashboard → Developers → API version).
+This ensures safe TypeScript compatibility and prevents future version lock errors when Stripe advances their API unions.
+
+Only set `STRIPE_API_VERSION` if you need to test a specific version or temporarily pin for compatibility.

@@ -120,10 +120,21 @@ import { getImageSrc } from "@/lib/imagekit";
 - **Usage**: Import generated hooks for type-safe data operations
 
 ### External Integrations
-- **Stripe**: Checkout + customer portal via API routes
+- **Stripe**: Checkout + customer portal via API routes (future-proof API version handling)
 - **Whop**: Product licensing and customer management
 - **N8N**: Workflow automation backend
 - **MailerLite**: Newsletter subscription management
+
+### Stripe Integration Pattern
+```typescript
+// Future-proof Stripe initialization (no hardcoded API version)
+const opts: Stripe.StripeConfig = {};
+const envApiVersion = process.env.STRIPE_API_VERSION;
+if (envApiVersion) {
+  opts.apiVersion = envApiVersion as Stripe.LatestApiVersion;
+}
+const stripe = new Stripe(stripeSecret, opts);
+```
 
 ## Security Model
 
