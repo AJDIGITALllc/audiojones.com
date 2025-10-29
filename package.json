@@ -6,12 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "repo:init": "node tools/repo.js init",
+    "repo:link": "node tools/repo.js link",
+    "repo:sync": "node tools/repo.js sync",
+    "repo:status": "node tools/repo.js status",
+    "repo:commit": "node tools/repo.js commit"
   },
   "dependencies": {
     "@dataconnect/generated": "file:src/dataconnect-generated",
     "clsx": "^2.1.1",
     "firebase": "^12.4.0",
+    "firebase-admin": "^12.7.0",
     "imagekit": "^6.0.0",
     "lucide-react": "^0.546.0",
     "next": "16.0.0",
