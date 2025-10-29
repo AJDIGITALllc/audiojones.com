@@ -1,49 +1,18 @@
 import IKImage from "@/components/IKImage";
-﻿import ImageKitUploader from "@/components/ImageKitUploader";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#111] text-white">
-      <section className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 py-20 lg:grid-cols-2">
-        {/* Left: Copy */}
-        <div className="space-y-6">
-          <p className="text-sm font-semibold uppercase tracking-widest text-yellow-300/80">
-            South Florida Leaders & Creators
-          </p>
-          <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl">
-            Miami Consultant for Personal Branding, Podcast Production, and AI Marketing Systems
-          </h1>
-          <p className="text-lg text-white/75">
-            Build authority, automate growth, and amplify your voice from our studio serving South Florida leaders and entrepreneurs.
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            <a
-              href="#book"
-              className="rounded-full px-6 py-3 font-bold text-black shadow-[0_4px_20px_rgba(255,215,0,0.35)]
-                         bg-[linear-gradient(135deg,#FF4500,#FFD700)]
-                         hover:bg-[linear-gradient(135deg,#FFD700,#FF4500)] transition"
-            >
-              Book a Consultation
-            </a>
-            <a
-              href="#reel"
-              className="rounded-full border border-white/25 px-6 py-3 font-semibold text-white hover:bg-white/10 transition"
-            >
-              Watch How We Build Authority
-            </a>
-          </div>
-        </div>
-
-        {/* Right: Portrait */}
-        <div className="flex items-start justify-center lg:justify-end">
-          <IKImage
+      <section className="relative mx-auto max-w-[1200px] px-4 md:px-6">
+        <div className="flex items-center justify-center">
+          <img
             src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/AUDIOJONES_HERO_IMAGE_03.svg?tr=q-90"
-            alt="Audio Jones — Miami brand consultant and AI marketing expert"
-            width={540}
-            height={675} // ~4:5
-            priority
-            className="rounded-2xl shadow-[0_0_30px_rgba(255,69,0,0.35)]"
+            alt="Audio Jones — AI Marketing & Automation"
+            className="w-full h-[520px] md:h-[640px] object-cover object-center rounded-2xl"
+            width="1600"
+            height="900"
+            loading="eager"
+            decoding="async"
           />
         </div>
       </section>
@@ -104,25 +73,14 @@ export default function Home() {
 
       {/* Scrolling Brand Logos */}
       <section id="brands" className="bg-black py-10 border-y border-white/10">
-        <div className="max-w-7xl mx-auto px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
           <h3 className="text-center text-white/70 text-sm tracking-widest mb-6 uppercase">Trusted by Brands & Partners</h3>
-          <div className="relative">
-            <div className="flex items-center gap-12 whitespace-nowrap will-change-transform animate-scroll">
-              {/* Primary set */}
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/GOOGLE.png?updatedAt=1761672351007" alt="Google" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/QUALITY%20CONTROL.png?updatedAt=1761672351054" alt="Quality Control" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/UNIVERSAL%20MUSIC.png?updatedAt=1761672350908" alt="Universal Music" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/THE%20ORCHARD.png?updatedAt=1761672350733" alt="The Orchard" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/CAPITAL.png?updatedAt=1761672350877" alt="Capitol Records" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/WE%20THE%20BEST.png?updatedAt=1761672350945" alt="We The Best" className="h-8 opacity-70 hover:opacity-100 transition" />
-              {/* Duplicate set for seamless loop */}
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/GOOGLE.png?updatedAt=1761672351007" alt="Google" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/QUALITY%20CONTROL.png?updatedAt=1761672351054" alt="Quality Control" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/UNIVERSAL%20MUSIC.png?updatedAt=1761672350908" alt="Universal Music" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/THE%20ORCHARD.png?updatedAt=1761672350733" alt="The Orchard" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/CAPITAL.png?updatedAt=1761672350877" alt="Capitol Records" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/WE%20THE%20BEST.png?updatedAt=1761672350945" alt="We The Best" className="h-8 opacity-70 hover:opacity-100 transition" />
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center">
+            <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/GOOGLE.png?updatedAt=1761672351007" alt="Google" className="h-8 md:h-10 lg:h-12 w-auto opacity-80 hover:opacity-100 transition" loading="lazy" decoding="async" width="140" height="48" />
+            <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/QUALITY%20CONTROL.png?updatedAt=1761672351054" alt="Quality Control" className="h-8 md:h-10 lg:h-12 w-auto opacity-80 hover:opacity-100 transition" loading="lazy" decoding="async" width="140" height="48" />
+            <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/UNIVERSAL%20MUSIC.png?updatedAt=1761672350908" alt="Universal Music" className="h-8 md:h-10 lg:h-12 w-auto opacity-80 hover:opacity-100 transition" loading="lazy" decoding="async" width="140" height="48" />
+            <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/THE%20ORCHARD.png?updatedAt=1761672350733" alt="The Orchard" className="h-8 md:h-10 lg:h-12 w-auto opacity-80 hover:opacity-100 transition" loading="lazy" decoding="async" width="140" height="48" />
+            <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/CAPITAL.png?updatedAt=1761672350877" alt="Capitol Records" className="h-8 md:h-10 lg:h-12 w-auto opacity-80 hover:opacity-100 transition" loading="lazy" decoding="async" width="140" height="48" />
           </div>
         </div>
       </section>
@@ -169,18 +127,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Uploader CTA */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-6">
-          <div>
-            <h3 className="text-2xl font-bold">Need to upload assets?</h3>
-            <p className="text-white/75">Use the uploader to push images directly to ImageKit.</p>
-          </div>
-          <a href="/uploader" className="rounded-full px-6 py-3 font-bold text-black bg-white hover:opacity-90 transition">
-            Open Uploader
-          </a>
-        </div>
-      </section>
     </main>
   );
 }
