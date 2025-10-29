@@ -33,6 +33,12 @@ export default function ImageKitUploader() {
     // If the script was already loaded
     if (typeof window !== "undefined" && (window as any).ImageKit) {
       onReady();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/imagekit-javascript/dist/imagekit.min.js";
+      script.async = true;
+      script.onload = onReady;
+      document.body.appendChild(script);
     }
 
     return () => {};
@@ -55,8 +61,6 @@ export default function ImageKitUploader() {
       setResult({ url: resp.url, name: resp.name });
       setStatus("Upload complete");
       show({ title: "Uploaded", description: resp.name, variant: "success" });
-      // eslint-disable-next-line no-console
-      console.log(resp);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);
@@ -67,9 +71,8 @@ export default function ImageKitUploader() {
 
   return (
     <div className="mt-6">
-      <Script src="https://unpkg.com/imagekit-javascript/dist/imagekit.min.js" onLoad={() => setReady(true)} />
       <div className="flex items-center gap-3">
-        <input id="ik-file" type="file" accept="image/*" className="text-white" />
+        <input id="ik-file" type="file" accept="image/*" className="text-white" data-testid="ik-file-input" />
         <button
           id="ik-upload"
           onClick={onUpload}
