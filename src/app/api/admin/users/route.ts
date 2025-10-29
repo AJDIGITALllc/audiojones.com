@@ -1,57 +1,82 @@
+// src/app/api/admin/users/route.ts
 export const runtime = 'nodejs';
-import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "@/lib/server/firebaseAdmin";
 
+import { NextRequest, NextResponse } from 'next/server';
+import { adminAuth } from '@/lib/server/firebaseAdmin';
+
+/** Validate Bearer token and require the `admin` custom claim */
 async function requireAdmin(req: NextRequest) {
-  const authHeader = req.headers.get("authorization") || "";
-  const idToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-  if (!idToken) throw new Error("unauthorized");
-  const auth = adminAuth();
-  const decoded = await auth.verifyIdToken(idToken);
-  if (!(decoded as any).admin) throw new Error("forbidden");
-  return { auth };
-}
+  const authz = req.headers.get('authorization') || '';
+  const match = authz.match(/^Bearer\s+(.+)$/i);
+  if (!match) {
+    return { ok: false, res: NextResponse.json({ error: 'Missing Authorization Bearer token' }, { status: 401 }) };
+  }
 
-export async function GET(req: NextRequest) {
   try {
-    const { auth } = await requireAdmin(req);
-    const url = new URL(req.url);
-    const pageToken = url.searchParams.get("pageToken") || undefined;
-    const pageSize = Math.min(parseInt(url.searchParams.get("limit") || "50", 10), 100);
-    const result = await auth.listUsers(pageSize, pageToken);
-    const users = result.users.map((u) => ({
-      uid: u.uid,
-      email: u.email,
-      displayName: u.displayName,
-      admin: !!(u.customClaims as any)?.admin,
-      disabled: u.disabled,
-      createdAt: u.metadata.creationTime,
-      lastSignIn: u.metadata.lastSignInTime,
-    }));
-    return NextResponse.json({ users, nextPageToken: result.pageToken || null });
-  } catch (e: any) {
-    if (e.message === "unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (e.message === "forbidden") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    return NextResponse.json({ error: e?.message || "Server error" }, { status: 500 });
+    const decoded = await adminAuth().verifyIdToken(match[1], true); // checks revocation
+    if (!decoded.admin && !(decoded.customClaims && (decoded.customClaims as any).admin)) {
+      return { ok: false, res: NextResponse.json({ error: 'Forbidden: admin claim required' }, { status: 403 }) };
+    }
+    return { ok: true, decoded };
+  } catch (err: any) {
+    return { ok: false, res: NextResponse.json({ error: 'Invalid token', details: err?.message }, { status: 401 }) };
   }
 }
 
-export async function POST(req: NextRequest) {
+/** GET: Return a small page of users (admin only) */
+export async function GET(req: NextRequest) {
+  const gate = await requireAdmin(req);
+  if (!gate.ok) return gate.res!;
+
   try {
-    const { auth } = await requireAdmin(req);
-    const body = await req.json();
-    const uid = body?.uid as string;
-    const admin = !!body?.admin;
-    if (!uid) return NextResponse.json({ error: "uid required" }, { status: 400 });
-    // Merge existing claims to avoid overwriting other custom claims.
-    const user = await auth.getUser(uid);
-    const claims = { ...(user.customClaims || {}), admin } as Record<string, any>;
-    await auth.setCustomUserClaims(uid, claims);
-    return NextResponse.json({ ok: true, uid, admin });
-  } catch (e: any) {
-    if (e.message === "unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (e.message === "forbidden") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    return NextResponse.json({ error: e?.message || "Server error" }, { status: 500 });
+    const list = await adminAuth().listUsers(50);
+    const users = list.users.map(u => ({
+      uid: u.uid,
+      email: u.email ?? null,
+      disabled: u.disabled,
+      customClaims: u.customClaims ?? {},
+      createdAt: u.metadata?.creationTime ?? null,
+      lastSignIn: u.metadata?.lastSignInTime ?? null,
+    }));
+
+    // no-store to avoid caching sensitive data
+    return NextResponse.json({ ok: true, count: users.length, users }, {
+      headers: { 'Cache-Control': 'no-store' },
+    });
+  } catch (err: any) {
+    return NextResponse.json({ error: 'Failed to list users', details: err?.message }, { status: 500 });
+  }
+}
+
+/** POST (optional): look up a specific user by email or uid (admin only)
+ *  body: { email?: string, uid?: string }
+ */
+export async function POST(req: NextRequest) {
+  const gate = await requireAdmin(req);
+  if (!gate.ok) return gate.res!;
+
+  try {
+    const { email, uid } = await req.json();
+    if (!email && !uid) {
+      return NextResponse.json({ error: 'Provide email or uid' }, { status: 400 });
+    }
+    const userRecord = email
+      ? await adminAuth().getUserByEmail(email)
+      : await adminAuth().getUser(uid);
+
+    return NextResponse.json({
+      ok: true,
+      user: {
+        uid: userRecord.uid,
+        email: userRecord.email ?? null,
+        disabled: userRecord.disabled,
+        customClaims: userRecord.customClaims ?? {},
+        createdAt: userRecord.metadata?.creationTime ?? null,
+        lastSignIn: userRecord.metadata?.lastSignInTime ?? null,
+      },
+    }, { headers: { 'Cache-Control': 'no-store' } });
+  } catch (err: any) {
+    return NextResponse.json({ error: 'Lookup failed', details: err?.message }, { status: 400 });
   }
 }
 
