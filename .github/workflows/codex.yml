@@ -1,22 +1,22 @@
-name: Codex CLI Review
+name: Codex Workflow
 on:
+  push:
+    branches: [ main ]
   pull_request:
-    branches: [develop, main]
+    branches: [ main ]
 
 jobs:
-  codex_review:
+  codex-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Codex CLI
+        run: pip install codex-cli
 
       - name: Authenticate Codex
         run: codex auth --token ${{ secrets.CODEX_TOKEN }}
 
-      - name: Codex Repo Sync
-        run: codex sync
-
-      - name: Codex Review
-        run: codex review --strict
+      - name: Run Codex Sync
+        run: codex sync --project audiojones.com
