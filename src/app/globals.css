@@ -47,3 +47,9 @@ body {
 .animate-scroll {
   animation: scroll-x 30s linear infinite;
 }
+
+/* New marquee animation for logo carousel */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}

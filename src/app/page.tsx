@@ -1,5 +1,4 @@
 import IKImage from "@/components/IKImage";
-﻿import ImageKitUploader from "@/components/ImageKitUploader";
 
 export default function Home() {
   return (
@@ -11,26 +10,26 @@ export default function Home() {
             South Florida Leaders & Creators
           </p>
           <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl">
-            Miami Consultant for Personal Branding, Podcast Production, and AI Marketing Systems
+            Miami Consultant for AEO, Local SEO & Google Business Optimization
           </h1>
           <p className="text-lg text-white/75">
-            Build authority, automate growth, and amplify your voice from our studio serving South Florida leaders and entrepreneurs.
+            Rank your business in Miami, Fort Lauderdale & Fort Myers with optimized Google Business Profiles and AEO-powered local search strategies.
           </p>
 
           <div className="flex flex-wrap gap-3">
             <a
-              href="#book"
+              href="https://cal.com/audiojones/strategy"
               className="rounded-full px-6 py-3 font-bold text-black shadow-[0_4px_20px_rgba(255,215,0,0.35)]
                          bg-[linear-gradient(135deg,#FF4500,#FFD700)]
                          hover:bg-[linear-gradient(135deg,#FFD700,#FF4500)] transition"
             >
-              Book a Consultation
+              Book AEO/SEO Strategy Call
             </a>
             <a
-              href="#reel"
+              href="#services"
               className="rounded-full border border-white/25 px-6 py-3 font-semibold text-white hover:bg-white/10 transition"
             >
-              Watch How We Build Authority
+              View Local SEO Packages
             </a>
           </div>
         </div>
@@ -39,7 +38,7 @@ export default function Home() {
         <div className="flex items-start justify-center lg:justify-end">
           <IKImage
             src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/AUDIOJONES_HERO_IMAGE_03.svg?tr=q-90"
-            alt="Audio Jones — Miami brand consultant and AI marketing expert"
+            alt="Audio Jones — Miami AEO & Local SEO expert"
             width={540}
             height={675} // ~4:5
             priority
@@ -102,85 +101,191 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Scrolling Brand Logos */}
-      <section id="brands" className="bg-black py-10 border-y border-white/10">
-        <div className="max-w-7xl mx-auto px-6 overflow-hidden">
-          <h3 className="text-center text-white/70 text-sm tracking-widest mb-6 uppercase">Trusted by Brands & Partners</h3>
-          <div className="relative">
-            <div className="flex items-center gap-12 whitespace-nowrap will-change-transform animate-scroll">
-              {/* Primary set */}
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/GOOGLE.png?updatedAt=1761672351007" alt="Google" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/QUALITY%20CONTROL.png?updatedAt=1761672351054" alt="Quality Control" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/UNIVERSAL%20MUSIC.png?updatedAt=1761672350908" alt="Universal Music" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/THE%20ORCHARD.png?updatedAt=1761672350733" alt="The Orchard" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/CAPITAL.png?updatedAt=1761672350877" alt="Capitol Records" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/WE%20THE%20BEST.png?updatedAt=1761672350945" alt="We The Best" className="h-8 opacity-70 hover:opacity-100 transition" />
-              {/* Duplicate set for seamless loop */}
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/GOOGLE.png?updatedAt=1761672351007" alt="Google" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/QUALITY%20CONTROL.png?updatedAt=1761672351054" alt="Quality Control" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/UNIVERSAL%20MUSIC.png?updatedAt=1761672350908" alt="Universal Music" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/THE%20ORCHARD.png?updatedAt=1761672350733" alt="The Orchard" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/CAPITAL.png?updatedAt=1761672350877" alt="Capitol Records" className="h-8 opacity-70 hover:opacity-100 transition" />
-              <img src="https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/client%20logos/WE%20THE%20BEST.png?updatedAt=1761672350945" alt="We The Best" className="h-8 opacity-70 hover:opacity-100 transition" />
+      {/* Seamless Logo Marquee */}
+      <section className="w-full bg-black py-12">
+        <div className="mx-auto max-w-6xl px-4">
+          <p className="text-center text-[0.65rem] tracking-[0.4em] text-white/40 uppercase mb-6">
+            Trusted by Brands & Partners
+          </p>
+          <div className="relative overflow-hidden">
+            <div className="flex gap-12 animate-[marquee_28s_linear_infinite]">
+              {[
+                "/assets/Icons/AUDIO_JONES_AI _SYSTEMS_ICON.png",
+                "/assets/Icons/AUDIO_JONES_PERSONAL BRAND_ICON.png",
+                "/assets/Icons/AUDIO_JONES_SERVICES_ICON.png",
+                "/assets/Icons/AUDIO_JONES_WORKFLOW_ICON.png",
+                "/assets/Icons/AUDIO_JONES_VIDEO_ICON.png",
+                "/assets/Icons/AUDIO_JONES_EMAIL_ICON.png",
+                "/assets/Icons/AUDIO_JONES_AI_CHATBOT_ICON.png",
+              ].map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt="Audio Jones service icon"
+                  className="h-10 md:h-12 opacity-80 hover:opacity-100 transition"
+                />
+              ))}
+              {[
+                "/assets/Icons/AUDIO_JONES_AI _SYSTEMS_ICON.png",
+                "/assets/Icons/AUDIO_JONES_PERSONAL BRAND_ICON.png",
+                "/assets/Icons/AUDIO_JONES_SERVICES_ICON.png",
+                "/assets/Icons/AUDIO_JONES_WORKFLOW_ICON.png",
+                "/assets/Icons/AUDIO_JONES_VIDEO_ICON.png",
+                "/assets/Icons/AUDIO_JONES_EMAIL_ICON.png",
+                "/assets/Icons/AUDIO_JONES_AI_CHATBOT_ICON.png",
+              ].map((src, i) => (
+                <img
+                  key={`dup-${i}`}
+                  src={src}
+                  alt="Audio Jones service icon"
+                  className="h-10 md:h-12 opacity-80 hover:opacity-100 transition"
+                />
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="w-full bg-[#111111] py-16 sm:py-24">
-        <div className="mx-auto max-w-5xl px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <h4 className="text-sm font-bold uppercase tracking-widest gradient-text">Client Results</h4>
-            <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Trusted by South Florida Leaders & Creators</h2>
-            <p className="mt-4 text-white/80">Real outcomes from entrepreneurs, artists, and brands we support.</p>
-          </div>
-
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm shadow-lg">
-              <p className="text-white/90">“Within 60 days, our content pipeline and podcast drove inbound demos we couldn’t keep up with.”</p>
-              <div className="mt-4 text-sm text-white/60">— Founder, Miami SAAS</div>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm shadow-lg">
-              <p className="text-white/90">“Audio turned my story into a brand. Systems keep it publishing every week without me babysitting.”</p>
-              <div className="mt-4 text-sm text-white/60">— Creator & Host</div>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm shadow-lg">
-              <p className="text-white/90">“The studio system plus YouTube strategy made our team look and sound like pros.”</p>
-              <div className="mt-4 text-sm text-white/60">— Media Director</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA Band */}
-      <section className="relative py-16 sm:py-20">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-[#FF4500] to-[#FFD700] p-[1px]">
-            <div className="rounded-2xl bg-black p-8 sm:p-12 text-center">
-              <h3 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Ready to Build Your Studio System?</h3>
-              <p className="mt-3 text-white/80 max-w-2xl mx-auto">Book a strategy call and we’ll map your brand, podcast, and growth engine in one plan.</p>
-              <div className="mt-6 flex items-center justify-center gap-4">
-                <a href="/book" className="inline-flex h-12 items-center justify-center rounded-full px-8 font-bold text-black bg-gradient-to-r from-[#FF4500] to-[#FFD700] hover:opacity-90 transition">Book a Call</a>
-                <a href="/services" className="inline-flex h-12 items-center justify-center rounded-full px-8 font-bold border border-white/20 text-white hover:bg-white/10 transition">Explore Services</a>
+      {/* Client Results */}
+      <section id="results" className="bg-[#101010] py-16">
+        <div className="mx-auto max-w-6xl px-4">
+          <p className="text-[0.6rem] tracking-[0.4em] uppercase text-[#FFD700]/80 mb-3">
+            Client Results
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            South Florida Brands Getting Found
+          </h2>
+          <p className="text-white/60 mb-10 max-w-3xl">
+            Local SEO + AEO + Google Business optimization for creators, consultants, and studios.
+          </p>
+          <div className="grid gap-6 md:grid-cols-3">
+            <article className="rounded-2xl border border-white/5 bg-black/30 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <img src="/assets/Client Testiomonials/MIKE_KEEGAN_IMAGE_PROFILE_2025.png" alt="Mike Keegan, Miami SaaS Founder" className="h-10 w-10 rounded-full object-cover" />
+                <div>
+                  <p className="text-sm font-semibold text-white">Mike Keegan</p>
+                  <p className="text-xs text-white/40">B2B Service • Miami</p>
+                </div>
               </div>
-            </div>
+              <p className="text-sm text-white/80 mb-4">
+                &quot;Within 45 days we started getting GBP calls — not just traffic. The automation pushed leads into our CRM right away.&quot;
+              </p>
+              <p className="text-[0.7rem] text-white/30">Service: Local SEO + GBP + Automation</p>
+            </article>
+            <article className="rounded-2xl border border-white/5 bg-black/30 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <img src="/assets/Client Testiomonials/KFOXX_IMAGE_PROFILE_2025.png" alt="KFoxx, Creator & Podcast Host" className="h-10 w-10 rounded-full object-cover" />
+                <div>
+                  <p className="text-sm font-semibold text-white">KFoxx</p>
+                  <p className="text-xs text-white/40">Media • Fort Lauderdale</p>
+                </div>
+              </div>
+              <p className="text-sm text-white/80 mb-4">
+                &quot;Audio Jones rebuilt our studio site and mapped the podcast content to search. Now clips, shorts, and GBP all match.&quot;
+              </p>
+              <p className="text-[0.7rem] text-white/30">Service: AEO + Content Mapping</p>
+            </article>
+            <article className="rounded-2xl border border-white/5 bg-black/30 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <img src="/assets/Client Testiomonials/TYLAN_IMAGE_PROFILE_2025.png" alt="Tylan, Media Director" className="h-10 w-10 rounded-full object-cover" />
+                <div>
+                  <p className="text-sm font-semibold text-white">Tylan</p>
+                  <p className="text-xs text-white/40">Agency Partner • Remote</p>
+                </div>
+              </div>
+              <p className="text-sm text-white/80 mb-4">
+                &quot;We plugged AJ&apos;s GBP playbook into a client&apos;s campaign and it outperformed our paid social in 30 days.&quot;
+              </p>
+              <p className="text-[0.7rem] text-white/30">Service: GBP Playbook + Reporting</p>
+            </article>
           </div>
         </div>
       </section>
 
-      {/* Uploader CTA */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-6">
-          <div>
-            <h3 className="text-2xl font-bold">Need to upload assets?</h3>
-            <p className="text-white/75">Use the uploader to push images directly to ImageKit.</p>
+      {/* AEO/SEO CTA Section */}
+      <section className="w-full py-16 md:py-20 bg-[#0f0f0f]">
+        <div className="mx-auto max-w-5xl rounded-2xl border border-[#FF4500]/50 bg-black/60 px-6 py-12 text-center shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+          <p className="text-xs tracking-[0.35em] text-orange-200 uppercase mb-3">
+            Audio Jones • Local Growth Engine
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+            Ready to Rank Your Business in Miami, Fort Lauderdale & Fort Myers?
+          </h2>
+          <p className="text-sm md:text-base text-white/70 mb-8">
+            We set up & optimize your Google Business Profile, fix local AEO/SEO issues,
+            and build an automation stack that turns searches into booked calls.
+          </p>
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-center">
+            <a
+              href="https://cal.com/audiojones/strategy"
+              className="inline-flex items-center justify-center rounded-full bg-[#FF4500] px-6 py-3 text-sm font-semibold text-black hover:brightness-110 transition"
+            >
+              Book AEO/SEO Strategy Call
+            </a>
+            <a
+              href="#services"
+              className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition"
+            >
+              View Local SEO Packages
+            </a>
           </div>
-          <a href="/uploader" className="rounded-full px-6 py-3 font-bold text-black bg-white hover:opacity-90 transition">
-            Open Uploader
-          </a>
+          <p className="text-[11px] text-white/40 mt-5">
+            Miami • Doral • Fort Lauderdale • Fort Myers • Remote
+          </p>
         </div>
       </section>
+
+      {/* AEO/SEO FAQ Section */}
+      <section id="faq" className="bg-black py-16">
+        <div className="mx-auto max-w-4xl px-4">
+          <h2 className="text-3xl font-bold text-white mb-6">AEO / Local SEO FAQ</h2>
+          <div className="space-y-4">
+            <details className="group rounded-xl border border-white/5 bg-[#111]/70 p-4">
+              <summary className="flex cursor-pointer items-center justify-between text-white">
+                <span>What&apos;s the difference between AEO and SEO?</span>
+                <span className="text-white/30 group-open:rotate-180 transition">⌄</span>
+              </summary>
+              <p className="mt-3 text-sm text-white/60">
+                SEO targets search engines. AEO targets answer-based systems (AI Overviews, Gemini, Perplexity)
+                so your brand is the one summarized, cited, and linked. We do both.
+              </p>
+            </details>
+            <details className="group rounded-xl border border-white/5 bg-[#111]/70 p-4">
+              <summary className="flex cursor-pointer items-center justify-between text-white">
+                <span>Can you manage my Google Business Profile?</span>
+                <span className="text-white/30 group-open:rotate-180 transition">⌄</span>
+              </summary>
+              <p className="mt-3 text-sm text-white/60">
+                Yes. We optimize categories, services, cities, posting cadence, and review requests.
+              </p>
+            </details>
+            <details className="group rounded-xl border border-white/5 bg-[#111]/70 p-4">
+              <summary className="flex cursor-pointer items-center justify-between text-white">
+                <span>Do I have to be in Miami?</span>
+                <span className="text-white/30 group-open:rotate-180 transition">⌄</span>
+              </summary>
+              <p className="mt-3 text-sm text-white/60">
+                No, but we prioritize South Florida signals (Miami, Doral, Fort Lauderdale, Fort Myers).
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      {/* Uploader CTA - Development Only */}
+      {process.env.NODE_ENV === "development" ? (
+        <section className="mx-auto max-w-6xl px-6 py-16">
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-6">
+            <div>
+              <h3 className="text-2xl font-bold">Need to upload assets?</h3>
+              <p className="text-white/75">Use the uploader to push images directly to ImageKit.</p>
+            </div>
+            <a href="/uploader" className="rounded-full px-6 py-3 font-bold text-black bg-white hover:opacity-90 transition">
+              Open Uploader
+            </a>
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
