@@ -4,6 +4,8 @@ import Script from "next/script";
 import { ToastProvider } from "@/components/Toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CookieBanner from "@/components/CookieBanner";
+import GlobalDisclaimer from "@/components/GlobalDisclaimer";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -52,6 +54,8 @@ export default function RootLayout({
           <Header />
           <div className="pt-20">{children}</div>
           <Footer />
+          <GlobalDisclaimer />
+          <CookieBanner />
         </ToastProvider>
         <Script
           src="https://widget.beacon.ai/audiojones?theme=dark"
