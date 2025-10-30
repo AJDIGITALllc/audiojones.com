@@ -37,6 +37,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
     "glob": "^11.0.3",
+    "jscodeshift": "^17.3.0",
     "sharp": "^0.34.4",
     "sharp-cli": "^5.2.0",
     "tailwindcss": "^4",
