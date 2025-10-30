@@ -1,22 +1,11 @@
-name: Codex Workflow
+name: Codex
+
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  codex-deploy:
+  codex:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Codex CLI
-        run: pip install codex-cli
-
-      - name: Authenticate Codex
-        run: codex auth --token ${{ secrets.CODEX_TOKEN }}
-
-      - name: Run Codex Sync
-        run: codex sync --project audiojones.com
+      - name: Codex disabled
+        run: echo "Codex workflow is disabled (nice-to-have only)."
