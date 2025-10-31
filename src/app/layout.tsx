@@ -62,6 +62,44 @@ export default function RootLayout({
           strategy="afterInteractive"
           data-beacon-id="audiojones"
         />
+        <Script id="json-ld-faq" type="application/ld+json">
+          {`
+            {
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "FAQPage",
+                  "mainEntity": [
+                    {
+                      "@type": "Question",
+                      "name": "How do I fix my content bottleneck?",
+                      "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Our 3-Step System helps fix your content bottleneck. First, we establish a Studio Workflow to record high-quality podcast and video content efficiently. Second, we repurpose that single recording into weeks of social media content like shorts and carousels. Third, we implement AI Systems to automate scheduling, distribution, and follow-up, ensuring consistency without relying on you."
+                      }
+                    },
+                    {
+                      "@type": "Question",
+                      "name": "How do you turn a podcast into repurposed clips?",
+                      "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "We take your long-form podcast recording and identify the most impactful moments, which are then edited into short-form video clips, audiograms, and quote graphics. These are optimized for platforms like Instagram Reels, TikTok, and YouTube Shorts to maximize reach and engagement."
+                      }
+                    },
+                    {
+                      "@type": "Question",
+                      "name": "How can I use AI for content consistency?",
+                      "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "AI can be used to schedule posts across multiple platforms, generate transcripts, write show notes, and create email newsletters from your core content. This automates the distribution process, helping you maintain a consistent publishing schedule without the manual effort."
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          `}
+        </Script>
       </body>
     </html>
   );
