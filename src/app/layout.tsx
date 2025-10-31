@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Material_Symbols } from "next/font/google";
 import Script from "next/script";
 import { ToastProvider } from "@/components/Toast";
 import Header from "@/components/Header";
@@ -15,6 +16,13 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const materialSymbols = Material_Symbols({
+  variable: "--font-material-symbols",
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+  style: ["normal"],
   subsets: ["latin"],
 });
 
@@ -49,7 +57,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${materialSymbols.variable} antialiased bg-black text-white`}
+      >
         <ToastProvider>
           <Header />
           <div className="pt-20">{children}</div>
