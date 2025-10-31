@@ -62,6 +62,70 @@ export default function RootLayout({
           strategy="afterInteractive"
           data-beacon-id="audiojones"
         />
+        <Script
+          id="howto-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://audiojones.com/#org",
+                  "name": "Audio Jones",
+                  "url": "https://audiojones.com",
+                  "logo": "https://audiojones.com/logo.png",
+                  "sameAs": [],
+                  "contactPoint": {
+                    "@type": "ContactPoint",
+                    "telephone": "+1-786-645-2250",
+                    "contactType": "Customer Service",
+                    "email": "contact@audiojones.com"
+                  }
+                },
+                {
+                  "@type": "HowTo",
+                  "name": "How to turn one podcast recording into a full month of content",
+                  "description": "Audio Jones' 3-step system to launch, repurpose, and automate content for Miami-based entrepreneurs.",
+                  "provider": {
+                    "@id": "https://audiojones.com/#org"
+                  },
+                  "step": [
+                    {
+                      "@type": "HowToStep",
+                      "name": "Launch your podcast",
+                      "text": "Record a high-quality video podcast episode with a clear strategy for your South Florida audience.",
+                      "url": "https://audiojones.com/services/podcast"
+                    },
+                    {
+                      "@type": "HowToStep",
+                      "name": "Repurpose content",
+                      "text": "Break the episode into clips, quotes, and articles for multi-platform publishing.",
+                      "url": "https://audiojones.com/services/personal-branding"
+                    },
+                    {
+                      "@type": "HowToStep",
+                      "name": "Automate and scale",
+                      "text": "Use AI marketing systems to schedule, distribute, and capture leads automatically.",
+                      "url": "https://audiojones.com/services/ai-marketing"
+                    }
+                  ],
+                  "tool": [
+                    "Video podcast setup",
+                    "Content repurposing templates",
+                    "AI marketing automations"
+                  ],
+                  "totalTime": "P1D",
+                  "estimatedCost": {
+                    "@type": "MonetaryAmount",
+                    "currency": "USD",
+                    "value": "0"
+                  }
+                }
+              ]
+            }),
+          }}
+        />
       </body>
     </html>
   );
