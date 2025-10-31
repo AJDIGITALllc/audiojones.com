@@ -42,6 +42,69 @@ export const viewport: Viewport = {
   themeColor: "#111111",
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "author": {
+        "@type": "Organization",
+        "name": "AJ DIGITAL LLC"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AJ DIGITAL LLC",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.audiojones.com/images/logo.png"
+        }
+      },
+      "headline": "Local founder turned 1 show into a weekly authority channel.",
+      "url": "https://www.audiojones.com/insights/case-studio-weekly-authority",
+      "mainEntityOfPage": "https://www.audiojones.com/insights/case-studio-weekly-authority",
+      "articleBody": "Recorded at Circle House Studios. Branded video podcast assets in 48 hrs. Repurposed for YouTube + IG Reels."
+    },
+    {
+      "@type": "Article",
+      "author": {
+        "@type": "Organization",
+        "name": "AJ DIGITAL LLC"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AJ DIGITAL LLC",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.audiojones.com/images/logo.png"
+        }
+      },
+      "headline": "Creator collective scaled content without burning out.",
+      "url": "https://www.audiojones.com/insights/case-content-engine",
+      "mainEntityOfPage": "https://www.audiojones.com/insights/case-content-engine",
+      "articleBody": "1 → many repurposing workflow. Monthly strategy + analytics. Social captions auto-generated."
+    },
+    {
+      "@type": "Article",
+      "author": {
+        "@type": "Organization",
+        "name": "AJ DIGITAL LLC"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AJ DIGITAL LLC",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.audiojones.com/images/logo.png"
+        }
+      },
+      "headline": "Consultant automated follow-ups and bookings.",
+      "url": "https://www.audiojones.com/insights/case-ai-automation",
+      "mainEntityOfPage": "https://www.audiojones.com/insights/case-ai-automation",
+      "articleBody": "AI-powered nurture + booking. GBP + local visibility tuned. Reporting sent to founder."
+    }
+  ]
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -61,6 +124,16 @@ export default function RootLayout({
           src="https://widget.beacon.ai/audiojones?theme=dark"
           strategy="afterInteractive"
           data-beacon-id="audiojones"
+        />
+        {/*
+          This script adds Article schema for the case studies.
+          If a root Organization or LocalBusiness schema is added later,
+          this @graph should be merged with it.
+        */}
+        <Script
+          id="json-ld-case-studies"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </body>
     </html>
