@@ -1,4 +1,5 @@
 import IKImage from "@/components/IKImage";
+import PackagesSection from "./(marketing)/components/PackagesSection";
 
 export default function HomePage() {
   return (
@@ -32,6 +33,7 @@ export default function HomePage() {
           <div className="pointer-events-none absolute -inset-6 rounded-[3rem] bg-[#FF4500]/25 blur-3xl md:blur-[60px]" />
         </div>
       </div>
+      <PackagesSection />
     </main>
   );
 }
