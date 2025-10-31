@@ -1,22 +1,36 @@
-name: Codex CLI Review
+name: Codex Workflow
+
 on:
-  pull_request:
-    branches: [develop, main]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  codex_review:
+  codex-run:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
 
-      - name: Authenticate Codex
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Debug environment for troubleshooting
+      - name: Debug environment
+        run: |
+          which codex || echo "codex not found"
+          python --version || true
+          pip --version || true
+
+      # Install Codex CLI
+      - name: Install Codex CLI
+        run: |
+          pip install --upgrade pip
+          pip install codex-cli
+
+      # Authenticate Codex (only if token exists)
+      - name: Auth to Codex
+        if: ${{ secrets.CODEX_TOKEN != '' }}
         run: codex auth --token ${{ secrets.CODEX_TOKEN }}
 
-      - name: Codex Repo Sync
-        run: codex sync
-
-      - name: Codex Review
-        run: codex review --strict
+      # Run Codex Sync
+      - name: Codex Sync
+        run: codex sync --project audiojones.com
