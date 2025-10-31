@@ -62,6 +62,73 @@ export default function RootLayout({
           strategy="afterInteractive"
           data-beacon-id="audiojones"
         />
+        <Script id="json-ld-schema" type="application/ld+json">
+          {`
+            {
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "name": "Audio Jones",
+                  "legalName": "AJ DIGITAL LLC",
+                  "url": "https://audiojones.com",
+                  "logo": "https://audiojones.com/logo.png",
+                  "contactPoint": {
+                    "@type": "ContactPoint",
+                    "telephone": "+1-786-645-2250",
+                    "contactType": "Customer Service",
+                    "email": "contact@audiojones.com"
+                  },
+                  "sameAs": []
+                },
+                {
+                  "@type": "LocalBusiness",
+                  "name": "Audio Jones",
+                  "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": "13700 NW 1st Ave",
+                    "addressLocality": "Miami",
+                    "addressRegion": "FL",
+                    "postalCode": "33168",
+                    "addressCountry": "US"
+                  },
+                  "telephone": "+1-786-645-2250",
+                  "email": "contact@audiojones.com",
+                  "priceRange": "$$$"
+                },
+                {
+                  "@type": "FAQPage",
+                  "mainEntity": [
+                    {
+                      "@type": "Question",
+                      "name": "Why is it harder to stand out now that so much content is AI-generated?",
+                      "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Because 50%+ of content is AI-drafted, buyers are filtering by trust signals — brand authority, real voices, podcasts, and verified local presence. This section shows real stats to prove the need for authority."
+                      }
+                    },
+                    {
+                      "@type": "Question",
+                      "name": "How does Audio Jones improve discoverability?",
+                      "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "We combine personal branding, podcast storytelling, and Answer Engine Optimization (AEO) so your content is recognizable and indexable where decisions actually happen — search, maps, and social."
+                      }
+                    },
+                    {
+                      "@type": "Question",
+                      "name": "What is Answer Engine Optimization (AEO)?",
+                      "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "AEO is optimizing your content so AI and search assistants can read, structure, and serve your answers directly. We use schema.org markup, local business data, and intent-based messaging to make that possible."
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          `}
+        </Script>
       </body>
     </html>
   );
