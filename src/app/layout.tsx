@@ -62,6 +62,46 @@ export default function RootLayout({
           strategy="afterInteractive"
           data-beacon-id="audiojones"
         />
+        <Script
+          id="json-ld-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "LocalBusiness",
+                  "name": "Audio Jones at Circle House Studios",
+                  "image": "https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/audio-jones-hero.webp?updatedAt=1761600049033",
+                  "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": "13700 NW 1st Ave",
+                    "addressLocality": "Miami",
+                    "addressRegion": "FL",
+                    "postalCode": "33168",
+                    "addressCountry": "US"
+                  },
+                  "description": "Audio Jones operates out of the iconic Circle House, a production hub for creators in South Florida offering on-site recording services for personal branding, podcast production, and AI marketing.",
+                  "telephone": "+1-786-645-2250",
+                  "openingHours": "Mo-Fr 09:00-18:00"
+                },
+                {
+                  "@context": "https://schema.org",
+                  "@type": "ImageGallery",
+                  "name": "Audio Jones Studio Gallery at Circle House",
+                  "image": [
+                    "https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/gallery/podcast-suite.webp",
+                    "https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/gallery/control-room.webp",
+                    "https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/gallery/lounge.webp",
+                    "https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/gallery/vocal-booth.webp",
+                    "https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/gallery/creative-lab.webp",
+                    "https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/gallery/exterior.webp"
+                  ]
+                }
+              ]
+            })
+          }}
+        />
       </body>
     </html>
   );
