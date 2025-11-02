@@ -75,6 +75,9 @@ export interface ResearchResult {
   rawResponse: PerplexityResponse;
 }
 
+// Placeholder value for build-time environment
+const BUILD_PLACEHOLDER = 'placeholder';
+
 class PerplexityClient {
   private apiKey: string;
   private baseUrl: string;
@@ -85,7 +88,7 @@ class PerplexityClient {
   }
 
   private checkApiKey(): void {
-    if (!this.apiKey || this.apiKey === 'placeholder') {
+    if (!this.apiKey || this.apiKey === BUILD_PLACEHOLDER) {
       throw new Error('PERPLEXITY_API_KEY environment variable is required');
     }
   }

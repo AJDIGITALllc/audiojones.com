@@ -37,6 +37,9 @@ export interface LLMRequest {
   presence_penalty?: number;
 }
 
+// Placeholder value for build-time environment
+const BUILD_PLACEHOLDER = 'placeholder';
+
 class BlogGenerator {
   private openaiApiKey: string;
   private openaiBaseUrl: string;
@@ -47,7 +50,7 @@ class BlogGenerator {
   }
 
   private checkApiKey(): void {
-    if (!this.openaiApiKey || this.openaiApiKey === 'placeholder') {
+    if (!this.openaiApiKey || this.openaiApiKey === BUILD_PLACEHOLDER) {
       throw new Error('OPENAI_API_KEY environment variable is required');
     }
   }
