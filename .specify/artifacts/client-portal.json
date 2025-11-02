@@ -1,0 +1,473 @@
+{
+  "metadata": {
+    "featureName": "Client Portal",
+    "featureBranch": "001-client-portal",
+    "created": "2025-11-01",
+    "status": "Draft",
+    "version": "v1.0",
+    "owner": "AJ DIGITAL LLC (Audio Jones)",
+    "targetUrl": "https://clients.audiojones.com",
+    "technology": "Next.js (Vercel)",
+    "userInput": "Gated portal for onboarding, billing, projects, approvals, files, chat"
+  },
+  "businessObjective": {
+    "description": "Create a comprehensive client portal that serves as the central hub for Audio Jones clients to manage their projects, billing, communications, and approvals. The portal will streamline client interactions and reduce administrative overhead while providing transparency into project progress and deliverables.",
+    "goals": [
+      "Automate client onboarding and content delivery",
+      "Centralize project management and communication",
+      "Provide real-time billing and payment management",
+      "Enable efficient content approval workflows",
+      "Reduce administrative overhead for AJ Digital team"
+    ]
+  },
+  "modules": [
+    {
+      "name": "Client Delivery Module",
+      "description": "Automated client onboarding and content delivery",
+      "integrations": ["Whop", "GBU", "Google Drive", "Notion", "MailerLite"],
+      "purpose": "License management, content access, progress tracking"
+    },
+    {
+      "name": "Marketing Automation Module",
+      "description": "Automated client communications and milestone notifications",
+      "integrations": ["n8n", "Slack"],
+      "purpose": "Email sequences, status updates, approval reminders"
+    },
+    {
+      "name": "Data Intelligence Module",
+      "description": "Analytics and reporting for client engagement",
+      "integrations": ["Analytics platforms", "Project metrics", "Billing data"],
+      "purpose": "Dashboards, reporting, performance metrics"
+    },
+    {
+      "name": "AI Optimization Module",
+      "description": "Intelligent client support and content optimization",
+      "integrations": ["ChatKit", "Beacon AI"],
+      "purpose": "AI chatbot, content suggestions, automated insights"
+    }
+  ],
+  "userScenarios": [
+    {
+      "id": "US-001",
+      "title": "Client Authentication and Role-Based Access",
+      "priority": "P1",
+      "description": "As a client, I need to securely log into the portal and access features appropriate to my role so that I can manage my projects and billing information.",
+      "whyThisPriority": "Foundation requirement - no other features can function without proper authentication",
+      "independentTest": "Can be fully tested by creating accounts, logging in, and verifying role-based access controls",
+      "acceptanceScenarios": [
+        {
+          "given": "A registered client with valid credentials",
+          "when": "They enter correct email and password",
+          "then": "They are authenticated and redirected to dashboard with role-appropriate features"
+        },
+        {
+          "given": "A client_owner role user",
+          "when": "They access the portal",
+          "then": "They can view all organization projects and billing information"
+        },
+        {
+          "given": "A client_member role user",
+          "when": "They access the portal",
+          "then": "They can only view projects they are assigned to"
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Dashboard Overview with Actionable Insights",
+      "priority": "P1",
+      "description": "As a client, I need a comprehensive dashboard showing my next actions, billing status, and upcoming meetings so that I can quickly understand what requires my attention.",
+      "whyThisPriority": "Primary user entry point that drives all other portal activities",
+      "independentTest": "Can be tested by logging in and verifying all dashboard widgets display relevant, actionable information",
+      "acceptanceScenarios": [
+        {
+          "given": "A logged-in client with active projects",
+          "when": "They view the dashboard",
+          "then": "They see prioritized next actions, current billing status, and upcoming bookings"
+        },
+        {
+          "given": "A client with overdue approvals",
+          "when": "They view the dashboard",
+          "then": "Pending approvals are highlighted as high-priority next actions"
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Project Management and Progress Tracking",
+      "priority": "P2",
+      "description": "As a client, I need to view my project status, milestones, and deliverables so that I can track progress and provide feedback on my projects.",
+      "whyThisPriority": "Core value proposition for client transparency and engagement",
+      "independentTest": "Can be tested by creating projects, setting milestones, and verifying progress tracking functionality",
+      "acceptanceScenarios": [
+        {
+          "given": "A client with active projects",
+          "when": "They navigate to the projects section",
+          "then": "They see a list of all their projects with current status and progress indicators"
+        },
+        {
+          "given": "A client viewing a specific project",
+          "when": "They access project details",
+          "then": "They see timeline, milestones, deliverables, and can access project files"
+        }
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Billing and Payment Management",
+      "priority": "P2",
+      "description": "As a client, I need to view my billing status, payment history, and manage payment methods so that I can maintain my account in good standing.",
+      "whyThisPriority": "Critical for business operations and client relationship management",
+      "independentTest": "Can be tested by displaying billing information, processing payments, and handling billing updates via Whop integration",
+      "acceptanceScenarios": [
+        {
+          "given": "A client with an active subscription",
+          "when": "They view the billing section",
+          "then": "They see current subscription status, next billing date, and payment history"
+        },
+        {
+          "given": "A client with an overdue payment",
+          "when": "They access the portal",
+          "then": "They see prominent billing alerts and quick payment options"
+        }
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Content Approval Workflow",
+      "priority": "P2",
+      "description": "As a client, I need to review and approve content deliverables so that I can ensure all materials meet my expectations before publication.",
+      "whyThisPriority": "Essential for quality control and client satisfaction",
+      "independentTest": "Can be tested by submitting content for approval and verifying the complete approval workflow",
+      "acceptanceScenarios": [
+        {
+          "given": "Content submitted for client approval",
+          "when": "The client reviews the content",
+          "then": "They can approve, reject, or request changes with specific comments"
+        },
+        {
+          "given": "A client approves content",
+          "when": "They submit their approval",
+          "then": "Automated notifications are sent to the team via n8n and Slack"
+        }
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Appointment Scheduling and Calendar Integration",
+      "priority": "P3",
+      "description": "As a client, I need to schedule appointments and view upcoming meetings so that I can manage my time effectively with the AJ Digital team.",
+      "whyThisPriority": "Improves client experience but not critical for core portal functionality",
+      "independentTest": "Can be tested by booking appointments through embedded calendar and verifying Google Calendar sync",
+      "acceptanceScenarios": [
+        {
+          "given": "A client needs to schedule a consultation",
+          "when": "They access the bookings section",
+          "then": "They can view available time slots and book appointments through embedded Cal.com/Calendly"
+        }
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "File and Asset Management",
+      "priority": "P3",
+      "description": "As a client, I need to access shared files and upload assets so that I can collaborate effectively on my projects.",
+      "whyThisPriority": "Enhances collaboration but can be handled externally initially",
+      "independentTest": "Can be tested by uploading files, organizing assets, and accessing shared Google Drive content",
+      "acceptanceScenarios": [
+        {
+          "given": "A client needs to access project files",
+          "when": "They navigate to the files section",
+          "then": "They see organized project files with appropriate permissions from Google Drive"
+        }
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Messaging and Communication",
+      "priority": "P3",
+      "description": "As a client, I need to communicate with my project team through threaded conversations so that all project communication is centralized and organized.",
+      "whyThisPriority": "Nice-to-have feature that improves organization but not essential for MVP",
+      "independentTest": "Can be tested by sending messages, creating threads, and verifying real-time delivery",
+      "acceptanceScenarios": [
+        {
+          "given": "A client has questions about their project",
+          "when": "They send a message in the project thread",
+          "then": "The message is delivered to the team and organized by project context"
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "description": "System MUST authenticate users via email and password with role-based access control",
+      "priority": "Critical",
+      "testable": true
+    },
+    {
+      "id": "FR-002",
+      "description": "System MUST support four user roles: client_owner, client_member, aj_ops, aj_admin",
+      "priority": "Critical",
+      "testable": true
+    },
+    {
+      "id": "FR-003",
+      "description": "System MUST display a dashboard with next actions, billing alerts, and upcoming bookings",
+      "priority": "Critical",
+      "testable": true
+    },
+    {
+      "id": "FR-004",
+      "description": "System MUST integrate with Whop API to sync billing and subscription data",
+      "priority": "High",
+      "testable": true
+    },
+    {
+      "id": "FR-005",
+      "description": "System MUST provide project listing with status, milestones, and progress tracking",
+      "priority": "High",
+      "testable": true
+    },
+    {
+      "id": "FR-006",
+      "description": "System MUST enable content approval workflow with approve/reject/comment functionality",
+      "priority": "High",
+      "testable": true
+    },
+    {
+      "id": "FR-007",
+      "description": "System MUST integrate with n8n for workflow automation and Slack for notifications",
+      "priority": "High",
+      "testable": true
+    },
+    {
+      "id": "FR-008",
+      "description": "System MUST embed Cal.com/Calendly for appointment scheduling",
+      "priority": "Medium",
+      "testable": true
+    },
+    {
+      "id": "FR-009",
+      "description": "System MUST integrate with Google Calendar to display upcoming appointments",
+      "priority": "Medium",
+      "testable": true
+    },
+    {
+      "id": "FR-010",
+      "description": "System MUST provide threaded messaging system organized by project",
+      "priority": "Medium",
+      "testable": true
+    },
+    {
+      "id": "FR-011",
+      "description": "System MUST integrate with Google Drive for file access and management",
+      "priority": "Medium",
+      "testable": true
+    },
+    {
+      "id": "FR-012",
+      "description": "System MUST embed ChatKit/Beacon AI chatbot with client context",
+      "priority": "Low",
+      "testable": true
+    },
+    {
+      "id": "FR-013",
+      "description": "System MUST exclude portal from search engine indexing (robots.txt disallow)",
+      "priority": "Medium",
+      "testable": true
+    }
+  ],
+  "keyEntities": [
+    {
+      "name": "User",
+      "description": "Client portal users with different roles and permissions",
+      "attributes": ["userId", "email", "role", "organizationId", "permissions", "lastLogin"]
+    },
+    {
+      "name": "Project",
+      "description": "Client projects with status, milestones, and deliverables",
+      "attributes": ["projectId", "name", "status", "startDate", "endDate", "clientId", "teamMembers", "milestones"]
+    },
+    {
+      "name": "Milestone",
+      "description": "Project milestones with completion status and deadlines",
+      "attributes": ["milestoneId", "projectId", "name", "description", "dueDate", "status", "deliverables"]
+    },
+    {
+      "name": "Approval",
+      "description": "Content approval requests with status and feedback",
+      "attributes": ["approvalId", "projectId", "contentType", "status", "submittedDate", "reviewedDate", "comments"]
+    },
+    {
+      "name": "Billing",
+      "description": "Billing and subscription information synced from Whop",
+      "attributes": ["billingId", "clientId", "subscriptionStatus", "amount", "nextBillingDate", "paymentMethod"]
+    },
+    {
+      "name": "Booking",
+      "description": "Scheduled appointments and meetings",
+      "attributes": ["bookingId", "clientId", "meetingType", "scheduledDate", "duration", "status", "meetingLink"]
+    },
+    {
+      "name": "Message",
+      "description": "Threaded conversations organized by project context",
+      "attributes": ["messageId", "projectId", "senderId", "content", "timestamp", "threadId", "attachments"]
+    },
+    {
+      "name": "File",
+      "description": "Project files and assets managed through Google Drive integration",
+      "attributes": ["fileId", "projectId", "fileName", "fileType", "size", "driveId", "permissions", "uploadDate"]
+    }
+  ],
+  "successCriteria": [
+    {
+      "id": "SC-001",
+      "description": "Users can complete login and access their dashboard in under 30 seconds",
+      "measurable": true,
+      "technologyAgnostic": true
+    },
+    {
+      "id": "SC-002",
+      "description": "90% of users successfully complete their primary task on first attempt",
+      "measurable": true,
+      "technologyAgnostic": true
+    },
+    {
+      "id": "SC-003",
+      "description": "Content approval cycle time reduces by 50% compared to current process",
+      "measurable": true,
+      "technologyAgnostic": true
+    },
+    {
+      "id": "SC-004",
+      "description": "System supports 100+ concurrent users without performance degradation",
+      "measurable": true,
+      "technologyAgnostic": true
+    },
+    {
+      "id": "SC-005",
+      "description": "Billing-related support tickets decrease by 60% after portal implementation",
+      "measurable": true,
+      "technologyAgnostic": true
+    },
+    {
+      "id": "SC-006",
+      "description": "Client satisfaction score for project transparency increases to 4.5/5.0",
+      "measurable": true,
+      "technologyAgnostic": true
+    },
+    {
+      "id": "SC-007",
+      "description": "Administrative overhead for AJ Digital team reduces by 40%",
+      "measurable": true,
+      "technologyAgnostic": true
+    }
+  ],
+  "edgeCases": [
+    "What happens when a user loses internet connection during an approval submission?",
+    "How does the system handle simultaneous edits to the same project milestone?",
+    "What occurs when Whop API is temporarily unavailable during billing sync?",
+    "How does the system respond when a user's role changes while they're actively using the portal?",
+    "What happens when Google Drive file permissions change outside the portal?",
+    "How does the system handle n8n webhook failures for critical approval notifications?",
+    "What occurs when Cal.com/Calendly integration is temporarily unavailable?",
+    "How does the system manage conflicting calendar bookings?"
+  ],
+  "assumptions": [
+    "Clients have valid email addresses for authentication",
+    "Users have modern web browsers with JavaScript enabled",
+    "External services (Whop, Google Drive, n8n, Slack) maintain acceptable uptime",
+    "Clients are willing to adopt a new portal for project management",
+    "AJ Digital team will provide training and support during rollout",
+    "Current project data can be migrated to the new system",
+    "Clients prefer centralized communication over email/external tools"
+  ],
+  "integrations": [
+    {
+      "service": "Whop",
+      "purpose": "Billing and subscription management",
+      "type": "API Integration",
+      "critical": true
+    },
+    {
+      "service": "Google Calendar",
+      "purpose": "Display upcoming appointments",
+      "type": "API Integration",
+      "critical": false
+    },
+    {
+      "service": "Google Drive",
+      "purpose": "File storage and sharing",
+      "type": "API Integration",
+      "critical": false
+    },
+    {
+      "service": "Cal.com/Calendly",
+      "purpose": "Appointment scheduling",
+      "type": "Embed Integration",
+      "critical": false
+    },
+    {
+      "service": "n8n",
+      "purpose": "Workflow automation",
+      "type": "Webhook Integration",
+      "critical": true
+    },
+    {
+      "service": "Slack",
+      "purpose": "Team notifications",
+      "type": "Webhook Integration",
+      "critical": false
+    },
+    {
+      "service": "ChatKit/Beacon AI",
+      "purpose": "AI-powered customer support",
+      "type": "Embed Integration",
+      "critical": false
+    },
+    {
+      "service": "GBU (Get Business Updates)",
+      "purpose": "Contract management",
+      "type": "Webhook Integration",
+      "critical": false
+    }
+  ],
+  "apiRoutes": [
+    "/api/auth/login",
+    "/api/dashboard",
+    "/api/billing",
+    "/api/projects",
+    "/api/projects/[id]",
+    "/api/approvals",
+    "/api/messages",
+    "/api/assets",
+    "/api/webhooks/whop",
+    "/api/webhooks/n8n/projects",
+    "/api/webhooks/n8n/approvals",
+    "/api/webhooks/gbu",
+    "/api/webhooks/calendar"
+  ],
+  "securityRequirements": [
+    "Role-based access control with least privilege principle",
+    "Secure session management with proper token handling",
+    "Input validation and sanitization for all user inputs",
+    "HTTPS encryption for all communications",
+    "Audit logging for sensitive operations",
+    "Protection against common web vulnerabilities (XSS, CSRF, SQL injection)"
+  ],
+  "performanceRequirements": [
+    "Page load times under 2 seconds",
+    "API response times under 500ms",
+    "Support for 100+ concurrent users",
+    "Real-time message delivery under 100ms",
+    "File upload progress indication for large files"
+  ],
+  "privacyRequirements": [
+    "Exclude from search engine indexing (robots.txt)",
+    "No public access to portal content",
+    "Secure handling of client business information",
+    "Data retention policies aligned with business needs",
+    "Client data export capabilities"
+  ]
+}

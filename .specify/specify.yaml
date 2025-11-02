@@ -1,0 +1,11 @@
+﻿version: 1
+project:
+  name: audiojones.com
+  root: .
+specs:
+  paths:
+    - .specify/specs
+  includes:
+    - "**/*.md"
+outputs:
+  dir: .specify/.out
