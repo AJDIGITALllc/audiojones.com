@@ -14,16 +14,33 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-function createFirebaseApp(): FirebaseApp {
-  if (!firebaseConfig.apiKey) {
-    throw new Error("Missing Firebase env vars");
+function createFirebaseApp(): FirebaseApp | null {
+  try {
+    if (!firebaseConfig.apiKey) {
+      // During build time, return null - Firebase will only be used at runtime
+      if (typeof window === 'undefined') {
+        console.warn('Firebase not initialized: missing configuration (build time)');
+        return null;
+      }
+      throw new Error("Missing Firebase configuration. Please check your environment variables.");
+    }
+    return getApps().length ? getApp() : initializeApp(firebaseConfig);
+  } catch (error) {
+    if (typeof window === 'undefined') {
+      // During build, just warn and return null
+      console.warn('Firebase initialization failed during build:', error);
+      return null;
+    }
+    throw error;
   }
-  return getApps().length ? getApp() : initializeApp(firebaseConfig);
 }
 
-export const app = createFirebaseApp();
-export const auth = getAuth(app);
-export const storage = getStorage(app);
-export const functions = getFunctions(app);
-export const db = getFirestore(app);
+const app = createFirebaseApp();
+
+// Only initialize Firebase services if app exists
+export { app };
+export const auth = app ? getAuth(app) : null as any;
+export const storage = app ? getStorage(app) : null as any;
+export const functions = app ? getFunctions(app) : null as any;
+export const db = app ? getFirestore(app) : null as any;
 export const googleProvider = new GoogleAuthProvider();

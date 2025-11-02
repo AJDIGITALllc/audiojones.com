@@ -7,7 +7,9 @@ let adminApp: admin.app.App | null = null;
 
 function requireEnv(name: string): string {
   const v = process.env[name];
-  if (!v) throw new Error(`Missing env var: ${name}`);
+  if (!v) {
+    throw new Error(`Missing Firebase env vars`);
+  }
   return v;
 }
 

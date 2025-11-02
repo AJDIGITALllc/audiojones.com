@@ -80,15 +80,19 @@ class PerplexityClient {
   private baseUrl: string;
 
   constructor() {
-    this.apiKey = process.env.PERPLEXITY_API_KEY!;
+    this.apiKey = process.env.PERPLEXITY_API_KEY || '';
     this.baseUrl = 'https://api.perplexity.ai';
+  }
 
-    if (!this.apiKey) {
+  private checkApiKey(): void {
+    if (!this.apiKey || this.apiKey === 'placeholder') {
       throw new Error('PERPLEXITY_API_KEY environment variable is required');
     }
   }
 
   async research(context: ResearchContext): Promise<ResearchResult> {
+    this.checkApiKey();
+    
     const prompt = this.buildResearchPrompt(context);
     
     const request: PerplexityRequest = {
