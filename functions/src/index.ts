@@ -16,7 +16,10 @@ const stripe = new Stripe(stripeSecret || "", { apiVersion: "2024-06-20" });
 
 /** Stripe Webhook */
 export const stripeWebhook = f.https.onRequest(async (req, res) => {
-  if (!stripeSecret || !stripeWebhookSecret) return res.status(500).send("Stripe env not set");
+  if (!stripeSecret || !stripeWebhookSecret) {
+    res.status(500).send("Stripe env not set");
+    return;
+  }
   const sig = req.headers["stripe-signature"] as string;
   let event: Stripe.Event;
   try {
@@ -75,7 +78,7 @@ export const stripeWebhook = f.https.onRequest(async (req, res) => {
     default:
       break;
   }
-  return res.json({ received: true });
+  res.json({ received: true });
 });
 
 /** Cal.com Webhook (event.created/event.updated) */

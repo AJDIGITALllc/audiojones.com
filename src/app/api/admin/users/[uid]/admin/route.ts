@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/server/firebaseAdmin';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     uid: string;
-  };
+  }>;
 }
 
 /** Validate Bearer token and require the `admin` custom claim */
@@ -31,7 +31,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   if (!gate.ok) return gate.res!;
 
   try {
-    const { uid } = params;
+    const { uid } = await params;
     const body = await req.json();
     const { admin } = body;
 
