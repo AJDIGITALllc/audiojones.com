@@ -8,66 +8,22 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Audio Jones — AI, Media & Marketing Systems",
     description: "AI-tuned funnels, podcast delivery, and marketing automation.",
-    type: "website",
-    url: "https://audiojones.com",
-    siteName: "Audio Jones",
-    images: [
-      {
-        url: "/assets/audio-jones-hero.webp",
-        width: 1200,
-        height: 630,
-        alt: "Audio Jones - AI, Media & Marketing Systems",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Audio Jones — AI, Media & Marketing Systems",
-    description: "AI-tuned funnels, podcast delivery, and marketing automation.",
-    images: ["/assets/audio-jones-hero.webp"],
-  },
+    type: "website"
+  }
 };
-
-// Trusted clients/partners data
-const trustedPartners = [
-  "Creator Economy Leaders",
-  "Podcast Networks", 
-  "Service-Based Businesses",
-  "SaaS Platforms",
-  "Miami Entrepreneurs"
-];
-
-// Stats data for hero media fallback
-const heroStats = [
-  { label: "Client Revenue Increase", value: "340%", icon: "📈" },
-  { label: "Automation ROI", value: "25x", icon: "🤖" },
-  { label: "Podcast Downloads", value: "2M+", icon: "🎙️" },
-  { label: "AI Systems Built", value: "500+", icon: "⚡" }
-];
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-gradient-to-br from-black via-black to-[#FF4500] relative overflow-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-black to-[#FF4500]/20" />
-        
-        {/* Content Container */}
-        <div className="relative z-10 container mx-auto px-6 pt-24 pb-16 md:pt-32 md:pb-20">
+      <section className="relative z-10 pt-24 md:pt-32 pb-16 md:pb-20">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             
             {/* Left Column - Content */}
             <div className="space-y-8" data-animate="fade-up">
               
-              {/* Company Badge */}
-              <div className="inline-block">
-                <span className="text-[#FFD700] text-sm font-medium tracking-wide uppercase bg-[#FFD700]/10 px-4 py-2 rounded-full border border-[#FFD700]/20">
-                  🔥 AJ DIGITAL LLC • Miami-Based Systems
-                </span>
-              </div>
-
-              {/* Main Heading */}
+              {/* Main Headline */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-white">
                 AI, Media & Marketing{" "}
                 <span className="text-transparent bg-gradient-to-r from-[#FF4500] to-[#FFD700] bg-clip-text">
@@ -78,17 +34,16 @@ export default function HomePage() {
 
               {/* Subheading */}
               <p className="text-lg sm:text-xl text-gray-300 leading-relaxed max-w-2xl">
-                Built under AJ DIGITAL LLC, deployed across your funnels, podcasts, and automation stack. 
-                We turn content creators into systematic revenue machines.
+                Built under AJ DIGITAL LLC, deployed across your funnels, podcasts, and automation stack.
               </p>
 
-              {/* Trusted Partners Badge */}
+              {/* Trust Badge */}
               <div className="py-4" data-animate="fade-up" data-delay="200">
                 <p className="text-sm text-gray-400 mb-3">
-                  Trusted by Audio Jones clients & partners:
+                  Trusted by Audio Jones clients & partners
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  {trustedPartners.map((partner, index) => (
+                  {["Creator Economy Leaders", "Podcast Networks", "Service Businesses", "SaaS Platforms"].map((partner, index) => (
                     <span
                       key={index}
                       className="text-xs text-gray-300 bg-white/5 px-3 py-1 rounded-full border border-white/10"
@@ -104,7 +59,7 @@ export default function HomePage() {
                 {/* Primary CTA */}
                 <a
                   href="/contact"
-                  className="group inline-flex items-center justify-center px-8 py-4 bg-[#FF4500] hover:bg-[#e63e00] text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-xl hover:shadow-[#FF4500]/25"
+                  className="group inline-flex items-center justify-center px-8 py-4 bg-[#FF4500] hover:bg-[#e63e00] text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105"
                 >
                   <span>Book a Build Session</span>
                   <svg className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,7 +70,7 @@ export default function HomePage() {
                 {/* Secondary CTA */}
                 <a
                   href="#services"
-                  className="group inline-flex items-center justify-center px-8 py-4 border-2 border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700]/10 hover:shadow-lg hover:shadow-[#FFD700]/20 font-semibold rounded-lg transition-all duration-200"
+                  className="group inline-flex items-center justify-center px-8 py-4 border-2 border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700]/10 font-semibold rounded-lg transition-all duration-200"
                 >
                   <span>View Services</span>
                   <svg className="ml-2 w-5 h-5 group-hover:rotate-45 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,7 +90,7 @@ export default function HomePage() {
                   {/* Hero Image */}
                   <div className="relative h-full w-full rounded-2xl overflow-hidden">
                     <Image
-                      src="/assets/audio-jones-hero.webp"
+                      src="/assets/Backgrounds/aj-hero-portrait.webp"
                       alt="Audio Jones - AI Marketing Systems"
                       fill
                       className="object-cover object-center"
@@ -146,11 +101,16 @@ export default function HomePage() {
                     {/* Overlay Gradient */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                     
-                    {/* Stats Overlay - Fallback if no hero image */}
+                    {/* Stats Overlay - Shows on hover */}
                     <div className="absolute inset-0 bg-gradient-to-br from-[#FF4500]/90 to-[#FFD700]/90 opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-2xl">
                       <div className="h-full flex items-center justify-center p-8">
                         <div className="grid grid-cols-2 gap-6 text-center">
-                          {heroStats.map((stat, index) => (
+                          {[
+                            { label: "Revenue Increase", value: "340%", icon: "📈" },
+                            { label: "Automation ROI", value: "25x", icon: "🤖" },
+                            { label: "Podcast Downloads", value: "2M+", icon: "🎙️" },
+                            { label: "Systems Built", value: "500+", icon: "⚡" }
+                          ].map((stat, index) => (
                             <div key={index} className="text-white">
                               <div className="text-2xl mb-2">{stat.icon}</div>
                               <div className="text-3xl font-bold mb-1">{stat.value}</div>
@@ -187,9 +147,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Additional Sections */}
-      <section id="services" className="relative py-20 bg-black">
-        <div className="container mx-auto px-6">
+      {/* Services Preview Section */}
+      <section id="services" className="relative py-20 bg-black/20 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
               Systems That <span className="text-[#FF4500]">Actually Work</span>
@@ -199,7 +159,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Services Grid Placeholder */}
+          {/* Services Grid */}
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
@@ -220,7 +180,7 @@ export default function HomePage() {
             ].map((service, index) => (
               <div
                 key={index}
-                className="bg-gray-900/50 border border-gray-800 rounded-xl p-8 hover:border-[#FF4500]/50 transition-colors"
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-8 hover:border-[#FF4500]/50 transition-all duration-300 hover:transform hover:scale-105"
               >
                 <div className="text-4xl mb-4">{service.icon}</div>
                 <h3 className="text-xl font-semibold text-white mb-4">{service.title}</h3>
