@@ -16,13 +16,17 @@ const stripe = new Stripe(stripeSecret || "", { apiVersion: "2024-06-20" });
 
 /** Stripe Webhook */
 export const stripeWebhook = f.https.onRequest(async (req, res) => {
-  if (!stripeSecret || !stripeWebhookSecret) return res.status(500).send("Stripe env not set");
+  if (!stripeSecret || !stripeWebhookSecret) {
+    res.status(500).send("Stripe env not set");
+    return;
+  }
   const sig = req.headers["stripe-signature"] as string;
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(req.rawBody, sig, stripeWebhookSecret);
   } catch (err: any) {
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    res.status(400).send(`Webhook Error: ${err.message}`);
+    return;
   }
 
   switch (event.type) {
@@ -75,14 +79,17 @@ export const stripeWebhook = f.https.onRequest(async (req, res) => {
     default:
       break;
   }
-  return res.json({ received: true });
+  res.json({ received: true });
 });
 
 /** Cal.com Webhook (event.created/event.updated) */
 export const calcomWebhook = f.https.onRequest(async (req, res) => {
   const body = req.body || {};
   const payload = body?.payload ?? body;
-  if (!payload?.booking) return res.status(400).send("Bad payload");
+  if (!payload?.booking) {
+    res.status(400).send("Bad payload");
+    return;
+  }
 
   const b = payload.booking;
   const id = String(b.uid || b.id || b.hash || Date.now());
@@ -98,7 +105,7 @@ export const calcomWebhook = f.https.onRequest(async (req, res) => {
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   };
   await db.collection("bookings").doc(id).set(doc, { merge: true });
-  return res.json({ ok: true });
+  res.json({ ok: true });
 });
 
 /** Auth onCreate → users profile */
@@ -137,17 +144,32 @@ export const onFileUpload = f.storage.object().onFinalize(async (obj) => {
 
 /** Example admin HTTPS for publishing testimonials */
 export const publishTestimonial = f.https.onRequest(async (req, res) => {
-  if (req.method !== "POST") return res.status(405).end();
+  if (req.method !== "POST") {
+    res.status(405).end();
+    return;
+  }
   const authHeader = req.headers.authorization || "";
-  if (!authHeader.startsWith("Bearer ")) return res.status(401).send("Unauthorized");
+  if (!authHeader.startsWith("Bearer ")) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
   const idToken = authHeader.slice(7);
   const decoded = await admin.auth().verifyIdToken(idToken);
-  if (!(decoded as any).admin) return res.status(403).send("Admin only");
+  if (!(decoded as any).admin) {
+    res.status(403).send("Admin only");
+    return;
+  }
 
   const { submissionId } = req.body || {};
-  if (!submissionId) return res.status(400).send("submissionId required");
+  if (!submissionId) {
+    res.status(400).send("submissionId required");
+    return;
+  }
   const snap = await db.collection("testimonialSubmissions").doc(submissionId).get();
-  if (!snap.exists) return res.status(404).send("Submission not found");
+  if (!snap.exists) {
+    res.status(404).send("Submission not found");
+    return;
+  }
   const data = snap.data()!;
 
   await db.collection("testimonials").add({
@@ -158,20 +180,26 @@ export const publishTestimonial = f.https.onRequest(async (req, res) => {
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
   await snap.ref.delete();
-  return res.json({ published: true });
+  res.json({ published: true });
 });
 
 /** Whop Webhook (order.created, license.activated) */
 export const whopWebhook = f.https.onRequest(async (req, res) => {
   // Basic shared-secret verification. Configure your secret in Functions env.
   const secret = process.env.WHOP_WEBHOOK_SECRET;
-  if (!secret) return res.status(500).send("WHOP_WEBHOOK_SECRET not set");
+  if (!secret) {
+    res.status(500).send("WHOP_WEBHOOK_SECRET not set");
+    return;
+  }
 
   const headerSig = (req.headers["whop-signature"] || req.headers["x-whop-signature"] || "") as string;
   const auth = (req.headers["authorization"] || "") as string; // allow Bearer <secret>
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
   const ok = headerSig === secret || token === secret;
-  if (!ok) return res.status(401).send("Invalid signature");
+  if (!ok) {
+    res.status(401).send("Invalid signature");
+    return;
+  }
 
   const event = req.body || {};
   const type = event.type || event.event || "unknown";
@@ -216,9 +244,9 @@ export const whopWebhook = f.https.onRequest(async (req, res) => {
         // noop for other events
         break;
     }
-    return res.json({ ok: true });
+    res.json({ ok: true });
   } catch (e: any) {
-    return res.status(500).json({ error: e?.message || "Failed to handle webhook" });
+    res.status(500).json({ error: e?.message || "Failed to handle webhook" });
   }
 });
 
@@ -257,16 +285,28 @@ export const syncWhopCustomers = f.pubsub.schedule("every 6 hours").onRun(async 
 
 /** Generate contract from Docs template and store PDF to Drive */
 export const generateContract = f.https.onRequest(async (req, res) => {
-  if (req.method !== "POST") return res.status(405).end();
+  if (req.method !== "POST") {
+    res.status(405).end();
+    return;
+  }
   try {
     const authHeader = req.headers.authorization || "";
-    if (!authHeader.startsWith("Bearer ")) return res.status(401).send("Unauthorized");
+    if (!authHeader.startsWith("Bearer ")) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
     const idToken = authHeader.slice(7);
     const decoded = await admin.auth().verifyIdToken(idToken);
 
     const { uid, templateId, folderId, name, fields } = req.body || {};
-    if (!templateId || !folderId || !name) return res.status(400).send("Missing templateId, folderId, name");
-    if (!decoded.admin && decoded.uid !== uid) return res.status(403).send("Forbidden");
+    if (!templateId || !folderId || !name) {
+      res.status(400).send("Missing templateId, folderId, name");
+      return;
+    }
+    if (!decoded.admin && decoded.uid !== uid) {
+      res.status(403).send("Forbidden");
+      return;
+    }
 
     const scopes = [
       "https://www.googleapis.com/auth/drive",
@@ -310,24 +350,34 @@ export const generateContract = f.https.onRequest(async (req, res) => {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    return res.json({ contractId: ref.id, docId: newDocId, pdfFileId, signatureRequestId });
+    const signatureRequestId = null;
+    res.json({ contractId: ref.id, docId: newDocId, pdfFileId, signatureRequestId });
   } catch (e: any) {
     console.error(e);
-    return res.status(500).send(e?.message || "Contract generation failed");
+    res.status(500).send(e?.message || "Contract generation failed");
   }
 });
 
 /** Get Drive links (optionally create public read) */
 export const getDriveLinks = f.https.onRequest(async (req, res) => {
-  if (req.method !== "POST") return res.status(405).end();
+  if (req.method !== "POST") {
+    res.status(405).end();
+    return;
+  }
   try {
     const authHeader = req.headers.authorization || "";
-    if (!authHeader.startsWith("Bearer ")) return res.status(401).send("Unauthorized");
+    if (!authHeader.startsWith("Bearer ")) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
     const idToken = authHeader.slice(7);
     await admin.auth().verifyIdToken(idToken);
 
     const { fileId, makePublic } = req.body || {};
-    if (!fileId) return res.status(400).send("fileId required");
+    if (!fileId) {
+      res.status(400).send("fileId required");
+      return;
+    }
 
     const scopes = ["https://www.googleapis.com/auth/drive"];
     const auth = await google.auth.getClient({ scopes });
@@ -337,10 +387,10 @@ export const getDriveLinks = f.https.onRequest(async (req, res) => {
       await drive.permissions.create({ fileId, requestBody: { role: "reader", type: "anyone" } });
     }
     const meta = await drive.files.get({ fileId, fields: "webViewLink, webContentLink" });
-    return res.json({ webViewLink: meta.data.webViewLink, webContentLink: meta.data.webContentLink });
+    res.json({ webViewLink: meta.data.webViewLink, webContentLink: meta.data.webContentLink });
   } catch (e: any) {
     console.error(e);
-    return res.status(500).send(e?.message || "Failed to get links");
+    res.status(500).send(e?.message || "Failed to get links");
   }
 });
 
@@ -349,24 +399,40 @@ export const getDriveLinks = f.https.onRequest(async (req, res) => {
 
 /** Click-to-Sign: stamp PDF and mark signed */
 export const signContract = f.https.onRequest(async (req, res) => {
-  if (req.method !== "POST") return res.status(405).end();
+  if (req.method !== "POST") {
+    res.status(405).end();
+    return;
+  }
   try {
     const authHeader = req.headers.authorization || "";
-    if (!authHeader.startsWith("Bearer ")) return res.status(401).send("Unauthorized");
+    if (!authHeader.startsWith("Bearer ")) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
     const idToken = authHeader.slice(7);
     const decoded = await admin.auth().verifyIdToken(idToken);
 
     const { id, signerName, ip } = req.body || {};
-    if (!id || !signerName) return res.status(400).json({ message: "Missing id or signerName" });
+    if (!id || !signerName) {
+      res.status(400).json({ message: "Missing id or signerName" });
+      return;
+    }
 
     // Find contract by pdfFileId (Drive file ID used in UI for preview)
     const snapQ = await db.collection("contracts").where("pdfFileId", "==", String(id)).limit(1).get();
-    if (snapQ.empty) return res.status(404).json({ message: "Contract not found" });
+    if (snapQ.empty) {
+      res.status(404).json({ message: "Contract not found" });
+      return;
+    }
     const ref = snapQ.docs[0].ref;
     const data = snapQ.docs[0].data() as any;
-    if (!data?.pdfFileId) return res.status(400).json({ message: "No PDF available to sign" });
+    if (!data?.pdfFileId) {
+      res.status(400).json({ message: "No PDF available to sign" });
+      return;
+    }
     if (data?.uid && data.uid !== decoded.uid && !(decoded as any).admin) {
-      return res.status(403).json({ message: "Forbidden" });
+      res.status(403).json({ message: "Forbidden" });
+      return;
     }
 
     // Download PDF bytes from Drive
@@ -444,10 +510,10 @@ export const signContract = f.https.onRequest(async (req, res) => {
       { merge: true }
     );
 
-    return res.json({ message: "Signed", signedUrl });
+    res.json({ message: "Signed", signedUrl });
   } catch (e: any) {
     console.error(e);
-    return res.status(500).json({ message: e?.message || "Signing failed" });
+    res.status(500).json({ message: e?.message || "Signing failed" });
   }
 });
 
@@ -488,16 +554,25 @@ export const onContractSigned = f.firestore.document("contracts/{id}").onUpdate(
 export const verifySignature = f.https.onRequest(async (req, res) => {
   try {
     const id = (req.method === "GET" ? (req.query as any).id : req.body?.id) as string | undefined;
-    if (!id) return res.status(400).json({ ok: false, message: "id required" });
+    if (!id) {
+      res.status(400).json({ ok: false, message: "id required" });
+      return;
+    }
     const snap = await db.collection("contracts").doc(String(id)).get();
-    if (!snap.exists) return res.status(404).json({ ok: false, message: "not found" });
+    if (!snap.exists) {
+      res.status(404).json({ ok: false, message: "not found" });
+      return;
+    }
     const doc = snap.data() as any;
-    if (!doc?.signaturePayload || !doc?.signatureHash) return res.status(400).json({ ok: false, message: "no signature" });
+    if (!doc?.signaturePayload || !doc?.signatureHash) {
+      res.status(400).json({ ok: false, message: "no signature" });
+      return;
+    }
     const crypto = await import("node:crypto");
     const pl = doc.signaturePayload;
     const digest = crypto.createHash("sha256").update(`${pl.id}|${pl.uid}|${pl.signerName}|${pl.signedAtISO}|${pl.ip || ""}`).digest("hex");
-    return res.json({ ok: digest === doc.signatureHash, hash: doc.signatureHash, recomputed: digest });
+    res.json({ ok: digest === doc.signatureHash, hash: doc.signatureHash, recomputed: digest });
   } catch (e: any) {
-    return res.status(500).json({ ok: false, message: e?.message || "error" });
+    res.status(500).json({ ok: false, message: e?.message || "error" });
   }
 });
