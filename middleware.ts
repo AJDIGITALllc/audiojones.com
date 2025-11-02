@@ -1,10 +1,32 @@
-// middleware.ts
+/**
+ * Edge Middleware - Authentication Guard
+ *
+ * Runs on Vercel Edge Network to protect admin routes before reaching the server.
+ * Provides fast redirect/401 for unauthenticated requests to admin areas.
+ *
+ * @module middleware
+ */
+
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Admin-only areas we want to gate at the edge
+/** Admin-only areas we want to gate at the edge */
 const ADMIN_PATHS = ['/admin', '/admin/', '/api/admin', '/api/admin/']
 
+/**
+ * Edge Middleware Handler
+ *
+ * Three-layer security architecture:
+ * 1. Edge Middleware (this layer) - Quick check for auth presence
+ * 2. Server Layout - Verify token and check admin claim
+ * 3. API Route Guards - Per-endpoint verification
+ *
+ * This middleware only checks if auth credentials exist (idToken cookie or Bearer header).
+ * Actual verification happens at layers 2 and 3.
+ *
+ * @param req - Next.js request object
+ * @returns Next.js response (redirect, 401, or pass-through)
+ */
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 

@@ -1,5 +1,11 @@
-// Perplexity API Integration for Audio Jones Blog Automation
-// Implements automated research for the 5 strategic pillars
+/**
+ * Perplexity API Integration for Audio Jones Blog Automation
+ *
+ * Implements automated research using Perplexity's web-connected AI models.
+ * Researches topics across the 5 strategic pillars with Audio Jones context.
+ *
+ * @module lib/automation/perplexity
+ */
 
 export interface PerplexityRequest {
   model: string;
@@ -75,6 +81,14 @@ export interface ResearchResult {
   rawResponse: PerplexityResponse;
 }
 
+/**
+ * Perplexity API Client
+ *
+ * Provides web-connected research capabilities using Perplexity's
+ * llama-3.1-sonar-huge-128k-online model with citations and related questions.
+ *
+ * @class PerplexityClient
+ */
 class PerplexityClient {
   private apiKey: string;
   private baseUrl: string;
@@ -88,6 +102,34 @@ class PerplexityClient {
     }
   }
 
+  /**
+   * Conduct comprehensive research on a topic
+   *
+   * Uses Perplexity's web-connected model to research a topic with:
+   * - Real-time web access
+   * - Citation tracking
+   * - Related question suggestions
+   * - Audio Jones context awareness
+   *
+   * @param context - Research context with pillar, topic, persona, intent
+   * @returns Promise resolving to structured research results
+   * @throws {Error} If PERPLEXITY_API_KEY is missing or API call fails
+   *
+   * @example
+   * ```typescript
+   * const research = await perplexityClient.research({
+   *   pillar: 'ai',
+   *   topic: 'AI marketing trends 2025',
+   *   persona: 'entrepreneur',
+   *   intent: 'educate',
+   *   currentDate: '2025-01-20'
+   * });
+   *
+   * console.log(research.summary);
+   * console.log(research.keyPoints);
+   * console.log(research.citations);
+   * ```
+   */
   async research(context: ResearchContext): Promise<ResearchResult> {
     const prompt = this.buildResearchPrompt(context);
     

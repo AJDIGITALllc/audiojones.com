@@ -1,13 +1,34 @@
-// Blog Automation System Types
-// Based on blog-automation-spec.md
+/**
+ * Blog Automation System Types
+ *
+ * Comprehensive type definitions for the Audio Jones blog automation system.
+ * Based on blog-automation-spec.md
+ *
+ * @module lib/models/blog
+ */
 
+/** Strategic content pillar for blog organization */
 export type PillarType = 'ai' | 'marketing' | 'podcast-news' | 'tech-business-trends' | 'personal-brand';
+
+/** Target audience persona */
 export type PersonaType = 'creator' | 'entrepreneur' | 'smb' | 'agency';
+
+/** Blog draft lifecycle status */
 export type BlogStatus = 'draft' | 'needs_review' | 'approved' | 'scheduled' | 'published' | 'optimization_pending';
+
+/** Content source origin */
 export type BlogSource = 'perplexity' | 'internal' | 'mixed';
+
+/** Audio Jones proprietary framework types */
 export type FrameworkType = 'EPM' | 'ASI' | 'PR' | 'AOF';
+
+/** Call-to-action type for content */
 export type CTAType = 'newsletter' | 'podcast' | 'services' | 'lead_magnet';
+
+/** A/B testing variant types */
 export type VariantType = 'title' | 'intro' | 'cta' | 'hero_media';
+
+/** Content scheduling status */
 export type ScheduleStatus = 'pending' | 'published' | 'failed';
 
 // Audio Jones 5 Strategic Pillars Configuration
@@ -147,17 +168,58 @@ export interface ContentSchedule {
   updatedAt: Date;
 }
 
-// Utility functions
+/**
+ * Utility Functions
+ */
+
+/**
+ * Get configuration for a specific pillar
+ *
+ * @param pillar - The pillar type to get config for
+ * @returns Pillar configuration object with id, label, intents, and color
+ * @example
+ * ```typescript
+ * const config = getPillarConfig('ai');
+ * console.log(config.label); // "AI for Marketing & Creators"
+ * ```
+ */
 export function getPillarConfig(pillar: PillarType) {
   return PILLARS[pillar];
 }
 
+/**
+ * Calculate estimated reading time in minutes
+ *
+ * Uses standard reading speed of 200 words per minute.
+ *
+ * @param content - The full blog content (markdown or plain text)
+ * @returns Estimated reading time in minutes (rounded up)
+ * @example
+ * ```typescript
+ * const content = "Lorem ipsum..."; // 1500 words
+ * const time = calculateReadingTime(content); // Returns 8 minutes
+ * ```
+ */
 export function calculateReadingTime(content: string): number {
   const wordsPerMinute = 200;
   const wordCount = content.split(/\s+/).length;
   return Math.ceil(wordCount / wordsPerMinute);
 }
 
+/**
+ * Generate URL-friendly slug from title
+ *
+ * Converts title to lowercase, replaces special characters with hyphens,
+ * removes leading/trailing hyphens, and truncates to 100 characters.
+ *
+ * @param title - The blog post title
+ * @returns URL-safe slug
+ * @example
+ * ```typescript
+ * const slug = generateSlug("How AI Transforms Marketing!");
+ * console.log(slug); // "how-ai-transforms-marketing"
+ * ```
+ */
 export function generateSlug(title: string): string {
   return title
     .toLowerCase()
@@ -194,7 +256,29 @@ export function getStatusLabel(status: BlogStatus): string {
   return labels[status] || status;
 }
 
-// Content validation
+/**
+ * Content Validation
+ */
+
+/**
+ * Validate blog draft for required fields and data integrity
+ *
+ * Checks for:
+ * - Required fields (title, slug, content, pillar, CTA fields)
+ * - Valid pillar selection
+ * - Valid CTA type
+ *
+ * @param draft - Partial blog draft object to validate
+ * @returns Validation result with isValid flag and error messages array
+ * @example
+ * ```typescript
+ * const draft = { title: "Test", content: "...", pillar: "ai" };
+ * const result = validateBlogDraft(draft);
+ * if (!result.isValid) {
+ *   console.error("Validation errors:", result.errors);
+ * }
+ * ```
+ */
 export function validateBlogDraft(draft: Partial<BlogDraft>): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
 
@@ -232,7 +316,39 @@ export function validateBlogDraft(draft: Partial<BlogDraft>): { isValid: boolean
   };
 }
 
-// Performance calculation
+/**
+ * Performance Scoring
+ */
+
+/**
+ * Calculate weighted performance score for blog content
+ *
+ * Scoring algorithm weights:
+ * - Views: 25%
+ * - Engagement Time: 20%
+ * - Conversions: 25%
+ * - Social Shares: 15%
+ * - Search Impressions: 10%
+ * - Bounce Rate: 5%
+ *
+ * Each metric is normalized against benchmark thresholds and combined
+ * into a score from 0 to 1.
+ *
+ * @param performance - Partial content performance data
+ * @returns Performance score (0-1 scale, rounded to 2 decimal places)
+ * @example
+ * ```typescript
+ * const score = calculatePerformanceScore({
+ *   views: 500,
+ *   engagementTime: 120,
+ *   conversions: 5,
+ *   socialShares: 25,
+ *   searchImpressions: 2000,
+ *   bounceRate: 0.4
+ * });
+ * console.log(score); // 0.68
+ * ```
+ */
 export function calculatePerformanceScore(performance: Partial<ContentPerformance>): number {
   const {
     views = 0,
@@ -287,6 +403,24 @@ export const VOICE_PATTERNS = {
   ]
 };
 
+/**
+ * Validate content against Audio Jones brand voice guidelines
+ *
+ * Checks for:
+ * 1. Required elements: Must mention "Audio Jones" or "AJ DIGITAL"
+ * 2. Encouraged patterns: Framework references, operator voice, automation focus
+ * 3. Discouraged patterns: Generic marketing language, buzzwords
+ *
+ * @param content - Full blog content to validate
+ * @returns Validation result with isValid flag and feedback array
+ * @example
+ * ```typescript
+ * const validation = validateBrandVoice(content);
+ * if (!validation.isValid) {
+ *   console.warn("Brand voice issues:", validation.feedback);
+ * }
+ * ```
+ */
 export function validateBrandVoice(content: string): { isValid: boolean; feedback: string[] } {
   const feedback: string[] = [];
   let isValid = true;

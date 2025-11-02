@@ -1,42 +1,81 @@
-// Blog Generation Pipeline - Audio Jones Voice & AEO Optimization
-// Transforms Perplexity research into Audio Jones branded content
+/**
+ * Blog Generation Pipeline - Audio Jones Voice & AEO Optimization
+ *
+ * Transforms Perplexity research into Audio Jones branded content using LLM generation
+ * with brand voice validation and AEO (AI Engine Optimization) scoring.
+ *
+ * @module lib/automation/blog-generator
+ */
 
 import { perplexityClient, ResearchResult } from './perplexity';
 import { BlogDraft, PillarType, CTAType, PILLARS, calculateReadingTime, generateSlug, validateBrandVoice } from '../models/blog';
 
+/** Context parameters for blog generation */
 export interface GenerationContext {
+  /** Strategic pillar for content organization */
   pillar: PillarType;
+  /** Main topic/title for the blog post */
   topic: string;
+  /** Target audience persona */
   persona: string;
+  /** Content intent (news, educate, authority, etc.) */
   intent: string;
-  targetLength?: number; // words
+  /** Target word count (optional) */
+  targetLength?: number;
+  /** Call-to-action type (optional) */
   ctaType?: CTAType;
+  /** Audio Jones framework to reference (optional) */
   framework?: string;
 }
 
+/** Result of blog generation including draft and validation metrics */
 export interface GenerationResult {
+  /** Generated blog draft (partial, awaiting database ID) */
   draft: Partial<BlogDraft>;
+  /** Brand voice validation results */
   voiceValidation: {
     isValid: boolean;
     feedback: string[];
   };
+  /** AEO optimization score (0-100) */
   aeoScore: number;
+  /** Original research data from Perplexity */
   researchUsed: ResearchResult;
 }
 
+/** OpenAI API request structure */
 export interface LLMRequest {
+  /** Model name (e.g., "gpt-4") */
   model: string;
+  /** Conversation messages */
   messages: Array<{
     role: 'system' | 'user' | 'assistant';
     content: string;
   }>;
+  /** Sampling temperature (0-2) */
   temperature?: number;
+  /** Maximum tokens to generate */
   max_tokens?: number;
+  /** Nucleus sampling parameter */
   top_p?: number;
+  /** Frequency penalty (-2.0 to 2.0) */
   frequency_penalty?: number;
+  /** Presence penalty (-2.0 to 2.0) */
   presence_penalty?: number;
 }
 
+/**
+ * Blog Generation Service
+ *
+ * Orchestrates the entire blog generation pipeline:
+ * 1. Research topic using Perplexity API
+ * 2. Generate content with GPT-4
+ * 3. Validate Audio Jones brand voice
+ * 4. Calculate AEO optimization score
+ * 5. Return draft for review
+ *
+ * @class BlogGenerator
+ */
 class BlogGenerator {
   private openaiApiKey: string;
   private openaiBaseUrl: string;
@@ -50,6 +89,34 @@ class BlogGenerator {
     }
   }
 
+  /**
+   * Generate a complete blog draft from a topic
+   *
+   * This is the main entry point for blog generation. It orchestrates:
+   * 1. Research phase (Perplexity API)
+   * 2. Content generation (OpenAI GPT-4)
+   * 3. Brand voice validation
+   * 4. AEO score calculation
+   *
+   * @param context - Generation context with pillar, topic, persona, etc.
+   * @returns Promise resolving to GenerationResult with draft and validation data
+   * @throws {Error} If OpenAI API key is missing or generation fails
+   *
+   * @example
+   * ```typescript
+   * const result = await blogGenerator.generateBlog({
+   *   pillar: 'ai',
+   *   topic: 'How AI transforms marketing automation',
+   *   persona: 'entrepreneur',
+   *   intent: 'educate',
+   *   ctaType: 'newsletter'
+   * });
+   *
+   * if (result.voiceValidation.isValid && result.aeoScore >= 80) {
+   *   // Save draft to database
+   * }
+   * ```
+   */
   async generateBlog(context: GenerationContext): Promise<GenerationResult> {
     // Step 1: Research the topic
     const researchResult = await perplexityClient.research({
@@ -322,6 +389,23 @@ Remember: Audio Jones clients expect operator-level insights, not surface-level 
     };
   }
 
+  /**
+   * Calculate AEO (AI Engine Optimization) score
+   *
+   * Evaluates content across 8 dimensions for AI search engine visibility:
+   * - Title optimization (15 points)
+   * - Meta description (10 points)
+   * - Keywords (10 points)
+   * - Content structure - headings, lists, numbers (20 points)
+   * - FAQs (15 points)
+   * - Key takeaways (10 points)
+   * - Structured data (10 points)
+   * - Content length (10 points)
+   *
+   * @param content - Generated blog content object
+   * @returns AEO score (0-100)
+   * @private
+   */
   private calculateAEOScore(content: any): number {
     let score = 0;
     const maxScore = 100;
