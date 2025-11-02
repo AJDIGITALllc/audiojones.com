@@ -38,12 +38,25 @@ This repository now includes enterprise-grade security and ImageKit integration.
 Set these in Vercel Project Settings → Environment Variables:
 
 ```bash
+# Firebase Client Config (Required - can use placeholders for build)
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+
+# Firebase Admin (Required for server-side)
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
 # ImageKit (Production Only)
 NEXT_PUBLIC_IMAGEKIT_URL=https://ik.imagekit.io/audiojones
 
-# Firebase Admin (Required)
-FIREBASE_CLIENT_EMAIL=your-service-account@audiojoneswebsite.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+# Optional API Keys (only if using blog automation)
+PERPLEXITY_API_KEY=your-perplexity-key
+OPENAI_API_KEY=your-openai-key
 ```
 
 ### 2. Deploy to Production
