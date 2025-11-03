@@ -1,17 +1,17 @@
-// Audio Jones Homepage - Main entry point with enhanced hero section
+import type { Metadata } from "next";
 import HomeHero from "@/components/home/HomeHero";
-import ProblemAgitationSection from "@/components/home/ProblemAgitationSection";
-import HowItWorksSection from "@/components/home/HowItWorksSection";
 import ServicesStrip from "@/components/home/ServicesStrip";
-import WhyAudioJonesSection from "@/components/home/WhyAudioJonesSection";
+import ProblemAgitationSection from "@/components/home/ProblemAgitationSection";
 import Testimonials from "@/components/home/Testimonials";
+import InsightsShowcase from "@/components/home/InsightsShowcase";
+import FAQSection from "@/components/home/FAQSection";
 import ModulesShowcase from "@/components/home/ModulesShowcase";
 import LegalBand from "@/components/home/LegalBand";
-import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: "Audio Jones — AI, Media & Marketing Systems",
-  description: "AJ DIGITAL LLC builds client-ready AI funnels, podcast systems, and marketing automation for creators, consultants, and studios.",
+  description:
+    "AJ DIGITAL LLC builds client-ready AI funnels, podcast systems, and marketing automation for creators, consultants, and studios.",
   openGraph: {
     title: "Audio Jones — AI, Media & Marketing Systems",
     description: "AI-tuned funnels, podcast delivery, and marketing automation.",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     siteName: "Audio Jones",
     images: [
       {
-        url: "/assets/audio-jones-hero.webp",
+        url: "https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/AUDIO%20JONES%20HERO%20IMAGE%20%20(1).webp?updatedAt=1762104789649",
         width: 1200,
         height: 630,
         alt: "Audio Jones - AI, Media & Marketing Systems",
@@ -31,7 +31,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Audio Jones — AI, Media & Marketing Systems",
     description: "AI-tuned funnels, podcast delivery, and marketing automation.",
-    images: ["/assets/audio-jones-hero.webp"],
+    images: [
+      "https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/AUDIO%20JONES%20HERO%20IMAGE%20%20(1).webp?updatedAt=1762104789649",
+    ],
   },
 };
 
@@ -39,11 +41,11 @@ export default function HomePage() {
   return (
     <main>
       <HomeHero />
-      <ProblemAgitationSection />
-      <HowItWorksSection />
       <ServicesStrip />
-      <WhyAudioJonesSection />
+      <ProblemAgitationSection />
       <Testimonials />
+      <InsightsShowcase />
+      <FAQSection />
       <ModulesShowcase />
       <LegalBand />
     </main>

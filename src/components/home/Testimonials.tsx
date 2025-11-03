@@ -1,64 +1,57 @@
-'use client'
+"use client";
 
-import { testimonials } from "@/data/testimonials"
+import { testimonials } from "@/data/testimonials";
+import { CTA_LINKS } from "@/config/marketing";
 
 export default function Testimonials() {
   return (
-    <section id="proof" className="py-20 bg-black">
-      <div className="container mx-auto px-6">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-            What <span className="text-[#FF4500]">Clients Say</span>
+    <section id="testimonials" className="relative bg-[#0B0B0B] py-16 sm:py-20 lg:py-24 text-white">
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent" aria-hidden />
+      <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <p className="text-sm font-bold uppercase tracking-widest text-[#FF4500]">Client Results</p>
+          <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
+            Trusted by South Florida Leaders &amp; Creators
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            From boring businesses to creators, results stay the same — predictable growth.
+          <p className="mt-6 mx-auto max-w-2xl text-lg leading-8 text-gray-300">
+            Discover the impact of a streamlined system from leaders who transformed their brand presence.
           </p>
         </div>
 
-        {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <div
-              key={index}
-              className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 hover:border-[#FFD700]/30 transition-colors duration-300"
+        <div className="mt-12 md:mt-16 grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {testimonials.map((testimonial) => (
+            <article
+              key={testimonial.name}
+              className="relative rounded-xl bg-white/5 p-8 shadow-lg ring-1 ring-white/10"
             >
-              {/* Quote */}
-              <blockquote className="text-gray-300 mb-6 leading-relaxed">
-                "{testimonial.quote}"
-              </blockquote>
-
-              {/* Client Info */}
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden flex-shrink-0">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      // Fallback to initials if image fails to load
-                      const target = e.target as HTMLImageElement;
-                      const initials = testimonial.name.split(' ').map(n => n[0]).join('');
-                      target.style.display = 'none';
-                      if (target.parentElement) {
-                        target.parentElement.innerHTML = `<div class="w-full h-full bg-[#FF4500] text-white flex items-center justify-center font-semibold">${initials}</div>`;
-                      }
-                    }}
-                  />
-                </div>
+              <div className="absolute -top-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-[#FF4500] to-transparent" aria-hidden />
+              <div className="flex items-center gap-6">
+                <div
+                  className="h-16 w-16 flex-shrink-0 rounded-full bg-center bg-cover p-1 ring-2 ring-offset-2 ring-offset-[#0B0B0B] ring-[#FFD700]"
+                  style={{ backgroundImage: `url(${testimonial.image})` }}
+                  aria-hidden
+                />
                 <div>
-                  <div className="font-semibold text-white">
-                    {testimonial.name}
-                  </div>
-                  <div className="text-sm text-[#FFD700]">
-                    {testimonial.role}
-                  </div>
+                  <p className="text-base font-bold">{testimonial.name}</p>
+                  <p className="text-sm text-gray-400">{testimonial.role}</p>
                 </div>
               </div>
-            </div>
+              <blockquote className="mt-6 text-base leading-7 text-gray-300">
+                “{testimonial.quote}”
+              </blockquote>
+            </article>
           ))}
+        </div>
+
+        <div className="mt-16 flex justify-center">
+          <a
+            href={CTA_LINKS.bookStrategy}
+            className="inline-flex h-14 items-center justify-center rounded-full bg-gradient-to-r from-[#FF4500] to-[#FFD700] px-8 text-base font-bold tracking-wide text-black shadow-[0_0_20px_0_rgba(255,69,0,0.45)] transition hover:scale-105"
+          >
+            Start Your Studio System
+          </a>
         </div>
       </div>
     </section>
-  )
+  );
 }

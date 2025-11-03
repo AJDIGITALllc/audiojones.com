@@ -12,6 +12,8 @@ export default function Footer() {
             <li><Link href="/about">About</Link></li>
             <li><Link href="/contact">Contact</Link></li>
             <li><Link href="/careers">Careers</Link></li>
+            <li><Link href="/artist-hub">Artist Hub</Link></li>
+            <li><Link href="/epm">EPM</Link></li>
           </ul>
         </div>
         <div>
@@ -29,6 +31,7 @@ export default function Footer() {
             <li><Link href="/insights">Insights</Link></li>
             <li><Link href="/studio">Studio Tour</Link></li>
             <li><Link href="/newsletter">Newsletter</Link></li>
+            <li><Link href="/epm#epm-waitlist">EPM Waitlist</Link></li>
             <li><Link href="/free-audit">Free AI Audit</Link></li>
           </ul>
         </div>

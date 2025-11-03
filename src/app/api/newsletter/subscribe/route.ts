@@ -9,12 +9,20 @@ export async function POST(req: NextRequest) {
   if (!token) return NextResponse.json({ error: "Missing MAILERLITE_TOKEN" }, { status: 500 });
 
   try {
-    const { email, name } = await req.json();
+    const { email, name, tags } = await req.json();
     if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
 
     const body: any = { email, fields: {} as Record<string, string> };
     if (name) body.fields.name = name;
     if (groupId) body.groups = [groupId];
+    if (typeof tags === "string" && tags.trim()) {
+      body.tags = [tags.trim()];
+    } else if (Array.isArray(tags) && tags.length > 0) {
+      body.tags = tags.filter((tag: unknown) => typeof tag === "string" && tag.trim());
+      if (body.tags.length === 0) {
+        delete body.tags;
+      }
+    }
 
     const res = await fetch(`${base}/api/subscribers`, {
       method: "POST",
