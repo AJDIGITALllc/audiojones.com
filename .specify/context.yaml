@@ -1,0 +1,10 @@
+.specversion: 1.0
+include:
+  - .specify/specs/main/spec.md
+  - .specify/specs/homepage.md
+  - .specify/specs/client-portal.md
+  - .specify/specs/admin-portal.md
+exclude:
+  - docs/
+  - old_specs/
+  - README.md

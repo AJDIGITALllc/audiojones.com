@@ -1,4 +1,4 @@
-# Audio Jones Website - AI Development Guide
+﻿# Audio Jones Website - AI Development Guide
 
 ## Architecture Overview
 

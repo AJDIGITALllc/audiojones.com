@@ -43,5 +43,22 @@
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
     "typescript": "^5"
-  }
+  },
+  "description": "This repo is initialized from `codex.init.yml`.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AJDIGITALllc/audiojones.com.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AJDIGITALllc/audiojones.com/issues"
+  },
+  "homepage": "https://github.com/AJDIGITALllc/audiojones.com#readme"
 }

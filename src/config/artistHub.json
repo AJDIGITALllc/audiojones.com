@@ -1,0 +1,54 @@
+{
+  "title": "Artist Hub",
+  "description": "Professional studio services for artists, producers, and creatives",
+  "services": [
+    {
+      "id": "studio-time",
+      "title": "Book Studio Time",
+      "description": "Professional recording studio sessions with top-tier equipment and experienced engineers",
+      "ctaText": "Book Studio Session",
+      "whopProductUrl": "WHOP_STUDIO_PRODUCT_URL",
+      "imageUrl": "/assets/artist-hub/studio-time.jpg",
+      "pricing": "Starting at $150/hr",
+      "duration": "2-8 hour sessions",
+      "order": 1,
+      "enabled": true
+    },
+    {
+      "id": "mix-master",
+      "title": "Book Mix / Master",
+      "description": "Professional mixing and mastering services to give your tracks radio-ready sound",
+      "ctaText": "Book Mix & Master",
+      "whopProductUrl": "WHOP_MIX_PRODUCT_URL",
+      "imageUrl": "/assets/artist-hub/mix-master.jpg",
+      "pricing": "Starting at $200/track",
+      "duration": "3-5 day turnaround",
+      "order": 2,
+      "enabled": true
+    },
+    {
+      "id": "beats-instrumentals",
+      "title": "Buy Beats / Instrumentals",
+      "description": "Exclusive beats and instrumentals from Audio Jones producers",
+      "ctaText": "Browse Beats",
+      "whopProductUrl": "WHOP_BEATS_URL",
+      "imageUrl": "/assets/artist-hub/beats.jpg",
+      "pricing": "Starting at $50",
+      "duration": "Instant download",
+      "order": 3,
+      "enabled": true
+    },
+    {
+      "id": "consultations",
+      "title": "Artist Consultations",
+      "description": "One-on-one strategy sessions for artist development and career planning",
+      "ctaText": "Book Consultation",
+      "whopProductUrl": "WHOP_CONSULT_PRODUCT_URL",
+      "imageUrl": "/assets/artist-hub/consultation.jpg",
+      "pricing": "Starting at $100/session",
+      "duration": "60-90 minute sessions",
+      "order": 4,
+      "enabled": true
+    }
+  ]
+}

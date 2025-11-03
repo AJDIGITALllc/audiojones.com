@@ -1,0 +1,81 @@
+{
+  "hero": {
+    "title": "Emotional Predictive Marketing",
+    "subtitle": "AI-powered emotional intelligence for creators and brands. Predict, optimize, and automate your audience engagement.",
+    "primaryCta": "Join EPM Waitlist",
+    "secondaryCta": "Learn More"
+  },
+  "explainer": {
+    "title": "The Creator Economy's Missing Link",
+    "content": "Traditional marketing treats audiences like data points. EPM treats them like humans. Our framework combines emotional AI, predictive analytics, and creative automation to build genuine connections that convert.",
+    "problemList": [
+      "Creators struggle to predict which content will resonate",
+      "Brands can't measure emotional impact of campaigns",
+      "Audience engagement feels random and unpredictable",
+      "Marketing automation lacks human connection"
+    ]
+  },
+  "flow": [
+    {
+      "step": 1,
+      "title": "Sense",
+      "description": "AI analyzes emotional patterns in your audience behavior, content performance, and market trends",
+      "icon": "👁️"
+    },
+    {
+      "step": 2,
+      "title": "Predict",
+      "description": "Machine learning models forecast emotional responses to content, timing, and messaging strategies",
+      "icon": "🔮"
+    },
+    {
+      "step": 3,
+      "title": "Optimize",
+      "description": "Real-time adjustments to maximize emotional resonance and engagement across all touchpoints",
+      "icon": "⚡"
+    },
+    {
+      "step": 4,
+      "title": "Automate",
+      "description": "Intelligent systems execute optimized campaigns while maintaining authentic human connection",
+      "icon": "🤖"
+    }
+  ],
+  "comingSoon": [
+    {
+      "title": "EPM Audit",
+      "description": "Comprehensive analysis of your current emotional marketing effectiveness with actionable insights",
+      "waitlistTag": "epm-audit",
+      "estimatedLaunch": "Q2 2026"
+    },
+    {
+      "title": "Affective Offer Engine",
+      "description": "AI-powered system that creates emotionally-resonant offers based on audience psychological profiles",
+      "waitlistTag": "affective-offers",
+      "estimatedLaunch": "Q3 2026"
+    },
+    {
+      "title": "Creator EPM Lab",
+      "description": "Hands-on workshop and certification program for creators mastering emotional predictive marketing",
+      "waitlistTag": "epm-lab",
+      "estimatedLaunch": "Q4 2026"
+    }
+  ],
+  "ecosystem": [
+    {
+      "module": "Marketing Automation",
+      "description": "EPM integrates with our marketing automation to add emotional intelligence to your funnels",
+      "href": "/services#marketing-automation"
+    },
+    {
+      "module": "Data Intelligence",
+      "description": "Advanced analytics provide the data foundation for EPM emotional predictions",
+      "href": "/services#data-intelligence"
+    },
+    {
+      "module": "AI Optimization",
+      "description": "AI systems continuously optimize EPM strategies based on real-world performance",
+      "href": "/services#ai-optimization"
+    }
+  ]
+}

@@ -1,0 +1,411 @@
+openapi: 3.0.3
+info:
+  title: AudioJones.com Core Experience API
+  description: API contracts for the AudioJones.com marketing site and portal hand-off
+  version: 1.0.0
+  contact:
+    name: AJ DIGITAL LLC
+    email: contact@audiojones.com
+
+servers:
+  - url: https://audiojones.com/api
+    description: Production server
+  - url: http://localhost:3000/api
+    description: Development server
+
+paths:
+  /config/site:
+    get:
+      summary: Get site configuration
+      description: Returns site-wide configuration including CTAs, navigation, and brand settings
+      tags:
+        - Configuration
+      responses:
+        '200':
+          description: Site configuration data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteConfig'
+
+  /config/services:
+    get:
+      summary: Get service cards
+      description: Returns service offerings for homepage display
+      tags:
+        - Configuration
+      parameters:
+        - name: category
+          in: query
+          description: Filter by service category
+          schema:
+            type: string
+            enum: [Podcast, AI, Marketing, Data]
+        - name: featured
+          in: query
+          description: Filter by featured status
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Array of service cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceCard'
+
+  /config/artist-hub:
+    get:
+      summary: Get Artist Hub services
+      description: Returns Artist Hub service tiles with Whop integration URLs
+      tags:
+        - Artist Hub
+      responses:
+        '200':
+          description: Array of artist services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArtistHubService'
+
+  /config/epm:
+    get:
+      summary: Get EPM page configuration
+      description: Returns EPM page content structure and coming soon services
+      tags:
+        - EPM
+      responses:
+        '200':
+          description: EPM page configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EpmPageConfig'
+
+  /subscribe:
+    post:
+      summary: Newsletter subscription
+      description: Subscribe user to MailerLite newsletter with source tagging
+      tags:
+        - Subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionRequest'
+      responses:
+        '200':
+          description: Subscription successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+        '400':
+          description: Invalid email or request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /track/event:
+    post:
+      summary: Track user events
+      description: Track user interactions for analytics (CTA clicks, page views, etc.)
+      tags:
+        - Analytics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackingEvent'
+      responses:
+        '200':
+          description: Event tracked successfully
+        '400':
+          description: Invalid event data
+
+components:
+  schemas:
+    SiteConfig:
+      type: object
+      properties:
+        siteName:
+          type: string
+          example: "Audio Jones"
+        primaryCtaUrl:
+          type: string
+          format: uri
+          description: "Main CTA destination (Whop checkout)"
+        secondaryCtaUrl:
+          type: string
+          example: "/client"
+        brandColors:
+          $ref: '#/components/schemas/BrandColors'
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceCard'
+        navigation:
+          type: array
+          items:
+            $ref: '#/components/schemas/NavigationItem'
+
+    BrandColors:
+      type: object
+      properties:
+        primary:
+          type: string
+          example: "#FF4500"
+        secondary:
+          type: string
+          example: "#FFD700"
+        accent:
+          type: string
+          example: "#008080"
+        white:
+          type: string
+          example: "#FFFFFF"
+        black:
+          type: string
+          example: "#000000"
+
+    ServiceCard:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - category
+        - ctaText
+        - ctaUrl
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+          maxLength: 50
+        description:
+          type: string
+          maxLength: 200
+        category:
+          type: string
+          enum: [Podcast, AI, Marketing, Data]
+        ctaText:
+          type: string
+        ctaUrl:
+          type: string
+          format: uri
+        imageUrl:
+          type: string
+          format: uri
+        featured:
+          type: boolean
+        order:
+          type: integer
+          minimum: 1
+
+    NavigationItem:
+      type: object
+      required:
+        - label
+        - href
+        - order
+      properties:
+        label:
+          type: string
+        href:
+          type: string
+        isExternal:
+          type: boolean
+          default: false
+        order:
+          type: integer
+        enabled:
+          type: boolean
+          default: true
+
+    ArtistHubService:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - ctaText
+        - whopProductUrl
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+          enum: ["Book Studio Time", "Book Mix / Master", "Buy Beats / Instrumentals", "Artist Consultations"]
+        description:
+          type: string
+        ctaText:
+          type: string
+        whopProductUrl:
+          type: string
+          format: uri
+        imageUrl:
+          type: string
+          format: uri
+        pricing:
+          type: string
+        duration:
+          type: string
+        order:
+          type: integer
+          minimum: 1
+          maximum: 4
+        enabled:
+          type: boolean
+          default: true
+
+    EpmPageConfig:
+      type: object
+      properties:
+        hero:
+          $ref: '#/components/schemas/EpmHero'
+        explainer:
+          $ref: '#/components/schemas/EpmExplainer'
+        flow:
+          type: array
+          items:
+            $ref: '#/components/schemas/EpmFlowStep'
+        comingSoon:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComingSoonCard'
+        ecosystem:
+          type: array
+          items:
+            $ref: '#/components/schemas/EcosystemLink'
+
+    EpmHero:
+      type: object
+      properties:
+        title:
+          type: string
+        subtitle:
+          type: string
+        primaryCta:
+          type: string
+        secondaryCta:
+          type: string
+
+    EpmExplainer:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        problemList:
+          type: array
+          items:
+            type: string
+
+    EpmFlowStep:
+      type: object
+      properties:
+        step:
+          type: integer
+          enum: [1, 2, 3, 4]
+        title:
+          type: string
+          enum: ["Sense", "Predict", "Optimize", "Automate"]
+        description:
+          type: string
+        icon:
+          type: string
+
+    ComingSoonCard:
+      type: object
+      properties:
+        title:
+          type: string
+          enum: ["EPM Audit", "Affective Offer Engine", "Creator EPM Lab"]
+        description:
+          type: string
+        waitlistTag:
+          type: string
+        estimatedLaunch:
+          type: string
+
+    EcosystemLink:
+      type: object
+      properties:
+        module:
+          type: string
+          enum: ["Marketing Automation", "Client Delivery", "Data Intelligence", "AI Optimization", "Funnel Map"]
+        description:
+          type: string
+        href:
+          type: string
+
+    SubscriptionRequest:
+      type: object
+      required:
+        - email
+        - source
+      properties:
+        email:
+          type: string
+          format: email
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 5
+        source:
+          type: string
+          enum: [homepage, artist-hub, epm, general]
+
+    SubscriptionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        subscriberId:
+          type: string
+
+    TrackingEvent:
+      type: object
+      required:
+        - event
+        - source
+      properties:
+        event:
+          type: string
+          enum: [cta_click, page_view, service_view, subscription, external_redirect]
+        source:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object

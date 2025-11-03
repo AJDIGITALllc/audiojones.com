@@ -1,0 +1,181 @@
+# AudioJones.com Core Experience GraphQL Schema
+
+type Query {
+  siteConfig: SiteConfig!
+  services(category: ServiceCategory, featured: Boolean): [ServiceCard!]!
+  artistHubServices: [ArtistHubService!]!
+  epmPageConfig: EpmPageConfig!
+}
+
+type Mutation {
+  subscribe(input: SubscriptionInput!): SubscriptionResponse!
+  trackEvent(input: TrackingEventInput!): Boolean!
+}
+
+# Core Configuration Types
+type SiteConfig {
+  siteName: String!
+  primaryCtaUrl: String!
+  secondaryCtaUrl: String!
+  brandColors: BrandColors!
+  services: [ServiceCard!]!
+  navigation: [NavigationItem!]!
+}
+
+type BrandColors {
+  primary: String!    # "#FF4500"
+  secondary: String!  # "#FFD700"
+  accent: String!     # "#008080"
+  white: String!      # "#FFFFFF"
+  black: String!      # "#000000"
+}
+
+# Service and Navigation Types
+type ServiceCard {
+  id: ID!
+  title: String!
+  description: String!
+  category: ServiceCategory!
+  ctaText: String!
+  ctaUrl: String!
+  imageUrl: String
+  featured: Boolean!
+  order: Int!
+}
+
+enum ServiceCategory {
+  PODCAST
+  AI
+  MARKETING
+  DATA
+}
+
+type NavigationItem {
+  label: String!
+  href: String!
+  isExternal: Boolean!
+  order: Int!
+  enabled: Boolean!
+}
+
+# Artist Hub Types
+type ArtistHubService {
+  id: ID!
+  title: ArtistServiceType!
+  description: String!
+  ctaText: String!
+  whopProductUrl: String!
+  imageUrl: String!
+  pricing: String
+  duration: String
+  order: Int!
+  enabled: Boolean!
+}
+
+enum ArtistServiceType {
+  BOOK_STUDIO_TIME
+  BOOK_MIX_MASTER
+  BUY_BEATS_INSTRUMENTALS
+  ARTIST_CONSULTATIONS
+}
+
+# EPM Page Types
+type EpmPageConfig {
+  hero: EpmHero!
+  explainer: EpmExplainer!
+  flow: [EpmFlowStep!]!
+  comingSoon: [ComingSoonCard!]!
+  ecosystem: [EcosystemLink!]!
+}
+
+type EpmHero {
+  title: String!
+  subtitle: String!
+  primaryCta: String!
+  secondaryCta: String
+}
+
+type EpmExplainer {
+  title: String!
+  content: String!
+  problemList: [String!]!
+}
+
+type EpmFlowStep {
+  step: Int!
+  title: EpmStepType!
+  description: String!
+  icon: String
+}
+
+enum EpmStepType {
+  SENSE
+  PREDICT
+  OPTIMIZE
+  AUTOMATE
+}
+
+type ComingSoonCard {
+  title: ComingSoonServiceType!
+  description: String!
+  waitlistTag: String!
+  estimatedLaunch: String
+}
+
+enum ComingSoonServiceType {
+  EPM_AUDIT
+  AFFECTIVE_OFFER_ENGINE
+  CREATOR_EPM_LAB
+}
+
+type EcosystemLink {
+  module: EcosystemModule!
+  description: String!
+  href: String!
+}
+
+enum EcosystemModule {
+  MARKETING_AUTOMATION
+  CLIENT_DELIVERY
+  DATA_INTELLIGENCE
+  AI_OPTIMIZATION
+  FUNNEL_MAP
+}
+
+# Subscription Types
+input SubscriptionInput {
+  email: String!
+  tags: [String!]
+  source: SubscriptionSource!
+}
+
+enum SubscriptionSource {
+  HOMEPAGE
+  ARTIST_HUB
+  EPM
+  GENERAL
+}
+
+type SubscriptionResponse {
+  success: Boolean!
+  message: String!
+  subscriberId: String
+}
+
+# Analytics Types
+input TrackingEventInput {
+  event: TrackingEventType!
+  source: String!
+  metadata: JSON
+}
+
+enum TrackingEventType {
+  CTA_CLICK
+  PAGE_VIEW
+  SERVICE_VIEW
+  SUBSCRIPTION
+  EXTERNAL_REDIRECT
+}
+
+# Custom Scalars
+scalar JSON

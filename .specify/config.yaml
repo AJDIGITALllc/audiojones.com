@@ -1,0 +1,23 @@
+﻿version: 1.0
+project: audiojones.com
+organization: AJ DIGITAL LLC
+brand: Audio Jones
+author: Tyrone Alexander Nelms
+default_color_palette:
+  - "#FF4500"   # Orange Red
+  - "#FFD700"   # Gold
+  - "#008080"   # Teal
+  - "#FFFFFF"   # White
+  - "#000000"   # Black
+modules:
+  - Marketing Automation
+  - Client Delivery
+  - Data Intelligence
+  - AI Optimization
+  - Funnel Map
+linked_tools:
+  - Jules
+  - Codex
+  - Copilot
+  - Perplexity API
+  - Firebase (Vercel Backend)
