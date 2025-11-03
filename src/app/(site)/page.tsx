@@ -89,14 +89,14 @@ export default function HomePage() {
                   
                   {/* Hero Image */}
                   <div className="relative h-full w-full rounded-2xl overflow-hidden">
-                    <Image
+                    {/* <Image
                       src="/assets/Backgrounds/aj-hero-portrait.webp"
                       alt="Audio Jones - AI Marketing Systems"
                       fill
                       className="object-cover object-center"
                       priority
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
-                    />
+                    /> */}
                     
                     {/* Overlay Gradient */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />

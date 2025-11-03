@@ -1,3 +1,17 @@
 
 > audiojones.com@0.1.0 dev
 > next dev
+
+   ▲ Next.js 16.0.0 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.2:3000
+
+ ✓ Starting...
+ ✓ Ready in 3.9s
+ ○ Compiling / ...
+ GET / 200 in 7.1s (compile: 5.6s, render: 1521ms)
+ GET /assets/clients/peggy-clemons.jpg 404 in 1497ms (compile: 1256ms, render: 241ms)
+ GET /assets/clients/abebe-lewis.jpg 404 in 1478ms (compile: 1203ms, render: 275ms)
+ GET /assets/clients/florida-ramp-lift.jpg 404 in 1475ms (compile: 1131ms, render: 344ms)
+ GET /artist-hub 200 in 630ms (compile: 590ms, render: 40ms)
+ GET /epm 200 in 682ms (compile: 645ms, render: 37ms)
