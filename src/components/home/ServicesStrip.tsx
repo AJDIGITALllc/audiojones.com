@@ -1,76 +1,44 @@
-export default function ServicesStrip() {
-  const services = [
-    {
-      title: "Entity-Based Content Architecture",
-      benefits: [
-        "Content structured for AI understanding",
-        "Better semantic search visibility"
-      ]
-    },
-    {
-      title: "AI-Snippet / Answer Engine Optimization",
-      benefits: [
-        "Optimized for ChatGPT, Perplexity, Bard responses",
-        "Featured snippet dominance"
-      ]
-    },
-    {
-      title: "Local GBP Growth (Miami, Doral, Ft. Lauderdale, Ft. Myers)",
-      benefits: [
-        "Google Business Profile optimization",
-        "Local search authority building"
-      ]
-    },
-    {
-      title: "Automation-Ready Landing Pages",
-      benefits: [
-        "High-converting page templates",
-        "Integrated with marketing automation"
-      ]
-    }
-  ]
+import { SERVICE_PILLARS } from "@/config/marketing";
+import { ServiceTile } from "@/components/shared/ServiceTile";
 
+export default function ServicesStrip() {
   return (
-    <section id="services" className="py-20 bg-gray-900">
-      <div className="container mx-auto px-6">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-            AI-SEO & AEO Services for{" "}
-            <span className="text-[#FFD700]">2026+</span>
+    <section
+      id="services"
+      className="relative py-20"
+      style={{
+        backgroundImage:
+          "url('https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/Backgrounds/Audio_Jones_Website_Backgrounds_%20(1).png?updatedAt=1761600049545')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="absolute inset-0 bg-black/70" aria-hidden />
+      <div className="relative mx-auto max-w-6xl px-6 text-white">
+        <div className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-[#FFD700]">What We Build</p>
+          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold">
+            Three pillars to grow authority and revenue
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Built to win in AI search, not just Google SERPs.
+          <p className="mt-4 text-lg text-white/70">
+            Personal branding, video podcast production, and AI marketing systems delivered as a unified growth engine.
           </p>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {services.map((service, index) => (
-            <div
-              key={index}
-              className="bg-black/50 border border-gray-800 rounded-xl p-6 hover:border-[#008080]/50 transition-colors duration-300"
-            >
-              <h3 className="text-xl font-bold text-white mb-4 leading-tight">
-                {service.title}
-              </h3>
-              
-              <ul className="space-y-2 mb-6">
-                {service.benefits.map((benefit, benefitIndex) => (
-                  <li key={benefitIndex} className="text-gray-300 text-sm flex items-start">
-                    <span className="text-[#008080] mr-2 mt-1">•</span>
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
-
-              <button className="w-full bg-[#008080]/10 hover:bg-[#008080]/20 text-[#008080] border border-[#008080]/30 hover:border-[#008080]/50 px-4 py-3 rounded-lg font-medium transition-colors duration-200">
-                Add to Build Sheet
-              </button>
-            </div>
+        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {SERVICE_PILLARS.map((pillar, index) => (
+            <ServiceTile
+              key={pillar.id}
+              title={pillar.title}
+              description={pillar.description}
+              highlights={pillar.highlights}
+              ctaHref={pillar.ctaHref}
+              ctaLabel={pillar.ctaLabel}
+              accent={index === 2 ? "teal" : "orange"}
+            />
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }

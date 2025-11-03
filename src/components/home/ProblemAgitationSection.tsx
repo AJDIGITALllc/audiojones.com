@@ -1,69 +1,44 @@
-// Problem/Agitation Section - Addresses creator pain points
 export default function ProblemAgitationSection() {
-  const problems = [
-    {
-      icon: "😤",
-      title: "Content That Doesn't Convert",
-      description: "You're creating amazing content but struggling to turn viewers into paying customers."
-    },
-    {
-      icon: "⏰",
-      title: "Manual Marketing Mayhem", 
-      description: "Spending 80% of your time on marketing tasks instead of creating what you love."
-    },
-    {
-      icon: "📉",
-      title: "Inconsistent Revenue",
-      description: "Income fluctuates wildly because you don't have systematic, predictable processes."
-    },
-    {
-      icon: "🔧",
-      title: "Tech Stack Chaos",
-      description: "Your tools don't talk to each other, creating gaps where leads and revenue leak."
-    }
+  const blockers = [
+    "Sporadic publishing leads to forgotten presence.",
+    "Slow, inconsistent growth despite best efforts.",
+    "Struggling to build authority and trust over time.",
+    "Missing the compound effect of continuous engagement.",
   ];
 
   return (
-    <section className="py-20 bg-gray-900">
-      <div className="container mx-auto px-6">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
-            Stop Leaving Money on the Table
+    <section
+      id="real-blockers"
+      className="relative overflow-hidden py-20"
+      style={{
+        backgroundImage:
+          "url('https://ik.imagekit.io/audiojones/AUDIOJONES.COM/assets/Backgrounds/Audio_Jones_Website_Backgrounds_%20(10).png?updatedAt=1761600050213')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="absolute inset-0 bg-black/70" aria-hidden />
+      <div className="relative mx-auto max-w-5xl px-6 text-white">
+        <div className="text-center">
+          <p className="text-sm font-bold uppercase tracking-widest text-[#FFD700]">The Real Blockers</p>
+          <h2 className="mt-4 text-3xl sm:text-4xl font-bold">
+            Consistency beats virality. Predictable systems beat random wins.
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Most creators are stuck in the <span className="text-[#FF4500] font-semibold">content creation hamster wheel</span>. 
-            You're talented, but your systems aren't working as hard as you are.
+          <p className="mt-4 text-lg text-white/80">
+            Leaders know they need to publish weekly—but without a system, content velocity collapses. Audio Jones removes the friction so momentum never stalls.
           </p>
         </div>
 
-        {/* Problems Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {problems.map((problem, index) => (
-            <div 
-              key={index}
-              className="bg-black/50 border border-red-900/30 rounded-xl p-6 text-center hover:border-[#FF4500]/50 transition-all duration-300"
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          {blockers.map((item) => (
+            <article
+              key={item}
+              className="rounded-2xl border border-white/15 bg-white/5 p-6 text-left shadow-lg shadow-black/20"
             >
-              <div className="text-4xl mb-4">{problem.icon}</div>
-              <h3 className="text-lg font-semibold text-white mb-3">{problem.title}</h3>
-              <p className="text-gray-400 text-sm">{problem.description}</p>
-            </div>
+              <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#FF4500]/20 text-2xl">⚡</div>
+              <p className="mt-4 text-base text-white/80">{item}</p>
+            </article>
           ))}
-        </div>
-
-        {/* Agitation CTA */}
-        <div className="text-center mt-12">
-          <p className="text-lg text-gray-300 mb-6">
-            <span className="text-[#FF4500] font-semibold">Sound familiar?</span> You're not alone. 
-            But there's a better way to build your creator business.
-          </p>
-          <div className="inline-block bg-gradient-to-r from-[#FF4500] to-[#FFD700] p-1 rounded-lg">
-            <div className="bg-black px-6 py-3 rounded-lg">
-              <span className="text-white font-medium">
-                Let's fix this mess. Here's how ↓
-              </span>
-            </div>
-          </div>
         </div>
       </div>
     </section>
