@@ -37,20 +37,27 @@ export interface LLMRequest {
   presence_penalty?: number;
 }
 
+// Placeholder value for build-time environment
+const BUILD_PLACEHOLDER = 'placeholder';
+
 class BlogGenerator {
   private openaiApiKey: string;
   private openaiBaseUrl: string;
 
   constructor() {
-    this.openaiApiKey = process.env.OPENAI_API_KEY!;
+    this.openaiApiKey = process.env.OPENAI_API_KEY || '';
     this.openaiBaseUrl = 'https://api.openai.com/v1';
+  }
 
-    if (!this.openaiApiKey) {
+  private checkApiKey(): void {
+    if (!this.openaiApiKey || this.openaiApiKey === BUILD_PLACEHOLDER) {
       throw new Error('OPENAI_API_KEY environment variable is required');
     }
   }
 
   async generateBlog(context: GenerationContext): Promise<GenerationResult> {
+    this.checkApiKey();
+    
     // Step 1: Research the topic
     const researchResult = await perplexityClient.research({
       pillar: context.pillar,

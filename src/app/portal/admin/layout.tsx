@@ -2,6 +2,9 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { adminAuth } from '@/lib/server/firebaseAdmin';
 
+// Force dynamic rendering - admin portal requires runtime authentication
+export const dynamic = 'force-dynamic';
+
 interface AdminLayoutProps {
   children: React.ReactNode;
 }

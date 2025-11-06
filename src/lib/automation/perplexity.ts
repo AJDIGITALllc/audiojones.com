@@ -75,20 +75,27 @@ export interface ResearchResult {
   rawResponse: PerplexityResponse;
 }
 
+// Placeholder value for build-time environment
+const BUILD_PLACEHOLDER = 'placeholder';
+
 class PerplexityClient {
   private apiKey: string;
   private baseUrl: string;
 
   constructor() {
-    this.apiKey = process.env.PERPLEXITY_API_KEY!;
+    this.apiKey = process.env.PERPLEXITY_API_KEY || '';
     this.baseUrl = 'https://api.perplexity.ai';
+  }
 
-    if (!this.apiKey) {
+  private checkApiKey(): void {
+    if (!this.apiKey || this.apiKey === BUILD_PLACEHOLDER) {
       throw new Error('PERPLEXITY_API_KEY environment variable is required');
     }
   }
 
   async research(context: ResearchContext): Promise<ResearchResult> {
+    this.checkApiKey();
+    
     const prompt = this.buildResearchPrompt(context);
     
     const request: PerplexityRequest = {
