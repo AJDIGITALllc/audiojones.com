@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import { remark } from "remark";
 import html from "remark-html";
-import './markdown.css';
 
 interface DocPageProps {
   params: { slug: string };
@@ -11,7 +10,7 @@ interface DocPageProps {
 export default async function DocPage({ params }: DocPageProps) {
   const docsDir = path.join(process.cwd(), "repos", "ajdigital-automation-hub", "docs");
 
-  // read all files that actually exist in the deployed submodule
+  // get whatever actually exists on the server
   let availableFiles: string[] = [];
   if (fs.existsSync(docsDir)) {
     availableFiles = fs.readdirSync(docsDir).filter((f) => f.endsWith(".md"));
@@ -20,34 +19,32 @@ export default async function DocPage({ params }: DocPageProps) {
   const targetFile = `${params.slug}.md`;
   const filePath = path.join(docsDir, targetFile);
 
-  // if the target file is missing, show a helpful page instead of a 404
+  // if missing, don't 404 — show what we DO have
   if (!fs.existsSync(filePath)) {
     return (
       <main className="mx-auto max-w-3xl py-10 space-y-6">
-        <h1 className="text-2xl font-bold">Document not found on server</h1>
+        <h1 className="text-2xl font-bold">Document not found on server.</h1>
         <p className="text-gray-600">
-          The document <code>{targetFile}</code> was not found in{' '}
-          <code>repos/ajdigital-automation-hub/docs</code>.
+          The document <code>{targetFile}</code> was not found in
+          <code> repos/ajdigital-automation-hub/docs </code>.
         </p>
-        <p className="text-gray-700">These are the docs I do see on the server right now:</p>
+        <p className="text-gray-700">Here are the docs I do see:</p>
         <ul className="list-disc pl-5 space-y-1">
           {availableFiles.length === 0 ? (
-            <li>No markdown files were found. Make sure the submodule is pulled on Vercel.</li>
+            <li>No markdown files found. Make sure Vercel pulled the submodule.</li>
           ) : (
             availableFiles.map((f) => (
               <li key={f}>
-                <a href={`/ops/docs/${f.replace(".md", "")}`} className="text-orange-500 underline">
+                <a
+                  href={`/ops/docs/${f.replace(".md", "")}`}
+                  className="text-orange-500 underline"
+                >
                   {f}
                 </a>
               </li>
             ))
           )}
         </ul>
-        <div className="mt-6">
-          <a href="/ops/docs" className="text-[#FF4500] hover:text-[#E03D00] underline">
-            ← Back to All Modules
-          </a>
-        </div>
       </main>
     );
   }
@@ -58,12 +55,7 @@ export default async function DocPage({ params }: DocPageProps) {
 
   return (
     <main className="prose mx-auto max-w-3xl py-10">
-      <div className="mb-6">
-        <a href="/ops/docs" className="text-[#FF4500] hover:text-[#E03D00] underline text-sm">
-          ← Back to All Modules
-        </a>
-      </div>
-      <div dangerouslySetInnerHTML={{ __html: content }} className="markdown-content" />
+      <div dangerouslySetInnerHTML={{ __html: content }} />
     </main>
   );
 }
