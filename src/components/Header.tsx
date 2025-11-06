@@ -3,9 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import IKImage from "@/components/IKImage";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
+  
+  // Check if user has admin privileges
+  const isAdmin = user?.customClaims?.admin === true;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out font-sans bg-black/80 backdrop-blur-lg border-b border-white/10">
@@ -39,6 +44,16 @@ export default function Header() {
             <Link href="/podcast" className="text-sm font-semibold text-white/80 hover:text-white transition">Podcast</Link>
             <Link href="/insights" className="text-sm font-semibold text-white/80 hover:text-white transition">Insights</Link>
             <Link href="/about" className="text-sm font-semibold text-white/80 hover:text-white transition">About</Link>
+            
+            {/* Admin-only navigation links */}
+            {isAdmin && (
+              <>
+                <Link href="/artist-hub" className="text-sm font-semibold text-orange-400 hover:text-orange-300 transition">Artist Hub</Link>
+                <Link href="/epm" className="text-sm font-semibold text-orange-400 hover:text-orange-300 transition">EPM</Link>
+                <Link href="/ops/docs" className="text-sm font-semibold text-orange-400 hover:text-orange-300 transition">Ops Docs</Link>
+              </>
+            )}
+            
             <Link href="/book" className="rounded-full px-4 py-2 text-sm font-bold text-black bg-gradient-to-r from-[#FF4500] to-[#FFD700] hover:opacity-90 transition">Book a Call</Link>
             <Link href="/portal" className="rounded-full bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/20 transition">Portal</Link>
           </div>
@@ -53,6 +68,16 @@ export default function Header() {
             <Link href="/podcast" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Podcast</Link>
             <Link href="/insights" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Insights</Link>
             <Link href="/about" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>About</Link>
+            
+            {/* Admin-only navigation links */}
+            {isAdmin && (
+              <div className="pt-4 border-t border-white/10 space-y-4">
+                <Link href="/artist-hub" className="block text-base font-semibold text-orange-400 hover:text-orange-300" onClick={() => setMobileMenuOpen(false)}>Artist Hub</Link>
+                <Link href="/epm" className="block text-base font-semibold text-orange-400 hover:text-orange-300" onClick={() => setMobileMenuOpen(false)}>EPM</Link>
+                <Link href="/ops/docs" className="block text-base font-semibold text-orange-400 hover:text-orange-300" onClick={() => setMobileMenuOpen(false)}>Ops Docs</Link>
+              </div>
+            )}
+            
             <div className="pt-4 border-t border-white/10 space-y-3">
               <Link href="/book" className="block text-center rounded-full px-4 py-3 text-base font-bold text-black bg-gradient-to-r from-[#FF4500] to-[#FFD700] hover:opacity-90" onClick={() => setMobileMenuOpen(false)}>Book a Call</Link>
               <Link href="/portal" className="block text-center rounded-full bg-white/10 px-4 py-3 text-base font-bold text-white hover:bg-white/20" onClick={() => setMobileMenuOpen(false)}>Portal</Link>
