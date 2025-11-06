@@ -1,0 +1,3 @@
+[submodule "repos/ajdigital-automation-hub"]
+	path = repos/ajdigital-automation-hub
+	url = https://github.com/AJDIGITALllc/ajdigital-automation-hub.git
