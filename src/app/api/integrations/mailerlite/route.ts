@@ -1,49 +1,111 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  // Check for required environment variables
-  const mailerliteToken = process.env.MAILERLITE_TOKEN;
-  const webhookSecret = process.env.MAILERLITE_WEBHOOK_SECRET;
+interface MailerLiteRequestBody {
+  email: string;
+  name?: string;
+  source?: string;
+  tag?: string;
+}
 
-  if (!mailerliteToken) {
+export async function POST(req: Request) {
+  // Check for required environment variable
+  const token = process.env.MAILERLITE_TOKEN;
+  if (!token) {
     return NextResponse.json(
-      { error: "MAILERLITE_TOKEN not configured" },
+      { ok: false, error: "MAILERLITE_TOKEN not configured" },
       { status: 500 }
-    );
-  }
-
-  if (!webhookSecret) {
-    return NextResponse.json(
-      { error: "MAILERLITE_WEBHOOK_SECRET not configured" },
-      { status: 401 }
-    );
-  }
-
-  // Verify webhook secret (simple comparison for now)
-  const providedSecret = req.headers.get('x-webhook-secret') || req.headers.get('authorization');
-  if (providedSecret !== webhookSecret) {
-    return NextResponse.json(
-      { error: "Invalid webhook secret" },
-      { status: 401 }
     );
   }
 
   try {
-    const payload = await req.json();
+    const body: MailerLiteRequestBody = await req.json();
     
-    // Log the payload to server console
-    console.log('MailerLite webhook received:', {
-      timestamp: new Date().toISOString(),
-      payload
-    });
+    // Validate required fields
+    if (!body.email) {
+      return NextResponse.json(
+        { error: "Missing required field: email" },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json({ ok: true });
+    // Prepare MailerLite subscriber data
+    const subscriberData: any = {
+      email: body.email,
+    };
+
+    // Add optional fields
+    if (body.name) {
+      subscriberData.name = body.name;
+    }
+
+    if (body.source) {
+      subscriberData.fields = {
+        source: body.source
+      };
+    }
+
+    // Make request to MailerLite API
+    try {
+      const mlRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(subscriberData),
+      });
+
+      const data = await mlRes.json().catch(() => null);
+
+      // Handle specific status codes
+      if (mlRes.status === 409) {
+        return NextResponse.json({
+          ok: true,
+          email: body.email,
+          tag: body.tag,
+          already: true
+        });
+      }
+
+      return NextResponse.json({
+        ok: mlRes.ok,
+        status: mlRes.status,
+        email: body.email,
+        tag: body.tag,
+        data,
+      });
+
+    } catch (err) {
+      console.error('MailerLite API request failed:', err);
+      return NextResponse.json({
+        ok: false,
+        error: "mailerlite request failed",
+        detail: (err as Error).message,
+      });
+    }
     
   } catch (error: any) {
-    console.error('MailerLite webhook error:', error);
+    console.error('MailerLite webhook processing error:', error);
     return NextResponse.json(
-      { error: 'Webhook processing failed' },
+      { error: 'Request processing failed' },
       { status: 500 }
     );
   }
+}
+
+export async function GET() {
+  // Check for API token
+  const token = process.env.MAILERLITE_TOKEN;
+  if (!token) {
+    return NextResponse.json({
+      ok: false,
+      hasToken: false
+    });
+  }
+
+  return NextResponse.json({
+    ok: true,
+    hasToken: true,
+    note: "Token present. POST to this endpoint with { email } to upsert subscriber."
+  });
 }

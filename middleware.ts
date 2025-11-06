@@ -1,60 +1,75 @@
-// middleware.ts
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-// Admin-only areas we want to gate at the edge
-const ADMIN_PATHS = ['/admin', '/admin/', '/api/admin', '/api/admin/']
+export function middleware(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  const host = request.headers.get("host") ?? "";
+  const pathname = url.pathname;
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl
+  // DEV LOGGING - Track all incoming requests
+  if (process.env.NODE_ENV === "development") {
+    console.log("[middleware:incoming]", { host, pathname });
+  }
 
-  // 1) If it's not an admin path, let it through
-  const isAdminUI = pathname.startsWith('/admin')
+  // Handle admin subdomain routing
+  if (host.startsWith("admin.")) {
+    // Admin homepage -> portal/admin
+    if (pathname === "/") {
+      url.pathname = "/portal/admin";
+      if (process.env.NODE_ENV === "development") {
+        console.log("[middleware:rewrite]", { from: "/", to: url.pathname });
+      }
+      return NextResponse.rewrite(url);
+    }
+
+    // Admin docs -> ops/docs
+    if (pathname.startsWith("/docs")) {
+      const originalPath = pathname;
+      url.pathname = `/ops${pathname}`;
+      if (process.env.NODE_ENV === "development") {
+        console.log("[middleware:rewrite]", { from: originalPath, to: url.pathname });
+      }
+      return NextResponse.rewrite(url);
+    }
+  }
+
+  // Existing admin auth logic
+  const isAdminUI = pathname.startsWith('/portal/admin')
   const isAdminAPI = pathname.startsWith('/api/admin')
-  if (!isAdminUI && !isAdminAPI) {
-    return NextResponse.next()
-  }
+  
+  if (isAdminUI || isAdminAPI) {
+    // Check if we have auth signal
+    const hasIdToken =
+      request.cookies.get('idToken')?.value ||
+      request.headers.get('authorization')?.startsWith('Bearer ')
 
-  // 2) Check if we have *any* auth signal (we keep it loose at the edge)
-  // You can tighten this to your token name later.
-  const hasIdToken =
-    req.cookies.get('idToken')?.value ||
-    req.headers.get('authorization')?.startsWith('Bearer ')
+    if (!hasIdToken) {
+      // For pages → redirect to login
+      if (isAdminUI) {
+        const redirectUrl = request.nextUrl.clone()
+        redirectUrl.pathname = '/login'
+        redirectUrl.searchParams.set('next', pathname)
+        return NextResponse.redirect(redirectUrl)
+      }
 
-  if (!hasIdToken) {
-    // For pages → redirect to home/login
-    if (isAdminUI) {
-      const url = req.nextUrl.clone()
-      url.pathname = '/login' // or '/' if you prefer
-      url.searchParams.set('next', pathname)
-      return NextResponse.redirect(url)
-    }
-
-    // For API → 401 JSON
-    if (isAdminAPI) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Unauthorized: missing token/cookie' }),
-        {
-          status: 401,
-          headers: {
-            'content-type': 'application/json',
+      // For API → 401 JSON
+      if (isAdminAPI) {
+        return new NextResponse(
+          JSON.stringify({ error: 'Unauthorized: missing token/cookie' }),
+          {
+            status: 401,
+            headers: {
+              'content-type': 'application/json',
+            },
           },
-        },
-      )
+        )
+      }
     }
   }
 
-  // 3) If we DO have a token/cookie, let the actual Node admin route finish the job.
-  // Those routes already do:
-  //   const decoded = await adminAuth().verifyIdToken(token, true)
-  //   if (!decoded.admin) return 403
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
-// 4) Tell Next which paths to run middleware on
 export const config = {
-  matcher: [
-    '/admin/:path*',
-    '/api/admin/:path*',
-  ],
-}
+  matcher: ["/((?!_next|static|.*\\..*).*)"],
+};
