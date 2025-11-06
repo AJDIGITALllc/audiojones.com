@@ -1,34 +1,43 @@
-export const runtime = 'nodejs';
-
 import { NextRequest, NextResponse } from 'next/server';
 
-/**
- * POST /api/integrations/mailerlite
- * Handles MailerLite webhook events for subscriber actions
- */
 export async function POST(req: NextRequest) {
+  // Check for required environment variables
+  const mailerliteToken = process.env.MAILERLITE_TOKEN;
+  const webhookSecret = process.env.MAILERLITE_WEBHOOK_SECRET;
+
+  if (!mailerliteToken) {
+    return NextResponse.json(
+      { error: "MAILERLITE_TOKEN not configured" },
+      { status: 500 }
+    );
+  }
+
+  if (!webhookSecret) {
+    return NextResponse.json(
+      { error: "MAILERLITE_WEBHOOK_SECRET not configured" },
+      { status: 401 }
+    );
+  }
+
+  // Verify webhook secret (simple comparison for now)
+  const providedSecret = req.headers.get('x-webhook-secret') || req.headers.get('authorization');
+  if (providedSecret !== webhookSecret) {
+    return NextResponse.json(
+      { error: "Invalid webhook secret" },
+      { status: 401 }
+    );
+  }
+
   try {
-    const body = await req.json();
+    const payload = await req.json();
     
+    // Log the payload to server console
     console.log('MailerLite webhook received:', {
       timestamp: new Date().toISOString(),
-      type: body.type || 'unknown',
-      subscriberEmail: body.data?.email,
-      // Log without exposing sensitive data
+      payload
     });
 
-    // TODO: Process MailerLite event
-    // 1. Validate webhook signature/secret
-    // 2. Handle different event types (subscribe, unsubscribe, tag-added)
-    // 3. Update local subscriber records
-    // 4. Optional: Forward high-value events to Slack
-    // 5. Store sync event log
-
-    return NextResponse.json({ 
-      ok: true, 
-      message: 'MailerLite event logged',
-      processed: false // Will be true when fully implemented
-    });
+    return NextResponse.json({ ok: true });
     
   } catch (error: any) {
     console.error('MailerLite webhook error:', error);
@@ -37,12 +46,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-export async function GET() {
-  return NextResponse.json({ 
-    service: 'mailerlite-integration',
-    status: 'placeholder',
-    endpoints: ['POST /api/integrations/mailerlite']
-  });
 }

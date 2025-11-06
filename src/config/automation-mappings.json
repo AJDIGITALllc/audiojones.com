@@ -1,18 +1,17 @@
-{
-  "whop:artist-studio": {
+[
+  {
+    "whopProductId": "artist-studio",
     "mailerliteTag": "artist-studio-buyer",
     "epmStage": "sense"
   },
-  "whop:mix-master": {
+  {
+    "whopProductId": "mix-master",
     "mailerliteTag": "mix-master-buyer",
     "epmStage": "optimize"
   },
-  "whop:epm-early-access": {
+  {
+    "whopProductId": "epm-early-access",
     "mailerliteTag": "epm-lab",
     "epmStage": "predict"
-  },
-  "whop:podcast-production": {
-    "mailerliteTag": "podcast-production-buyer",
-    "epmStage": "automate"
   }
-}
+]
