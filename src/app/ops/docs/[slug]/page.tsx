@@ -1,90 +1,69 @@
 import fs from "fs";
 import path from "path";
-import { notFound } from "next/navigation";
-import { remark } from 'remark';
-import html from 'remark-html';
-import { Metadata, ResolvingMetadata } from "next";
+import { remark } from "remark";
+import html from "remark-html";
 import './markdown.css';
 
-interface Props {
+interface DocPageProps {
   params: { slug: string };
 }
 
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  const title = params.slug
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, l => l.toUpperCase());
-  
-  return {
-    title: `${title} | System Modules`,
-    description: `Audio Jones ${title} module documentation`,
-    robots: {
-      index: false,
-      follow: false,
-    }
-  };
-}
-
-export default async function DocsPage({ params }: Props) {
+export default async function DocPage({ params }: DocPageProps) {
   const docsDir = path.join(process.cwd(), "repos", "ajdigital-automation-hub", "docs");
-  const filePath = path.join(docsDir, `${params.slug}.md`);
 
-  // Check if file exists
-  if (!fs.existsSync(filePath)) {
-    notFound();
+  // read all files that actually exist in the deployed submodule
+  let availableFiles: string[] = [];
+  if (fs.existsSync(docsDir)) {
+    availableFiles = fs.readdirSync(docsDir).filter((f) => f.endsWith(".md"));
   }
 
-  // Read and process markdown
-  const markdown = fs.readFileSync(filePath, "utf-8");
-  const processed = await remark().use(html).process(markdown);
-  const contentHtml = processed.toString();
+  const targetFile = `${params.slug}.md`;
+  const filePath = path.join(docsDir, targetFile);
 
-  const title = params.slug
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, l => l.toUpperCase());
+  // if the target file is missing, show a helpful page instead of a 404
+  if (!fs.existsSync(filePath)) {
+    return (
+      <main className="mx-auto max-w-3xl py-10 space-y-6">
+        <h1 className="text-2xl font-bold">Document not found on server</h1>
+        <p className="text-gray-600">
+          The document <code>{targetFile}</code> was not found in{' '}
+          <code>repos/ajdigital-automation-hub/docs</code>.
+        </p>
+        <p className="text-gray-700">These are the docs I do see on the server right now:</p>
+        <ul className="list-disc pl-5 space-y-1">
+          {availableFiles.length === 0 ? (
+            <li>No markdown files were found. Make sure the submodule is pulled on Vercel.</li>
+          ) : (
+            availableFiles.map((f) => (
+              <li key={f}>
+                <a href={`/ops/docs/${f.replace(".md", "")}`} className="text-orange-500 underline">
+                  {f}
+                </a>
+              </li>
+            ))
+          )}
+        </ul>
+        <div className="mt-6">
+          <a href="/ops/docs" className="text-[#FF4500] hover:text-[#E03D00] underline">
+            ← Back to All Modules
+          </a>
+        </div>
+      </main>
+    );
+  }
+
+  const raw = fs.readFileSync(filePath, "utf8");
+  const processed = await remark().use(html).process(raw);
+  const content = processed.toString();
 
   return (
-    <main className="mx-auto max-w-4xl py-10">
-      <div className="mb-8 border-b border-gray-200 pb-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-          <a
-            href="/ops/docs"
-            className="text-[#FF4500] hover:text-[#E03D00] text-sm font-medium transition-colors"
-          >
-            ← All Modules
-          </a>
-        </div>
-        <p className="text-sm text-gray-500 mt-2">
-          Module documentation from ajdigital-automation-hub
-        </p>
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-4">
-          <p className="text-orange-800 text-sm">
-            🔒 <strong>Internal Use Only</strong> - This documentation is for Audio Jones operations team
-          </p>
-        </div>
+    <main className="prose mx-auto max-w-3xl py-10">
+      <div className="mb-6">
+        <a href="/ops/docs" className="text-[#FF4500] hover:text-[#E03D00] underline text-sm">
+          ← Back to All Modules
+        </a>
       </div>
-
-      <article className="prose prose-gray max-w-none">
-        <div 
-          dangerouslySetInnerHTML={{ __html: contentHtml }}
-          className="markdown-content"
-        />
-      </article>
-
-      <div className="mt-12 border-t border-gray-200 pt-6">
-        <div className="flex items-center justify-between text-sm text-gray-500">
-          <span>Source: repos/ajdigital-automation-hub/docs/{params.slug}.md</span>
-          <a href="/" className="text-[#FF4500] hover:text-[#E03D00] transition-colors">
-            ← Back to Home
-          </a>
-        </div>
-      </div>
-
-
+      <div dangerouslySetInnerHTML={{ __html: content }} className="markdown-content" />
     </main>
   );
 }
