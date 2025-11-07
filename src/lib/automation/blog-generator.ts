@@ -38,19 +38,23 @@ export interface LLMRequest {
 }
 
 class BlogGenerator {
-  private openaiApiKey: string;
-  private openaiBaseUrl: string;
+  private openaiApiKey: string | null = null;
+  private openaiBaseUrl: string = 'https://api.openai.com/v1';
 
-  constructor() {
-    this.openaiApiKey = process.env.OPENAI_API_KEY!;
-    this.openaiBaseUrl = 'https://api.openai.com/v1';
-
+  private initializeOpenAI() {
     if (!this.openaiApiKey) {
-      throw new Error('OPENAI_API_KEY environment variable is required');
+      this.openaiApiKey = process.env.OPENAI_API_KEY!;
+      
+      if (!this.openaiApiKey) {
+        throw new Error('OPENAI_API_KEY environment variable is required');
+      }
     }
   }
 
   async generateBlog(context: GenerationContext): Promise<GenerationResult> {
+    // Initialize OpenAI only when needed
+    this.initializeOpenAI();
+    
     // Step 1: Research the topic
     const researchResult = await perplexityClient.research({
       pillar: context.pillar,
@@ -130,6 +134,9 @@ class BlogGenerator {
     ctaDescription: string;
     ctaLink: string;
   }> {
+    // Initialize OpenAI only when needed
+    this.initializeOpenAI();
+    
     const systemPrompt = this.buildSystemPrompt(context.pillar, voiceGuard);
     const userPrompt = this.buildUserPrompt(research, context, aeoPartial);
 
