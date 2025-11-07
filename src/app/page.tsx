@@ -7,7 +7,6 @@ import WhyAudioJonesSection from "@/components/home/WhyAudioJonesSection";
 import Testimonials from "@/components/home/Testimonials";
 import ModulesShowcase from "@/components/home/ModulesShowcase";
 import HomeFAQ from "@/components/home/HomeFAQ";
-import LegalBand from "@/components/home/LegalBand";
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -115,7 +114,6 @@ export default function HomePage() {
         <Testimonials />
         <ModulesShowcase />
         <HomeFAQ />
-        <LegalBand />
       </main>
     </>
   );

@@ -3,6 +3,8 @@ import path from "path";
 import { remark } from "remark";
 import html from "remark-html";
 
+export const dynamic = 'force-dynamic';
+
 interface DocPageProps {
   params: { slug: string };
 }

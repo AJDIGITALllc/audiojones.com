@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import { Metadata } from "next";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "System Modules | Audio Jones Operations",
   description: "Internal documentation for Audio Jones automation and system modules",

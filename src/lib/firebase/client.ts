@@ -47,12 +47,17 @@ export const getFirebaseApp = () => createFirebaseApp();
 export const auth = new Proxy({} as any, {
   get(target, prop) {
     if (!_auth) {
-      const app = createFirebaseApp();
-      // During build time, app might be a mock object
-      if (typeof window === 'undefined' && !firebaseConfig.apiKey) {
-        return {}; // Return empty object during build
+      try {
+        const app = createFirebaseApp();
+        // During build time, app might be a mock object
+        if (typeof window === 'undefined' && !firebaseConfig.apiKey) {
+          return {}; // Return empty object during build
+        }
+        _auth = getAuth(app);
+      } catch (error) {
+        console.warn('[Firebase] Auth initialization failed:', error);
+        return {}; // Return empty object on error
       }
-      _auth = getAuth(app);
     }
     return _auth[prop];
   }
