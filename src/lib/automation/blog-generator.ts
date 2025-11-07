@@ -52,9 +52,6 @@ class BlogGenerator {
   }
 
   async generateBlog(context: GenerationContext): Promise<GenerationResult> {
-    // Initialize OpenAI only when needed
-    this.initializeOpenAI();
-    
     // Step 1: Research the topic
     const researchResult = await perplexityClient.research({
       pillar: context.pillar,
