@@ -383,7 +383,18 @@ Remember: Audio Jones clients expect operator-level insights, not surface-level 
   }
 }
 
-export const perplexityClient = new PerplexityClient();
+// Lazy initialization to prevent environment variable access during module loading
+let _perplexityClient: PerplexityClient | null = null;
+
+export const perplexityClient = new Proxy({} as PerplexityClient, {
+  get(target, prop) {
+    if (!_perplexityClient) {
+      _perplexityClient = new PerplexityClient();
+    }
+    const value = (_perplexityClient as any)[prop];
+    return typeof value === 'function' ? value.bind(_perplexityClient) : value;
+  }
+});
 
 // Utility functions for creating research contexts
 export function createResearchContext(

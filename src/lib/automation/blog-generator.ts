@@ -563,4 +563,15 @@ TONE: Confident operator sharing proven systems, not consultant selling services
   }
 }
 
-export const blogGenerator = new BlogGenerator();
+// Lazy initialization to prevent environment variable access during module loading
+let _blogGenerator: BlogGenerator | null = null;
+
+export const blogGenerator = new Proxy({} as BlogGenerator, {
+  get(target, prop) {
+    if (!_blogGenerator) {
+      _blogGenerator = new BlogGenerator();
+    }
+    const value = (_blogGenerator as any)[prop];
+    return typeof value === 'function' ? value.bind(_blogGenerator) : value;
+  }
+});
