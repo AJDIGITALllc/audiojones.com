@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "verify:integrations": "tsx scripts/verify-integrations.ts",
     "imagekit:convert": "node scripts/convert-to-ikimage.js",
     "imagekit:setup": "node scripts/setup-imagekit.js",
     "repo:init": "node tools/repo.js init",
