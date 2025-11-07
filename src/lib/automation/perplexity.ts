@@ -76,22 +76,25 @@ export interface ResearchResult {
 }
 
 class PerplexityClient {
-  private apiKey: string;
+  private apiKey: string | null = null;
   private baseUrl: string;
 
   constructor() {
-    this.apiKey = process.env.PERPLEXITY_API_KEY || '';
     this.baseUrl = 'https://api.perplexity.ai';
   }
 
-  private ensureApiKey(): void {
+  private ensureApiKey(): string {
+    if (this.apiKey === null) {
+      this.apiKey = process.env.PERPLEXITY_API_KEY || '';
+    }
     if (!this.apiKey) {
       throw new Error('PERPLEXITY_API_KEY environment variable is required');
     }
+    return this.apiKey;
   }
 
   async research(context: ResearchContext): Promise<ResearchResult> {
-    this.ensureApiKey();
+    const apiKey = this.ensureApiKey();
     const prompt = this.buildResearchPrompt(context);
     
     const request: PerplexityRequest = {
@@ -118,7 +121,7 @@ class PerplexityClient {
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(request)
