@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   const sessionCookie = cookieStore.get('session')?.value;
   
   if (!sessionCookie) {
-    redirect('/login?next=/portal/admin');
+    redirect('/portal/admin/login');
   }
 
   try {
@@ -25,7 +25,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
     }
   } catch (error) {
     console.error('Admin auth verification failed:', error);
-    redirect('/login?next=/portal/admin');
+    redirect('/portal/admin/login');
   }
 
   return (
