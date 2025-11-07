@@ -55,7 +55,22 @@ export default function Footer() {
 
       <NewsletterForm />
 
-      <div className="text-center text-xs text-white/50 mt-2 pb-10">
+      <div className="text-center text-xs text-white/50 mt-8 pb-10">
+        {/* Disclaimer */}
+        <div className="max-w-4xl mx-auto mb-6 text-white/40">
+          <p className="mb-3">
+            <strong>Disclaimer:</strong> Audio Jones (AJ Digital LLC) provides marketing, automation, and
+            creative services for informational and educational purposes. We make no guarantees of specific
+            financial or ranking outcomes. Results vary based on client effort, competition, and market
+            conditions.
+          </p>
+          <p>
+            All operations are governed by Florida law. In-person sessions occur inside Circle House Studios,
+            13700 NW 1st Ave, Miami, FL 33168.
+          </p>
+        </div>
+        
+        {/* Copyright */}
         <div>© {new Date().getFullYear()} AJ DIGITAL LLC · Audio Jones · All Rights Reserved.</div>
         <div className="mt-2">
           <BuildStamp />
