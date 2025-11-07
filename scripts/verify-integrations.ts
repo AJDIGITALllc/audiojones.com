@@ -3,7 +3,7 @@
 /**
  * Audio Jones - Integration Verification Script
  * ----------------------------------------------
- * Checks connectivity for Firebase, Basecamp 4, ImageKit, Stripe, and MailerLite.
+ * Checks connectivity for Firebase, ImageKit, Stripe, and MailerLite.
  * Uses read-only API calls. Never logs sensitive keys.
  */
 
@@ -39,23 +39,7 @@ async function verifyFirebase(): Promise<ServiceStatus> {
   }
 }
 
-async function verifyBasecamp(): Promise<ServiceStatus> {
-  try {
-    const id = process.env.BASECAMP_ACCOUNT_ID;
-    const token = process.env.BASECAMP_ACCESS_TOKEN;
-    if (!id || !token) throw new Error("Missing Basecamp credentials");
-    const res = await fetch(`https://3.basecampapi.com/${id}/projects.json`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "User-Agent": process.env.BASECAMP_USER_AGENT || "AudioJonesApp (dev@audiojones.com)",
-      },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return { name: "Basecamp 4", ok: true, message: "Projects API reachable" };
-  } catch (err: any) {
-    return { name: "Basecamp 4", ok: false, message: err.message };
-  }
-}
+
 
 async function verifyImageKit(): Promise<ServiceStatus> {
   try {
@@ -103,7 +87,6 @@ async function verifyMailerLite(): Promise<ServiceStatus> {
 async function main() {
   const checks = [
     verifyFirebase(),
-    verifyBasecamp(),
     verifyImageKit(),
     verifyStripe(),
     verifyMailerLite(),
@@ -114,14 +97,14 @@ async function main() {
   console.log("│ Service      │ Status    │ Message                    │");
   console.log("├──────────────┼───────────┼────────────────────────────┤");
 
-  results.forEach((r) => {
+  results.forEach((r: ServiceStatus) => {
     const status = r.ok ? "✅ OK" : "❌ Failed";
     console.log(`│ ${r.name.padEnd(12)} │ ${status.padEnd(9)} │ ${r.message.padEnd(26)} │`);
   });
 
   console.log("└──────────────┴───────────┴────────────────────────────┘");
 
-  const failures = results.filter((r) => !r.ok);
+  const failures = results.filter((r: ServiceStatus) => !r.ok);
   process.exit(failures.length ? 1 : 0);
 }
 
