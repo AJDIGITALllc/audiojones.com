@@ -1,6 +1,8 @@
 // Blog Publish API
 // Handles publishing blog drafts and content distribution
 
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/server/firebaseAdmin';
 import { BlogDraft, BlogStatus } from '@/lib/models/blog';

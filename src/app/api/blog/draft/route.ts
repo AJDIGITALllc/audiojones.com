@@ -1,6 +1,8 @@
 // Blog Draft Management API
 // Handles CRUD operations for blog drafts with Firebase Admin authentication
 
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/server/firebaseAdmin';
 import { blogGenerator } from '@/lib/automation/blog-generator';
