@@ -15,9 +15,16 @@ const firebaseConfig = {
 };
 
 function createFirebaseApp(): FirebaseApp {
-  if (!firebaseConfig.apiKey) {
-    throw new Error("Missing Firebase env vars");
+  // During build time, environment variables might not be available
+  if (typeof window === 'undefined' && !firebaseConfig.apiKey) {
+    console.warn('[Firebase] Client configuration not available during build time - this is expected');
+    return {} as FirebaseApp; // Mock app during build
   }
+
+  if (!firebaseConfig.apiKey) {
+    throw new Error("Missing Firebase env vars - check your NEXT_PUBLIC_FIREBASE_* environment variables");
+  }
+
   return getApps().length ? getApp() : initializeApp(firebaseConfig);
 }
 
