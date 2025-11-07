@@ -19,8 +19,16 @@ let firebaseApp: FirebaseApp | null = null;
 function createFirebaseApp(): FirebaseApp {
   if (firebaseApp) return firebaseApp;
   
+  // During build time, environment variables might not be available
+  // This is expected and we should not fail the build
+  if (typeof window === 'undefined' && !firebaseConfig.apiKey) {
+    console.warn('[Firebase] Client configuration not available during build time - this is expected');
+    // Return a mock app during build that will be replaced at runtime
+    return {} as FirebaseApp;
+  }
+  
   if (!firebaseConfig.apiKey) {
-    throw new Error("Missing Firebase env vars");
+    throw new Error("Missing Firebase env vars - check your NEXT_PUBLIC_FIREBASE_* environment variables");
   }
   
   firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
@@ -39,7 +47,12 @@ export const getFirebaseApp = () => createFirebaseApp();
 export const auth = new Proxy({} as any, {
   get(target, prop) {
     if (!_auth) {
-      _auth = getAuth(createFirebaseApp());
+      const app = createFirebaseApp();
+      // During build time, app might be a mock object
+      if (typeof window === 'undefined' && !firebaseConfig.apiKey) {
+        return {}; // Return empty object during build
+      }
+      _auth = getAuth(app);
     }
     return _auth[prop];
   }
@@ -48,7 +61,12 @@ export const auth = new Proxy({} as any, {
 export const storage = new Proxy({} as any, {
   get(target, prop) {
     if (!_storage) {
-      _storage = getStorage(createFirebaseApp());
+      const app = createFirebaseApp();
+      // During build time, app might be a mock object
+      if (typeof window === 'undefined' && !firebaseConfig.apiKey) {
+        return {}; // Return empty object during build
+      }
+      _storage = getStorage(app);
     }
     return _storage[prop];
   }
@@ -57,7 +75,12 @@ export const storage = new Proxy({} as any, {
 export const functions = new Proxy({} as any, {
   get(target, prop) {
     if (!_functions) {
-      _functions = getFunctions(createFirebaseApp());
+      const app = createFirebaseApp();
+      // During build time, app might be a mock object
+      if (typeof window === 'undefined' && !firebaseConfig.apiKey) {
+        return {}; // Return empty object during build
+      }
+      _functions = getFunctions(app);
     }
     return _functions[prop];
   }
@@ -66,7 +89,12 @@ export const functions = new Proxy({} as any, {
 export const db = new Proxy({} as any, {
   get(target, prop) {
     if (!_db) {
-      _db = getFirestore(createFirebaseApp());
+      const app = createFirebaseApp();
+      // During build time, app might be a mock object
+      if (typeof window === 'undefined' && !firebaseConfig.apiKey) {
+        return {}; // Return empty object during build
+      }
+      _db = getFirestore(app);
     }
     return _db[prop];
   }
