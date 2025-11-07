@@ -14,16 +14,69 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+let firebaseApp: FirebaseApp | null = null;
+
 function createFirebaseApp(): FirebaseApp {
+  if (firebaseApp) return firebaseApp;
+  
   if (!firebaseConfig.apiKey) {
     throw new Error("Missing Firebase env vars");
   }
-  return getApps().length ? getApp() : initializeApp(firebaseConfig);
+  
+  firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  return firebaseApp;
 }
 
-export const app = createFirebaseApp();
-export const auth = getAuth(app);
-export const storage = getStorage(app);
-export const functions = getFunctions(app);
-export const db = getFirestore(app);
-export const googleProvider = new GoogleAuthProvider();
+// Lazy initialization - only create when accessed
+let _auth: any = null;
+let _storage: any = null;
+let _functions: any = null;
+let _db: any = null;
+let _googleProvider: any = null;
+
+export const getFirebaseApp = () => createFirebaseApp();
+
+export const auth = new Proxy({} as any, {
+  get(target, prop) {
+    if (!_auth) {
+      _auth = getAuth(createFirebaseApp());
+    }
+    return _auth[prop];
+  }
+});
+
+export const storage = new Proxy({} as any, {
+  get(target, prop) {
+    if (!_storage) {
+      _storage = getStorage(createFirebaseApp());
+    }
+    return _storage[prop];
+  }
+});
+
+export const functions = new Proxy({} as any, {
+  get(target, prop) {
+    if (!_functions) {
+      _functions = getFunctions(createFirebaseApp());
+    }
+    return _functions[prop];
+  }
+});
+
+export const db = new Proxy({} as any, {
+  get(target, prop) {
+    if (!_db) {
+      _db = getFirestore(createFirebaseApp());
+    }
+    return _db[prop];
+  }
+});
+
+export const googleProvider = new Proxy({} as any, {
+  get(target, prop) {
+    if (!_googleProvider) {
+      _googleProvider = new GoogleAuthProvider();
+    }
+    return _googleProvider[prop];
+  }
+});
