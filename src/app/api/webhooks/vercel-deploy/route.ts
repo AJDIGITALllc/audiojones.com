@@ -68,7 +68,11 @@ export async function POST(req: NextRequest) {
 
   // 1) Send to configured webhook (Slack/n8n/Make)
   const webhookUrl = process.env.DEPLOY_FAIL_WEBHOOK_URL;
-  if (webhookUrl) {
+  if (!webhookUrl) {
+    console.warn(
+      "[WEBHOOK] Got failed deployment but DEPLOY_FAIL_WEBHOOK_URL not configured. Set this env var for notifications."
+    );
+  } else {
     try {
       console.log("[WEBHOOK] Sending failure notification to:", webhookUrl);
       await fetch(webhookUrl, {
@@ -99,7 +103,11 @@ export async function POST(req: NextRequest) {
   const githubToken = process.env.GITHUB_TOKEN;
   const githubRepo = process.env.GITHUB_REPO || "AJDIGITALllc/audiojones.com";
 
-  if (githubToken && githubRepo) {
+  if (!githubToken || !githubRepo) {
+    console.warn(
+      "[GITHUB] Got failed deployment but GitHub envs missing. Set GITHUB_TOKEN and GITHUB_REPO for auto-issue creation."
+    );
+  } else {
     const [owner, repo] = githubRepo.split("/");
     try {
       console.log("[GITHUB] Creating issue for failed deployment");
@@ -159,7 +167,11 @@ export async function POST(req: NextRequest) {
       webhook: !!webhookUrl,
       github: !!(githubToken && githubRepo),
       logged: true,
-    }
+    },
+    warnings: [
+      ...(!webhookUrl ? ["DEPLOY_FAIL_WEBHOOK_URL not configured - no notifications sent"] : []),
+      ...(!githubToken || !githubRepo ? ["GitHub integration not configured - no auto-issues created"] : [])
+    ].filter(Boolean)
   });
 }
 
