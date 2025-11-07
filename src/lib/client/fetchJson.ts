@@ -14,8 +14,27 @@ export async function fetchJson<T = any>(url: string, init?: RequestInit): Promi
     const ct = res.headers.get("content-type") || "";
     const body = ct.includes("application/json") ? await res.json().catch(() => ({})) : await res.text();
     if (!res.ok) {
-      const msg = (body && (body.error || body.message)) || res.statusText || "Request failed";
-      return { ok: false, status: res.status, error: String(msg), response: res };
+      let message: unknown;
+      if (body) {
+        if (typeof body === "string") {
+          message = body;
+        } else if (typeof body === "object") {
+          const details = (body as { error?: unknown; message?: unknown }).error ??
+            (body as { error?: unknown; message?: unknown }).message;
+          if (details !== undefined && details !== null) {
+            message = details;
+          }
+        }
+      }
+      const msg =
+        typeof message === "string"
+          ? message.trim().length > 0
+            ? message
+            : undefined
+          : message != null
+            ? String(message)
+            : undefined;
+      return { ok: false, status: res.status, error: msg || res.statusText || "Request failed", response: res };
     }
     return { ok: true, status: res.status, data: body as T, response: res };
   } catch (e: any) {
