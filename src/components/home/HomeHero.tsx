@@ -1,161 +1,59 @@
-// Audio Jones Enhanced Hero Section - Production-ready with responsive design
-import Image from 'next/image';
-
-// Trusted clients/partners data
-const trustedPartners = [
-  "Creator Economy Leaders",
-  "Podcast Networks", 
-  "Service-Based Businesses",
-  "SaaS Platforms",
-  "Miami Entrepreneurs"
-];
-
-// Stats data for hero media
-const heroStats = [
-  { label: "Client Revenue Increase", value: "340%", icon: "📈" },
-  { label: "Automation ROI", value: "25x", icon: "🤖" },
-  { label: "Podcast Downloads", value: "2M+", icon: "🎙️" },
-  { label: "AI Systems Built", value: "500+", icon: "⚡" }
-];
-
 export default function HomeHero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-black to-[#FF4500]/20" />
-      
-      {/* Content Container */}
-      <div className="relative z-10 container mx-auto px-6 pt-24 pb-16 md:pt-32 md:pb-20">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          
+    <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
+      <div className="container mx-auto px-6 py-20">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Content */}
-          <div className="space-y-8" data-animate="fade-up">
-            
-            {/* Company Badge */}
+          <div className="space-y-8">
+            {/* Eyebrow */}
             <div className="inline-block">
-              <span className="text-[#FFD700] text-sm font-medium tracking-wide uppercase bg-[#FFD700]/10 px-4 py-2 rounded-full border border-[#FFD700]/20">
-                🔥 AJ DIGITAL LLC • Miami-Based Systems
+              <span className="text-[#FFD700] text-sm font-medium tracking-wide uppercase bg-[#FFD700]/10 px-3 py-1 rounded-full">
+                AI-Driven Marketing & Automation
               </span>
             </div>
 
             {/* Main Heading */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-white">
-              AI, Media & Marketing{" "}
-              <span className="text-transparent bg-gradient-to-r from-[#FF4500] to-[#FFD700] bg-clip-text">
-                Systems for Creators
-              </span>
-              .
+            <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
+              Build a brand system that{" "}
+              <span className="text-[#FF4500]">actually converts</span>.
             </h1>
 
-            {/* Subheading */}
-            <p className="text-lg sm:text-xl text-gray-300 leading-relaxed max-w-2xl">
-              Built under AJ DIGITAL LLC, deployed across your funnels, podcasts, and automation stack. 
-              We turn content creators into systematic revenue machines.
+            {/* Subtext */}
+            <p className="text-xl text-gray-300 leading-relaxed max-w-2xl">
+              We help creators, consultants, and service businesses connect content → automations → revenue using AI, Whop, and Google Business Ultra.
             </p>
 
-            {/* Trusted Partners Badge */}
-            <div className="py-4" data-animate="fade-up" data-delay="200">
-              <p className="text-sm text-gray-400 mb-3">
-                Trusted by Audio Jones clients & partners:
-              </p>
-              <div className="flex flex-wrap gap-3">
-                {trustedPartners.map((partner, index) => (
-                  <span
-                    key={index}
-                    className="text-xs text-gray-300 bg-white/5 px-3 py-1 rounded-full border border-white/10"
-                  >
-                    {partner}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4" data-animate="fade-up" data-delay="400">
-              {/* Primary CTA */}
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4">
               <a
                 href="/contact"
-                className="group inline-flex items-center justify-center px-8 py-4 bg-[#FF4500] hover:bg-[#e63e00] text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-xl hover:shadow-[#FF4500]/25"
+                className="inline-flex items-center justify-center px-8 py-4 bg-[#FF4500] hover:bg-[#FF4500]/90 text-white font-semibold rounded-lg transition-colors duration-200"
               >
-                <span>Book a Build Session</span>
-                <svg className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                Request Growth Call
               </a>
-
-              {/* Secondary CTA */}
               <a
                 href="#services"
-                className="group inline-flex items-center justify-center px-8 py-4 border-2 border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700]/10 hover:shadow-lg hover:shadow-[#FFD700]/20 font-semibold rounded-lg transition-all duration-200"
+                className="inline-flex items-center justify-center px-8 py-4 border-2 border-[#008080] text-[#008080] hover:bg-[#008080] hover:text-white font-semibold rounded-lg transition-colors duration-200"
               >
-                <span>View Services</span>
-                <svg className="ml-2 w-5 h-5 group-hover:rotate-45 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
+                View Services
               </a>
             </div>
           </div>
 
-          {/* Right Column - Media */}
-          <div className="flex justify-center lg:justify-end" data-animate="fade-up" data-delay="300">
-            <div className="relative">
-              
-              {/* Hero Image Container */}
-              <div className="relative mx-auto aspect-square w-full max-w-[560px] rounded-3xl bg-gradient-to-br from-[#FF4500]/10 to-[#FFD700]/10 p-4 ring-1 ring-white/10 backdrop-blur-sm">
-                
-                {/* Hero Image */}
-                <div className="relative h-full w-full rounded-2xl overflow-hidden">
-                  <Image
-                    src="/assets/Backgrounds/aj-hero-portrait.webp"
-                    alt="Audio Jones - AI Marketing Systems"
-                    fill
-                    className="object-cover object-center"
-                    priority
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 560px"
-                  />
-                  
-                  {/* Overlay Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                  
-                  {/* Stats Overlay - Shows on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#FF4500]/90 to-[#FFD700]/90 opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-2xl">
-                    <div className="h-full flex items-center justify-center p-8">
-                      <div className="grid grid-cols-2 gap-6 text-center">
-                        {heroStats.map((stat, index) => (
-                          <div key={index} className="text-white">
-                            <div className="text-2xl mb-2">{stat.icon}</div>
-                            <div className="text-3xl font-bold mb-1">{stat.value}</div>
-                            <div className="text-sm opacity-90">{stat.label}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Elements */}
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-[#008080]/20 rounded-full blur-xl animate-pulse" />
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-[#FFD700]/10 rounded-full blur-2xl animate-pulse delay-1000" />
+          {/* Right Column - Portrait */}
+          <div className="flex justify-center lg:justify-end">
+            <div className="mx-auto mt-8 aspect-square w-full max-w-[560px] rounded-3xl bg-[#0c0c0c] p-4 ring-1 ring-white/10">
+              <img
+                src="/assets/Backgrounds/aj-hero-portrait.webp"
+                alt="Audio Jones portrait"
+                className="h-full w-full rounded-2xl object-cover object-center"
+                loading="eager"
+                fetchPriority="high"
+              />
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,69,0,0.3) 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
-      </div>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse" />
         </div>
       </div>
     </section>
-  );
+  )
 }
