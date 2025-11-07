@@ -44,10 +44,6 @@ class BlogGenerator {
   constructor() {
     this.openaiApiKey = process.env.OPENAI_API_KEY!;
     this.openaiBaseUrl = 'https://api.openai.com/v1';
-
-    if (!this.openaiApiKey) {
-      throw new Error('OPENAI_API_KEY environment variable is required');
-    }
   }
 
   async generateBlog(context: GenerationContext): Promise<GenerationResult> {
@@ -132,6 +128,10 @@ class BlogGenerator {
   }> {
     const systemPrompt = this.buildSystemPrompt(context.pillar, voiceGuard);
     const userPrompt = this.buildUserPrompt(research, context, aeoPartial);
+
+    if (!this.openaiApiKey) {
+      throw new Error('OPENAI_API_KEY environment variable is required');
+    }
 
     const request: LLMRequest = {
       model: 'gpt-4',
