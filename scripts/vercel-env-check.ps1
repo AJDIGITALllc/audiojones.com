@@ -1,114 +1,136 @@
-# Audio Jones — Vercel Environment Validation Script (PowerShell)
-# Purpose: Verify all required Vercel environment variables are properly set and authenticated.
+# Vercel Environment Variables Verification Script
+# Run this after setting up environment variables to confirm everything is working
 
-Write-Host "🔍 Checking for required environment variables..." -ForegroundColor Cyan
-Write-Host "----------------------------------------------"
-Write-Host "VERCEL_TEAM_ID: $env:VERCEL_TEAM_ID"
-Write-Host "VERCEL_TOKEN: $env:VERCEL_TOKEN"
-Write-Host "VERCEL_PROJECT_ID: $env:VERCEL_PROJECT_ID"
-Write-Host "----------------------------------------------"
+param(
+    [switch]$SkipWebhookTest,
+    [switch]$Verbose
+)
 
-# Check if required variables are set
-if (-not $env:VERCEL_TOKEN) {
-    Write-Host "❌ VERCEL_TOKEN is not set!" -ForegroundColor Red
-    exit 1
-}
+Write-Host "🔍 Vercel Environment Variables Verification" -ForegroundColor Cyan
+Write-Host "============================================`n" -ForegroundColor Cyan
 
-if (-not $env:VERCEL_TEAM_ID) {
-    Write-Host "❌ VERCEL_TEAM_ID is not set!" -ForegroundColor Red
-    exit 1
-}
-
-# Step 2: Validate token and team ID with the Vercel API
-Write-Host "🧪 Validating Vercel API token and team ID..." -ForegroundColor Cyan
-
-try {
-    $headers = @{
-        "Authorization" = "Bearer $env:VERCEL_TOKEN"
-        "Content-Type" = "application/json"
-    }
-    
-    $response = Invoke-RestMethod -Uri "https://api.vercel.com/v9/projects?teamId=$env:VERCEL_TEAM_ID" -Headers $headers
-    
-    if ($response.projects) {
-        Write-Host "✅ Successfully authenticated with Vercel API" -ForegroundColor Green
-        Write-Host "📋 Found $($response.projects.Count) projects in team" -ForegroundColor Yellow
-        
-        foreach ($project in $response.projects) {
-            $latestState = if ($project.latestDeployments -and $project.latestDeployments.Count -gt 0) { 
-                $project.latestDeployments[0].state 
-            } else { 
-                "No deployments" 
-            }
-            Write-Host "  - $($project.name) (ID: $($project.id)) - Latest: $latestState"
-        }
-    }
-}
-catch {
-    Write-Host "⚠️ Unable to fetch projects. Check your token and team ID." -ForegroundColor Red
-    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-}
-
-# Step 3: Verify the Audio Jones project connection
-Write-Host "----------------------------------------------"
-Write-Host "🎯 Checking for 'audiojones.com' project..." -ForegroundColor Cyan
-
-try {
-    $projectResponse = Invoke-RestMethod -Uri "https://api.vercel.com/v9/projects/audiojones.com?teamId=$env:VERCEL_TEAM_ID" -Headers $headers
-    
-    Write-Host "✅ Found audiojones.com project!" -ForegroundColor Green
-    Write-Host "  Name: $($projectResponse.name)"
-    Write-Host "  ID: $($projectResponse.id)"
-    Write-Host "  Framework: $($projectResponse.framework)"
-    
-    if ($projectResponse.targets -and $projectResponse.targets.production) {
-        Write-Host "  Production URL: $($projectResponse.targets.production.domain)"
-    }
-}
-catch {
-    Write-Host "⚠️ Project 'audiojones.com' not found or not linked to this team." -ForegroundColor Red
-    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-}
-
-# Step 4: List environment variables for current project
-Write-Host "----------------------------------------------"
-Write-Host "📦 Listing environment variables for audiojones.com..." -ForegroundColor Cyan
-
-try {
-    $envResponse = Invoke-RestMethod -Uri "https://api.vercel.com/v9/projects/audiojones.com/env?teamId=$env:VERCEL_TEAM_ID" -Headers $headers
-    
-    if ($envResponse.envs) {
-        Write-Host "✅ Found $($envResponse.envs.Count) environment variables:" -ForegroundColor Green
-        
-        foreach ($env_var in $envResponse.envs) {
-            $maskedValue = if ($env_var.value.Length -gt 10) { 
-                $env_var.value.Substring(0, 4) + "****" + $env_var.value.Substring($env_var.value.Length - 4) 
-            } else { 
-                "****" 
-            }
-            Write-Host "  - $($env_var.key): $maskedValue (Target: $($env_var.target -join ', '))"
-        }
-    }
-    else {
-        Write-Host "📝 No environment variables found for this project." -ForegroundColor Yellow
-    }
-}
-catch {
-    Write-Host "⚠️ Could not list project environment variables." -ForegroundColor Red
-    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-}
-
-Write-Host "----------------------------------------------"
-Write-Host "✅ Validation complete. Review above results for missing or invalid credentials." -ForegroundColor Green
-
-# Optional: Check Vercel CLI installation
-Write-Host "🔧 Checking Vercel CLI installation..." -ForegroundColor Cyan
+# 1. Check if Vercel CLI is available
 try {
     $vercelVersion = vercel --version 2>$null
-    if ($vercelVersion) {
-        Write-Host "✅ Vercel CLI installed: $vercelVersion" -ForegroundColor Green
+    Write-Host "✅ Vercel CLI: $vercelVersion" -ForegroundColor Green
+} catch {
+    Write-Host "❌ Vercel CLI not found. Install with: npm install -g vercel" -ForegroundColor Red
+    exit 1
+}
+
+# 2. List environment variables
+Write-Host "`n📋 Environment Variables Status:" -ForegroundColor Yellow
+try {
+    $envOutput = vercel env ls production 2>$null
+    
+    # Check for required variables
+    $requiredVars = @("FIREBASE_PRIVATE_KEY", "FIREBASE_PROJECT_ID", "FIREBASE_CLIENT_EMAIL", "WHOP_API_KEY", "WHOP_APP_ID")
+    $foundVars = @()
+    
+    foreach ($var in $requiredVars) {
+        if ($envOutput -match $var) {
+            Write-Host "   ✅ $var" -ForegroundColor Green
+            $foundVars += $var
+        } else {
+            Write-Host "   ❌ $var (MISSING)" -ForegroundColor Red
+        }
+    }
+    
+    # Check for Base64 backup
+    if ($envOutput -match "FIREBASE_PRIVATE_KEY_BASE64") {
+        Write-Host "   ✅ FIREBASE_PRIVATE_KEY_BASE64 (backup)" -ForegroundColor Blue
+    }
+    
+} catch {
+    Write-Host "❌ Failed to list environment variables" -ForegroundColor Red
+    Write-Host "   Try: vercel login" -ForegroundColor Yellow
+}
+
+# 3. Test private key length (if possible)
+Write-Host "`n🔑 Private Key Verification:" -ForegroundColor Yellow
+try {
+    # Create temp file to check key length
+    $tempFile = "$env:TEMP\vercel-env-check.tmp"
+    vercel env pull $tempFile production 2>$null | Out-Null
+    
+    if (Test-Path $tempFile) {
+        $keyLine = Get-Content $tempFile | Where-Object { $_ -like "FIREBASE_PRIVATE_KEY=*" }
+        if ($keyLine) {
+            $keyValue = $keyLine -replace "FIREBASE_PRIVATE_KEY=","" -replace '"',''
+            $keyLength = $keyValue.Length
+            
+            if ($keyLength -gt 1600) {
+                Write-Host "   [OK] Private key appears complete ($keyLength characters)" -ForegroundColor Green
+            } elseif ($keyLength -gt 40) {
+                Write-Host "   [WARN] Private key might be truncated ($keyLength characters)" -ForegroundColor Yellow
+            } else {
+                Write-Host "   [ERROR] Private key is truncated! ($keyLength characters)" -ForegroundColor Red
+                Write-Host "      Run: Get-Content .\scripts\firebase-private-key.txt | vercel env add FIREBASE_PRIVATE_KEY production --sensitive --force" -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "   [ERROR] FIREBASE_PRIVATE_KEY not found in environment" -ForegroundColor Red
+        }
+        
+        Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
+    }
+} catch {
+    Write-Host "   ⚠️  Could not verify private key length" -ForegroundColor Yellow
+}
+
+# 4. Test webhook endpoints
+if (-not $SkipWebhookTest) {
+    Write-Host "`n🌐 Webhook Endpoint Tests:" -ForegroundColor Yellow
+    
+    # Test main webhook
+    try {
+        $response = Invoke-RestMethod -Uri "https://audiojones.com/api/whop" -Method GET -TimeoutSec 10
+        if ($response.ok -eq $true -and $response.source -eq "whop-webhook") {
+            Write-Host "   ✅ Main webhook: https://audiojones.com/api/whop" -ForegroundColor Green
+            if ($Verbose) {
+                Write-Host "      Response: $($response | ConvertTo-Json -Compress)" -ForegroundColor Gray
+            }
+        } else {
+            Write-Host "   ⚠️  Main webhook responded but with unexpected data" -ForegroundColor Yellow
+            if ($Verbose) {
+                Write-Host "      Response: $($response | ConvertTo-Json)" -ForegroundColor Gray
+            }
+        }
+    } catch {
+        Write-Host "   ❌ Main webhook error: $($_.Exception.Message)" -ForegroundColor Red
+    }
+    
+    # Test Base64 webhook (if it exists)  
+    try {
+        $response = Invoke-RestMethod -Uri "https://audiojones.com/api/whop-base64" -Method GET -TimeoutSec 10
+        Write-Host "   ✅ Base64 webhook: https://audiojones.com/api/whop-base64" -ForegroundColor Green
+        if ($Verbose) {
+            Write-Host "      Response: $($response | ConvertTo-Json -Compress)" -ForegroundColor Gray
+        }
+    } catch {
+        if ($_.Exception.Message -match "404") {
+            Write-Host "   ℹ️  Base64 webhook: Not deployed (optional)" -ForegroundColor Blue
+        } else {
+            Write-Host "   ❌ Base64 webhook error: $($_.Exception.Message)" -ForegroundColor Red
+        }
     }
 }
-catch {
-    Write-Host "⚠️ Vercel CLI not found. Install with: npm i -g vercel" -ForegroundColor Yellow
+
+# 5. Summary
+Write-Host "`n📊 Summary:" -ForegroundColor Cyan
+$totalRequired = $requiredVars.Count
+$foundCount = $foundVars.Count
+
+if ($foundCount -eq $totalRequired) {
+    Write-Host "✅ All required environment variables are configured" -ForegroundColor Green
+} else {
+    Write-Host "❌ Missing $($totalRequired - $foundCount) required environment variables" -ForegroundColor Red
 }
+
+Write-Host "`n💡 Quick Setup Commands:" -ForegroundColor Blue
+Write-Host "   Get-Content .\scripts\firebase-private-key.txt | vercel env add FIREBASE_PRIVATE_KEY production --sensitive --force" -ForegroundColor White
+Write-Host "   vercel env add FIREBASE_PROJECT_ID production" -ForegroundColor White
+Write-Host "   vercel env add FIREBASE_CLIENT_EMAIL production" -ForegroundColor White
+Write-Host "   vercel env add WHOP_API_KEY production --sensitive" -ForegroundColor White
+Write-Host "   vercel env add WHOP_APP_ID production" -ForegroundColor White
+
+Write-Host "`n🔗 Documentation: docs\VERCEL_ENV_SOP.md" -ForegroundColor Cyan
