@@ -26,14 +26,14 @@ export async function POST(req: NextRequest) {
     }
     
     // Try different processing approaches
-    const approaches = {
+    const approaches: Record<string, string> = {
       original: privateKey,
       remove_quotes: privateKey.replace(/^"|"$/g, ''),
       replace_backslash_n: privateKey.replace(/\\n/g, '\n'),
       both: privateKey.replace(/^"|"$/g, '').replace(/\\n/g, '\n')
     };
     
-    const results = {};
+    const results: Record<string, string> = {};
     
     for (const [name, processedKey] of Object.entries(approaches)) {
       try {
