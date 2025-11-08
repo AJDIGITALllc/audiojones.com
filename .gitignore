@@ -39,3 +39,5 @@ env/.env.master
 next-env.d.ts
 .envs/
 audiojones.com/
+
+.env.vercel.*
