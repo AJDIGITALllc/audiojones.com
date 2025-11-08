@@ -50,6 +50,7 @@ export default function Header() {
           <div className="hidden md:flex md:flex-1 md:items-center md:justify-end md:gap-x-10">
             <Link href="/" className="text-sm font-semibold text-white/80 hover:text-white transition">Home</Link>
             <Link href="/services" className="text-sm font-semibold text-white/80 hover:text-white transition">Services</Link>
+            <Link href="/pricing" className="text-sm font-semibold text-white/80 hover:text-white transition">Pricing</Link>
             <Link href="/podcast" className="text-sm font-semibold text-white/80 hover:text-white transition">Podcast</Link>
             <Link href="/insights" className="text-sm font-semibold text-white/80 hover:text-white transition">Insights</Link>
             <Link href="/about" className="text-sm font-semibold text-white/80 hover:text-white transition">About</Link>
@@ -66,6 +67,7 @@ export default function Header() {
           <div className="px-6 py-6 space-y-4">
             <Link href="/" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Home</Link>
             <Link href="/services" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Services</Link>
+            <Link href="/pricing" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
             <Link href="/podcast" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Podcast</Link>
             <Link href="/insights" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Insights</Link>
             <Link href="/about" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>About</Link>
