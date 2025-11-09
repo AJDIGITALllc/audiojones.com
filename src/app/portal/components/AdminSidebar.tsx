@@ -11,7 +11,8 @@ import {
   Database,
   BarChart3,
   FileText,
-  Shield
+  Shield,
+  TrendingUp
 } from 'lucide-react';
 
 interface NavItem {
@@ -39,6 +40,12 @@ const navigation: NavItem[] = [
     href: '/portal/admin/events',
     icon: Activity,
     description: 'Subscription events'
+  },
+  {
+    name: 'Statistics',
+    href: '/portal/admin/stats',
+    icon: TrendingUp,
+    description: 'Live data & metrics'
   },
   {
     name: 'Analytics',
