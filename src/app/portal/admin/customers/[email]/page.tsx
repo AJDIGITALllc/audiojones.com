@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { ArrowLeft, Calendar, Package, User, AlertCircle, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Calendar, Package, User, AlertCircle, RefreshCw, MessageSquare, Plus } from 'lucide-react';
 
 interface Customer {
   email: string;
@@ -26,10 +26,18 @@ interface SubscriptionEvent {
   raw_data?: any;
 }
 
+interface CustomerNote {
+  id: string;
+  message: string;
+  created_at: string;
+  created_by: string;
+}
+
 interface CustomerDetailResponse {
   ok: boolean;
   customer: Customer | null;
   events: SubscriptionEvent[];
+  notes: CustomerNote[];
   error?: string;
 }
 
@@ -41,6 +49,8 @@ export default function CustomerDetailPage() {
   const [data, setData] = useState<CustomerDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [newNote, setNewNote] = useState('');
+  const [addingNote, setAddingNote] = useState(false);
 
   const fetchCustomerDetail = async () => {
     try {
@@ -63,6 +73,40 @@ export default function CustomerDetailPage() {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const addNote = async () => {
+    if (!newNote.trim() || addingNote) return;
+    
+    try {
+      setAddingNote(true);
+      const response = await fetch(`/api/admin/customers/${encodeURIComponent(email)}/note`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'admin-key': 'gGho3TE8ztiSAMvORfyCDem62Fk0xpW1',
+        },
+        body: JSON.stringify({ message: newNote.trim() }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.ok) {
+        setNewNote('');
+        // Refresh customer data to get updated notes
+        await fetchCustomerDetail();
+      } else {
+        throw new Error(result.error || 'Failed to add note');
+      }
+    } catch (err) {
+      console.error('Error adding note:', err);
+      alert(err instanceof Error ? err.message : 'Failed to add note');
+    } finally {
+      setAddingNote(false);
     }
   };
 
@@ -238,7 +282,7 @@ export default function CustomerDetailPage() {
         </button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3 md:grid-cols-2">
         {/* Customer Details */}
         <Card>
           <CardHeader>
@@ -325,6 +369,57 @@ export default function CustomerDetailPage() {
                     </span>
                   </div>
                 </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Notes Panel */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Admin Notes
+            </CardTitle>
+            <CardDescription>Internal notes and comments</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Add Note Form */}
+            <div className="space-y-2">
+              <textarea
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                placeholder="Add a note about this customer..."
+                className="w-full min-h-[80px] p-3 border rounded-lg resize-none text-sm"
+                disabled={addingNote}
+              />
+              <button
+                onClick={addNote}
+                disabled={!newNote.trim() || addingNote}
+                className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              >
+                <Plus className="h-4 w-4" />
+                {addingNote ? 'Adding...' : 'Add Note'}
+              </button>
+            </div>
+
+            {/* Notes List */}
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {data?.notes && data.notes.length > 0 ? (
+                data.notes.map((note) => (
+                  <div key={note.id} className="p-3 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+                    <p className="text-sm text-gray-800 mb-2">{note.message}</p>
+                    <div className="flex justify-between items-center text-xs text-gray-500">
+                      <span>by {note.created_by}</span>
+                      <span>{formatDate(note.created_at)}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-muted-foreground text-sm">
+                  <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>No notes yet</p>
+                </div>
               )}
             </div>
           </CardContent>

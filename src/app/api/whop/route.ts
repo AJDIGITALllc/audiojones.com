@@ -3,9 +3,77 @@ import { NextRequest, NextResponse } from "next/server";
 import { getApps, initializeApp, cert, App } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getTierByBillingSku } from "@/lib/getPricing";
+import crypto from "crypto";
 
 // ⬇️ optional: if you installed @whop/sdk
 // import Whop from "@whop/sdk";
+
+// ─────────────────────────────────────────────
+// Production-grade security helpers
+// ─────────────────────────────────────────────
+
+// Rate limiting storage (in-memory for simplicity, use Redis in production)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function rateLimit(ip: string, maxRequests: number = 60, windowMs: number = 60000): boolean {
+  const now = Date.now();
+  const key = ip;
+  
+  const current = rateLimitMap.get(key);
+  
+  if (!current || now > current.resetTime) {
+    rateLimitMap.set(key, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+  
+  if (current.count >= maxRequests) {
+    return false; // Rate limit exceeded
+  }
+  
+  current.count++;
+  return true;
+}
+
+function validateWebhookSignature(
+  payload: string,
+  signature: string | null,
+  timestamp: string | null,
+  secret: string
+): boolean {
+  if (!signature || !timestamp) {
+    console.warn("[whop webhook] Missing signature or timestamp headers");
+    return false;
+  }
+
+  // Check timestamp to prevent replay attacks (5 minutes tolerance)
+  const now = Math.floor(Date.now() / 1000);
+  const webhookTime = parseInt(timestamp);
+  
+  if (Math.abs(now - webhookTime) > 300) {
+    console.warn("[whop webhook] Timestamp too old, possible replay attack");
+    return false;
+  }
+
+  // Verify HMAC-SHA256 signature
+  const signedPayload = `${timestamp}.${payload}`;
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(signedPayload, 'utf8')
+    .digest('hex');
+
+  // Use timing-safe comparison to prevent timing attacks
+  const providedSignature = signature.replace('sha256=', '');
+  
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(expectedSignature, 'hex'),
+      Buffer.from(providedSignature, 'hex')
+    );
+  } catch (err) {
+    console.warn("[whop webhook] Invalid signature format");
+    return false;
+  }
+}
 
 // ─────────────────────────────────────────────
 // Firebase Admin init (server-only)
@@ -84,16 +152,52 @@ export async function GET() {
 // 2) event-based payloads: { type: "payment.succeeded", data: {...} }
 // ─────────────────────────────────────────────
 export async function POST(req: NextRequest) {
-  const json = await req.json().catch(() => null);
+  const startTime = Date.now();
+  const requestId = crypto.randomUUID();
+  
+  console.log(`[whop webhook:${requestId}] Incoming webhook request`);
 
-  if (!json) {
+  // Rate limiting
+  const clientIp = req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || 'unknown';
+  if (!rateLimit(clientIp)) {
+    console.warn(`[whop webhook:${requestId}] Rate limit exceeded for IP: ${clientIp}`);
+    return NextResponse.json(
+      { ok: false, error: "rate_limit_exceeded" }, 
+      { status: 429 }
+    );
+  }
+
+  // Get raw body for signature verification
+  const rawBody = await req.text().catch(() => null);
+  if (!rawBody) {
+    console.error(`[whop webhook:${requestId}] Failed to read request body`);
+    return NextResponse.json({ ok: false, error: "invalid_body" }, { status: 400 });
+  }
+
+  let json: any;
+  try {
+    json = JSON.parse(rawBody);
+  } catch (err) {
+    console.error(`[whop webhook:${requestId}] Invalid JSON payload`);
     return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
   }
 
-  // Optional: verify Whop webhook signature here (json + headers)
-  // const signature = req.headers.get("webhook-signature");
-  // const ts = req.headers.get("webhook-timestamp");
-  // TODO: verify with Whop's secret
+  // Production webhook signature verification
+  const webhookSecret = process.env.WHOP_WEBHOOK_SECRET;
+  if (webhookSecret) {
+    const signature = req.headers.get("whop-signature") || req.headers.get("webhook-signature");
+    const timestamp = req.headers.get("whop-timestamp") || req.headers.get("webhook-timestamp");
+    
+    if (!validateWebhookSignature(rawBody, signature, timestamp, webhookSecret)) {
+      console.error(`[whop webhook:${requestId}] Invalid webhook signature`);
+      return NextResponse.json(
+        { ok: false, error: "invalid_signature" }, 
+        { status: 401 }
+      );
+    }
+  } else {
+    console.warn(`[whop webhook:${requestId}] WHOP_WEBHOOK_SECRET not configured - signature verification skipped`);
+  }
 
   const app = getFirebaseApp();
   const db = getFirestore(app);
@@ -139,7 +243,9 @@ export async function POST(req: NextRequest) {
 
     // write to Firestore (best-effort)
     try {
-      // 1) event log
+      console.log(`[whop webhook:${requestId}] Processing event: ${eventType}, email: ${email}, sku: ${possibleSku}`);
+      
+      // 1) event log with enhanced metadata
       await db.collection("subscription_events").add({
         whop_event_id: eventId,
         event_type: eventType,
@@ -148,39 +254,75 @@ export async function POST(req: NextRequest) {
         tier: pricingMatch?.tier?.id || null,
         timestamp: ts || new Date().toISOString(),
         processed_at: new Date().toISOString(),
+        processing_time_ms: Date.now() - startTime,
+        request_id: requestId,
         raw_data: json,
+        enriched_data: enriched,
       });
 
       // 2) upsert customer if we have an email
       if (email) {
         const customerRef = db.collection("customers").doc(email);
-        await customerRef.set(
-          {
-            email,
-            status:
-              eventType === "payment.succeeded" || eventType === "invoice.paid"
-                ? "active"
-                : "updated",
-            service_id: pricingMatch?.service?.id || null,
-            tier_id: pricingMatch?.tier?.id || null,
-            billing_sku: possibleSku || null,
-            updated_at: new Date().toISOString(),
-          },
-          { merge: true }
-        );
+        const customerData = {
+          email,
+          status:
+            eventType === "payment.succeeded" || eventType === "invoice.paid"
+              ? "active"
+              : eventType === "payment.failed" || eventType === "invoice.failed"
+              ? "payment_failed"
+              : "updated",
+          service_id: pricingMatch?.service?.id || null,
+          tier_id: pricingMatch?.tier?.id || null,
+          billing_sku: possibleSku || null,
+          updated_at: new Date().toISOString(),
+          last_event_type: eventType,
+          last_processed_request_id: requestId,
+        };
+        
+        await customerRef.set(customerData, { merge: true });
+        console.log(`[whop webhook:${requestId}] Customer updated: ${email} -> ${customerData.status}`);
       }
     } catch (err) {
-      console.error("[whop webhook] Firestore write failed", err);
-      // we still return 200 so Whop doesn't retry forever
+      console.error(`[whop webhook:${requestId}] Firestore write failed:`, err);
+      
+      // Log error details for debugging
+      try {
+        await db.collection("webhook_errors").add({
+          request_id: requestId,
+          error_type: "firestore_write_failed",
+          error_message: err instanceof Error ? err.message : String(err),
+          event_type: eventType,
+          customer_email: email,
+          timestamp: new Date().toISOString(),
+          raw_payload: json,
+        });
+      } catch (logErr) {
+        console.error(`[whop webhook:${requestId}] Failed to log error to Firestore:`, logErr);
+      }
+      
+      // Still return 200 to prevent infinite retries, but with error flag
+      return NextResponse.json({
+        ok: false,
+        error: "processing_failed",
+        request_id: requestId,
+        eventType,
+        email,
+        sku: possibleSku,
+      }, { status: 200 }); // 200 to stop retries
     }
 
+    const processingTime = Date.now() - startTime;
+    console.log(`[whop webhook:${requestId}] Successfully processed event in ${processingTime}ms`);
+    
     return NextResponse.json({
       ok: true,
       mode: "event",
+      request_id: requestId,
       eventType,
       email,
       sku: possibleSku,
       pricingMatch: pricingMatch || null,
+      processing_time_ms: processingTime,
     });
   }
 
@@ -207,7 +349,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // event log
+    console.log(`[whop webhook:${requestId}] Processing simple webhook: email: ${email}, sku: ${sku}`);
+    
+    // event log with enhanced metadata
     await db.collection("subscription_events").add({
       event_type: "subscription.created",
       whop_user_id: "unknown",
@@ -215,34 +359,67 @@ export async function POST(req: NextRequest) {
       tier: pricingMatch?.tier?.id || null,
       timestamp: new Date().toISOString(),
       processed_at: new Date().toISOString(),
+      processing_time_ms: Date.now() - startTime,
+      request_id: requestId,
       raw_data: json,
     });
 
-    // upsert customer
+    // upsert customer with enhanced data
     if (email) {
       const customerRef = db.collection("customers").doc(email);
-      await customerRef.set(
-        {
-          email,
-          status: "active",
-          last_sku: sku,
-          service_id: pricingMatch?.service?.id || null,
-          tier_id: pricingMatch?.tier?.id || null,
-          billing_sku: sku,
-          updated_at: new Date().toISOString(),
-        },
-        { merge: true }
-      );
+      const customerData = {
+        email,
+        status: "active",
+        last_sku: sku,
+        service_id: pricingMatch?.service?.id || null,
+        tier_id: pricingMatch?.tier?.id || null,
+        billing_sku: sku,
+        updated_at: new Date().toISOString(),
+        last_event_type: "subscription.created",
+        last_processed_request_id: requestId,
+      };
+      
+      await customerRef.set(customerData, { merge: true });
+      console.log(`[whop webhook:${requestId}] Customer created/updated: ${email} -> active`);
     }
   } catch (err) {
-    console.error("[whop webhook] Firestore write failed", err);
+    console.error(`[whop webhook:${requestId}] Firestore write failed:`, err);
+    
+    // Log error for debugging
+    try {
+      await db.collection("webhook_errors").add({
+        request_id: requestId,
+        error_type: "firestore_write_failed",
+        error_message: err instanceof Error ? err.message : String(err),
+        event_type: "subscription.created",
+        customer_email: email,
+        timestamp: new Date().toISOString(),
+        raw_payload: json,
+      });
+    } catch (logErr) {
+      console.error(`[whop webhook:${requestId}] Failed to log error to Firestore:`, logErr);
+    }
+    
+    return NextResponse.json({
+      ok: false,
+      error: "processing_failed",
+      request_id: requestId,
+      mode: "simple",
+      email,
+      sku,
+    }, { status: 200 }); // 200 to stop retries
   }
+
+  const processingTime = Date.now() - startTime;
+  console.log(`[whop webhook:${requestId}] Successfully processed simple webhook in ${processingTime}ms`);
 
   return NextResponse.json({
     ok: true,
     mode: "simple",
+    request_id: requestId,
     email,
     sku,
     pricingMatch: pricingMatch || null,
+    processing_time_ms: processingTime,
   });
 }

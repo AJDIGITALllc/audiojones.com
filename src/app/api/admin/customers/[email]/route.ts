@@ -59,22 +59,48 @@ export async function GET(
     }
 
     // Get all subscription events for this customer
-    const eventsSnapshot = await db
-      .collection("subscription_events")
-      .where("customer_email", "==", decodedEmail)
-      .orderBy("timestamp", "desc")
-      .limit(50) // Limit to recent 50 events
-      .get();
+    let events: any[] = [];
+    try {
+      const eventsSnapshot = await db
+        .collection("subscription_events")
+        .where("customer_email", "==", decodedEmail)
+        .orderBy("timestamp", "desc")
+        .limit(50) // Limit to recent 50 events
+        .get();
 
-    const events = eventsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+      events = eventsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (eventsError) {
+      console.warn("[admin/customers] Events query failed (likely missing index):", eventsError);
+      // Continue without events if index is missing
+    }
+
+    // Get customer notes
+    let notes: any[] = [];
+    try {
+      const notesSnapshot = await db
+        .collection("customers")
+        .doc(decodedEmail)
+        .collection("notes")
+        .orderBy("created_at", "desc")
+        .get();
+
+      notes = notesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (notesError) {
+      console.warn("[admin/customers] Notes query failed:", notesError);
+      // Continue without notes if there's an error
+    }
 
     return NextResponse.json({
       ok: true,
       customer,
       events,
+      notes,
       timestamp: new Date().toISOString(),
     });
 
