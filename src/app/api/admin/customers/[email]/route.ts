@@ -27,7 +27,7 @@ function getFirebaseApp(): App {
 
 export async function GET(
   req: NextRequest, 
-  { params }: { params: { email: string } }
+  { params }: { params: Promise<{ email: string }> }
 ) {
   // Verify admin access
   const adminKey = req.headers.get('admin-key') || req.headers.get('X-Admin-Key');
@@ -42,17 +42,18 @@ export async function GET(
   }
 
   try {
-    const email = decodeURIComponent(params.email);
+    const { email } = await params;
+    const decodedEmail = decodeURIComponent(email);
     const app = getFirebaseApp();
     const db = getFirestore(app);
 
     // Get customer by email (document ID = email)
-    const customerDoc = await db.collection("customers").doc(email).get();
+    const customerDoc = await db.collection("customers").doc(decodedEmail).get();
     
     let customer = null;
     if (customerDoc.exists) {
       customer = {
-        email,
+        email: decodedEmail,
         ...customerDoc.data()
       };
     }
@@ -60,7 +61,7 @@ export async function GET(
     // Get all subscription events for this customer
     const eventsSnapshot = await db
       .collection("subscription_events")
-      .where("customer_email", "==", email)
+      .where("customer_email", "==", decodedEmail)
       .orderBy("timestamp", "desc")
       .limit(50) // Limit to recent 50 events
       .get();
