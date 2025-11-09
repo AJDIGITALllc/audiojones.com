@@ -1,6 +1,7 @@
 // src/app/portal/admin/customers/page.tsx
 // Admin customers listing with Firestore integration
 
+import Link from 'next/link';
 import { getCustomers } from '@/lib/firestore/collections';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -141,7 +142,12 @@ export default async function AdminCustomers() {
                         </div>
                       </td>
                       <td className="py-4 px-4 text-gray-300">
-                        {customer.email}
+                        <Link 
+                          href={`/portal/admin/customers/${encodeURIComponent(customer.email)}`}
+                          className="text-blue-400 hover:text-blue-300 hover:underline"
+                        >
+                          {customer.email}
+                        </Link>
                       </td>
                       <td className="py-4 px-4">
                         {customer.subscription_tier ? (
@@ -170,9 +176,12 @@ export default async function AdminCustomers() {
                         {new Date(customer.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-4 px-4">
-                        <button className="text-blue-400 hover:text-blue-300 text-sm">
+                        <Link 
+                          href={`/portal/admin/customers/${encodeURIComponent(customer.email)}`}
+                          className="text-blue-400 hover:text-blue-300 text-sm hover:underline"
+                        >
                           View Details
-                        </button>
+                        </Link>
                       </td>
                     </tr>
                   ))}
