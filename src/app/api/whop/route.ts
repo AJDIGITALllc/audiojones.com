@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getApps, initializeApp, cert, App } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getTierByBillingSku } from "@/lib/getPricing";
+import { AlertTemplates } from "@/lib/alerts";
 import crypto from "crypto";
 
 // ⬇️ optional: if you installed @whop/sdk
@@ -161,6 +162,13 @@ export async function POST(req: NextRequest) {
   const clientIp = req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || 'unknown';
   if (!rateLimit(clientIp)) {
     console.warn(`[whop webhook:${requestId}] Rate limit exceeded for IP: ${clientIp}`);
+    
+    // Create security alert for rate limiting
+    AlertTemplates.rateLimit(clientIp, '/api/whop', { 
+      request_id: requestId,
+      user_agent: req.headers.get('user-agent') || 'unknown'
+    });
+    
     return NextResponse.json(
       { ok: false, error: "rate_limit_exceeded" }, 
       { status: 429 }
@@ -190,6 +198,19 @@ export async function POST(req: NextRequest) {
     
     if (!validateWebhookSignature(rawBody, signature, timestamp, webhookSecret)) {
       console.error(`[whop webhook:${requestId}] Invalid webhook signature`);
+      
+      // Create security alert for invalid signature
+      AlertTemplates.securityIncident(
+        'Invalid Webhook Signature',
+        `Webhook request with invalid signature from IP: ${clientIp}`,
+        { 
+          request_id: requestId,
+          ip: clientIp,
+          signature_provided: !!signature,
+          timestamp_provided: !!timestamp
+        }
+      );
+      
       return NextResponse.json(
         { ok: false, error: "invalid_signature" }, 
         { status: 401 }
@@ -281,6 +302,22 @@ export async function POST(req: NextRequest) {
         
         await customerRef.set(customerData, { merge: true });
         console.log(`[whop webhook:${requestId}] Customer updated: ${email} -> ${customerData.status}`);
+        
+        // Create alerts for important events
+        if (eventType === "payment.succeeded") {
+          AlertTemplates.newCustomer(email, possibleSku, {
+            request_id: requestId,
+            event_type: eventType,
+            tier: pricingMatch?.tier?.id,
+            service: pricingMatch?.service?.id
+          });
+        } else if (eventType === "payment.failed") {
+          AlertTemplates.paymentFailure(email, "Payment processing failed", {
+            request_id: requestId,
+            event_type: eventType,
+            sku: possibleSku
+          });
+        }
       }
     } catch (err) {
       console.error(`[whop webhook:${requestId}] Firestore write failed:`, err);
@@ -296,6 +333,17 @@ export async function POST(req: NextRequest) {
           timestamp: new Date().toISOString(),
           raw_payload: json,
         });
+        
+        // Create critical alert for webhook processing failure
+        AlertTemplates.webhookFailure(
+          err instanceof Error ? err.message : String(err),
+          {
+            request_id: requestId,
+            event_type: eventType,
+            customer_email: email,
+            error_type: "firestore_write_failed"
+          }
+        );
       } catch (logErr) {
         console.error(`[whop webhook:${requestId}] Failed to log error to Firestore:`, logErr);
       }

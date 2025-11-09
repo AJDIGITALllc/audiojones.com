@@ -12,7 +12,8 @@ import {
   BarChart3,
   FileText,
   Shield,
-  TrendingUp
+  TrendingUp,
+  Bell
 } from 'lucide-react';
 
 interface NavItem {
@@ -46,6 +47,12 @@ const navigation: NavItem[] = [
     href: '/portal/admin/stats',
     icon: TrendingUp,
     description: 'Live data & metrics'
+  },
+  {
+    name: 'Alerts',
+    href: '/portal/admin/alerts',
+    icon: Bell,
+    description: 'System notifications'
   },
   {
     name: 'Analytics',
