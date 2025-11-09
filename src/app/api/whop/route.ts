@@ -106,6 +106,43 @@ function getFirebaseApp(): App {
 }
 
 // ─────────────────────────────────────────────
+// Enhanced pricing lookup - checks Firestore first, then falls back to hardcoded
+// ─────────────────────────────────────────────
+async function getTierByBillingSkuEnhanced(db: FirebaseFirestore.Firestore, billingSku: string) {
+  try {
+    // First, try to find in Firestore pricing_skus collection
+    const pricingQuery = await db
+      .collection('pricing_skus')
+      .where('billing_sku', '==', billingSku)
+      .where('active', '==', true)
+      .limit(1)
+      .get();
+
+    if (!pricingQuery.empty) {
+      const pricingDoc = pricingQuery.docs[0];
+      const pricingData = pricingDoc.data();
+      
+      console.log(`[pricing] Found Firestore SKU: ${billingSku} -> service: ${pricingData.service_id}, tier: ${pricingData.tier_id}`);
+      
+      return {
+        service: { id: pricingData.service_id },
+        tier: { 
+          id: pricingData.tier_id,
+          name: pricingData.tier_id, // Use tier_id as name for now
+          price_min: 0 // Default price, could be enhanced later
+        }
+      };
+    }
+  } catch (error) {
+    console.error(`[pricing] Firestore lookup failed for ${billingSku}:`, error);
+  }
+
+  // Fallback to hardcoded function
+  console.log(`[pricing] Using hardcoded fallback for SKU: ${billingSku}`);
+  return getTierByBillingSku(billingSku);
+}
+
+// ─────────────────────────────────────────────
 // (optional) Whop client helper
 // If you want to re-fetch payment/invoice from Whop
 // ─────────────────────────────────────────────
@@ -259,7 +296,7 @@ export async function POST(req: NextRequest) {
 
     let pricingMatch: any = null;
     if (possibleSku) {
-      pricingMatch = getTierByBillingSku(possibleSku);
+      pricingMatch = await getTierByBillingSkuEnhanced(db, possibleSku);
     }
 
     // write to Firestore (best-effort)
@@ -393,7 +430,7 @@ export async function POST(req: NextRequest) {
 
   let pricingMatch: any = null;
   if (sku) {
-    pricingMatch = getTierByBillingSku(sku);
+    pricingMatch = await getTierByBillingSkuEnhanced(db, sku);
   }
 
   try {

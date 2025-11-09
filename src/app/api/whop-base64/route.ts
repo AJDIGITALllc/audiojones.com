@@ -4,6 +4,41 @@ import { getApps, initializeApp, cert, App } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getTierByBillingSku } from "@/lib/getPricing";
 
+// Enhanced pricing lookup - checks Firestore first, then falls back to hardcoded
+async function getTierByBillingSkuEnhanced(db: FirebaseFirestore.Firestore, billingSku: string) {
+  try {
+    // First, try to find in Firestore pricing_skus collection
+    const pricingQuery = await db
+      .collection('pricing_skus')
+      .where('billing_sku', '==', billingSku)
+      .where('active', '==', true)
+      .limit(1)
+      .get();
+
+    if (!pricingQuery.empty) {
+      const pricingDoc = pricingQuery.docs[0];
+      const pricingData = pricingDoc.data();
+      
+      console.log(`[pricing] Found Firestore SKU: ${billingSku} -> service: ${pricingData.service_id}, tier: ${pricingData.tier_id}`);
+      
+      return {
+        service: { id: pricingData.service_id },
+        tier: { 
+          id: pricingData.tier_id,
+          name: pricingData.tier_id, // Use tier_id as name for now
+          price_min: 0 // Default price, could be enhanced later
+        }
+      };
+    }
+  } catch (error) {
+    console.error(`[pricing] Firestore lookup failed for ${billingSku}:`, error);
+  }
+
+  // Fallback to hardcoded function
+  console.log(`[pricing] Using hardcoded fallback for SKU: ${billingSku}`);
+  return getTierByBillingSku(billingSku);
+}
+
 // Firebase Admin init with Base64 private key support
 function getFirebaseApp(): App {
   if (getApps().length === 0) {
@@ -109,7 +144,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Look up pricing info
-    const tier = getTierByBillingSku(customerData.billing_sku);
+    const tier = await getTierByBillingSkuEnhanced(db, customerData.billing_sku);
     if (tier) {
       customerData.service_name = tier.service.id;
       customerData.tier_name = tier.tier.name;

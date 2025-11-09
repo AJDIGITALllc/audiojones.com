@@ -13,7 +13,8 @@ import {
   FileText,
   Shield,
   TrendingUp,
-  Bell
+  Bell,
+  Package
 } from 'lucide-react';
 
 interface NavItem {
@@ -53,6 +54,12 @@ const navigation: NavItem[] = [
     href: '/portal/admin/alerts',
     icon: Bell,
     description: 'System notifications'
+  },
+  {
+    name: 'Pricing',
+    href: '/portal/admin/pricing',
+    icon: Package,
+    description: 'SKU management'
   },
   {
     name: 'Analytics',
