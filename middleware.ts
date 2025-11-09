@@ -42,8 +42,11 @@ export function middleware(request: NextRequest) {
     const hasIdToken =
       request.cookies.get('idToken')?.value ||
       request.headers.get('authorization')?.startsWith('Bearer ')
+    
+    // Allow admin API routes with admin-key header (they handle their own auth)
+    const hasAdminKey = request.headers.get('admin-key') || request.headers.get('X-Admin-Key')
 
-    if (!hasIdToken) {
+    if (!hasIdToken && !hasAdminKey) {
       // For pages → redirect to login
       if (isAdminUI) {
         const redirectUrl = request.nextUrl.clone()
@@ -52,10 +55,10 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(redirectUrl)
       }
 
-      // For API → 401 JSON
+      // For API → 401 JSON (unless has admin-key)
       if (isAdminAPI) {
         return new NextResponse(
-          JSON.stringify({ error: 'Unauthorized: missing token/cookie' }),
+          JSON.stringify({ error: 'Unauthorized: missing token/cookie or admin-key' }),
           {
             status: 401,
             headers: {
