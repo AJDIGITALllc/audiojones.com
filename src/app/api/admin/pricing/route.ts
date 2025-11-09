@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { createAuditLog } from "../audit/route";
 
 // Initialize Firebase Admin
 function getFirebaseApp() {
@@ -117,6 +118,17 @@ export async function POST(req: NextRequest) {
     // Get the final document
     const finalDoc = await docRef.get();
     const result = { id: finalDoc.id, ...finalDoc.data() };
+
+    // Create audit log entry
+    await createAuditLog(
+      isUpdate ? 'pricing_update' : 'pricing_create',
+      skuData.billing_sku, // Use billing_sku as target
+      {
+        action: isUpdate ? 'updated' : 'created',
+        sku_data: skuData,
+        sku_id: finalDoc.id
+      }
+    );
 
     console.log(`[pricing API] SKU ${isUpdate ? 'updated' : 'created'}: ${skuData.billing_sku}`);
 

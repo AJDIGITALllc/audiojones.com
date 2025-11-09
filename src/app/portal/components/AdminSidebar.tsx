@@ -14,7 +14,9 @@ import {
   Shield,
   TrendingUp,
   Bell,
-  Package
+  Package,
+  RefreshCw,
+  Clock
 } from 'lucide-react';
 
 interface NavItem {
@@ -60,6 +62,18 @@ const navigation: NavItem[] = [
     href: '/portal/admin/pricing',
     icon: Package,
     description: 'SKU management'
+  },
+  {
+    name: 'Webhooks',
+    href: '/portal/admin/webhooks',
+    icon: RefreshCw,
+    description: 'Debug & replay events'
+  },
+  {
+    name: 'Audit',
+    href: '/portal/admin/audit',
+    icon: Clock,
+    description: 'Admin action log'
   },
   {
     name: 'Analytics',

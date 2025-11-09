@@ -1,7 +1,8 @@
 // src/app/api/admin/customers/[email]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert, App } from "firebase-admin/app";
+import { getApps, initializeApp, cert, type App } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { createAuditLog } from "../../audit/route";
 
 function getFirebaseApp(): App {
   if (getApps().length === 0) {
@@ -193,6 +194,17 @@ export async function PATCH(
       email: decodedEmail, 
       ...updatedDoc.data() 
     };
+
+    // Create audit log entry
+    await createAuditLog(
+      'customer_update',
+      decodedEmail,
+      {
+        updated_fields: Object.keys(updateData).filter(f => f !== 'updated_at'),
+        changes: updateData,
+        previous_data: customerDoc.data()
+      }
+    );
 
     console.log(`[admin/customers] Customer ${decodedEmail} updated by admin:`, updateData);
 
