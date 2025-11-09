@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { ArrowLeft, Calendar, Package, User, AlertCircle, RefreshCw, MessageSquare, Plus } from 'lucide-react';
+import { ArrowLeft, Calendar, Package, User, AlertCircle, RefreshCw, MessageSquare, Plus, Edit3, Save, X } from 'lucide-react';
 
 interface Customer {
   email: string;
@@ -51,6 +51,16 @@ export default function CustomerDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [newNote, setNewNote] = useState('');
   const [addingNote, setAddingNote] = useState(false);
+  
+  // Edit customer state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editData, setEditData] = useState({
+    status: '',
+    billing_sku: '',
+    service_id: '',
+    tier_id: '',
+  });
 
   const fetchCustomerDetail = async () => {
     try {
@@ -107,6 +117,84 @@ export default function CustomerDetailPage() {
       alert(err instanceof Error ? err.message : 'Failed to add note');
     } finally {
       setAddingNote(false);
+    }
+  };
+
+  const startEdit = () => {
+    if (data?.customer) {
+      setEditData({
+        status: data.customer.status || '',
+        billing_sku: data.customer.billing_sku || '',
+        service_id: data.customer.service_id || '',
+        tier_id: data.customer.tier_id || '',
+      });
+      setIsEditing(true);
+    }
+  };
+
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setEditData({
+      status: '',
+      billing_sku: '',
+      service_id: '',
+      tier_id: '',
+    });
+  };
+
+  const saveCustomer = async () => {
+    if (!data?.customer || editLoading) return;
+
+    try {
+      setEditLoading(true);
+      
+      // Only send fields that have changed
+      const updates: any = {};
+      if (editData.status !== data.customer.status) {
+        updates.status = editData.status;
+      }
+      if (editData.billing_sku !== (data.customer.billing_sku || '')) {
+        updates.billing_sku = editData.billing_sku;
+      }
+      if (editData.service_id !== (data.customer.service_id || '')) {
+        updates.service_id = editData.service_id;
+      }
+      if (editData.tier_id !== (data.customer.tier_id || '')) {
+        updates.tier_id = editData.tier_id;
+      }
+
+      if (Object.keys(updates).length === 0) {
+        setIsEditing(false);
+        return;
+      }
+
+      const response = await fetch(`/api/admin/customers/${encodeURIComponent(email)}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'admin-key': 'gGho3TE8ztiSAMvORfyCDem62Fk0xpW1',
+        },
+        body: JSON.stringify(updates),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.ok) {
+        setIsEditing(false);
+        // Refresh customer data to show updates
+        await fetchCustomerDetail();
+        alert('Customer updated successfully!');
+      } else {
+        throw new Error(result.error || 'Failed to update customer');
+      }
+    } catch (err) {
+      console.error('Error updating customer:', err);
+      alert(err instanceof Error ? err.message : 'Failed to update customer');
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -286,9 +374,39 @@ export default function CustomerDetailPage() {
         {/* Customer Details */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Customer Information
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Customer Information
+              </div>
+              {!isEditing ? (
+                <button
+                  onClick={startEdit}
+                  className="flex items-center gap-1 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  <Edit3 className="h-3 w-3" />
+                  Edit
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    onClick={saveCustomer}
+                    disabled={editLoading}
+                    className="flex items-center gap-1 px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                  >
+                    <Save className="h-3 w-3" />
+                    {editLoading ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    onClick={cancelEdit}
+                    disabled={editLoading}
+                    className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+                  >
+                    <X className="h-3 w-3" />
+                    Cancel
+                  </button>
+                </div>
+              )}
             </CardTitle>
             <CardDescription>Core customer data and subscription details</CardDescription>
           </CardHeader>
@@ -300,33 +418,74 @@ export default function CustomerDetailPage() {
             
             <div className="flex justify-between items-center">
               <span className="font-medium">Status:</span>
-              <Badge variant={getStatusBadgeVariant(customer.status)}>
-                {customer.status}
-              </Badge>
+              {isEditing ? (
+                <select
+                  value={editData.status}
+                  onChange={(e) => setEditData({ ...editData, status: e.target.value })}
+                  className="px-2 py-1 border rounded text-sm"
+                >
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                  <option value="canceled">Canceled</option>
+                  <option value="payment_failed">Payment Failed</option>
+                </select>
+              ) : (
+                <Badge variant={getStatusBadgeVariant(customer.status)}>
+                  {customer.status}
+                </Badge>
+              )}
             </div>
 
-            {customer.billing_sku && (
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Billing SKU:</span>
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Billing SKU:</span>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editData.billing_sku}
+                  onChange={(e) => setEditData({ ...editData, billing_sku: e.target.value })}
+                  className="px-2 py-1 border rounded text-sm w-48"
+                  placeholder="e.g. prod_basic_miami"
+                />
+              ) : (
                 <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                  {customer.billing_sku}
+                  {customer.billing_sku || 'Not set'}
                 </code>
-              </div>
-            )}
+              )}
+            </div>
 
-            {customer.service_id && (
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Service ID:</span>
-                <span className="text-muted-foreground">{customer.service_id}</span>
-              </div>
-            )}
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Service ID:</span>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editData.service_id}
+                  onChange={(e) => setEditData({ ...editData, service_id: e.target.value })}
+                  className="px-2 py-1 border rounded text-sm w-48"
+                  placeholder="e.g. basic_audio_service"
+                />
+              ) : (
+                <span className="text-muted-foreground">{customer.service_id || 'Not set'}</span>
+              )}
+            </div>
 
-            {customer.tier_id && (
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Tier ID:</span>
-                <span className="text-muted-foreground">{customer.tier_id}</span>
-              </div>
-            )}
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Tier ID:</span>
+              {isEditing ? (
+                <select
+                  value={editData.tier_id}
+                  onChange={(e) => setEditData({ ...editData, tier_id: e.target.value })}
+                  className="px-2 py-1 border rounded text-sm"
+                >
+                  <option value="">Select tier...</option>
+                  <option value="basic">Basic</option>
+                  <option value="premium">Premium</option>
+                  <option value="pro">Pro</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+              ) : (
+                <span className="text-muted-foreground">{customer.tier_id || 'Not set'}</span>
+              )}
+            </div>
 
             <div className="flex justify-between items-center">
               <span className="font-medium">Last Updated:</span>

@@ -130,3 +130,88 @@ export async function GET(
     );
   }
 }
+
+// PATCH - Update customer information
+export async function PATCH(
+  req: NextRequest, 
+  { params }: { params: Promise<{ email: string }> }
+) {
+  // Verify admin access
+  const adminKey = req.headers.get('admin-key') || req.headers.get('X-Admin-Key');
+  const expectedAdminKey = process.env.ADMIN_KEY;
+  
+  if (!expectedAdminKey) {
+    return NextResponse.json({ error: 'Server configuration error: ADMIN_KEY not set' }, { status: 500 });
+  }
+  
+  if (!adminKey || adminKey !== expectedAdminKey) {
+    return NextResponse.json({ error: 'Unauthorized: Invalid or missing admin key' }, { status: 401 });
+  }
+
+  try {
+    const { email } = await params;
+    const decodedEmail = decodeURIComponent(email);
+    
+    // Parse request body
+    let body;
+    try {
+      body = await req.json();
+    } catch (error) {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+
+    const app = getFirebaseApp();
+    const db = getFirestore(app);
+
+    // Validate allowed fields
+    const allowedFields = ['status', 'billing_sku', 'service_id', 'tier_id'];
+    const updateData: any = {
+      updated_at: new Date().toISOString(),
+    };
+
+    // Only include allowed fields that are present in the request
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        updateData[field] = body[field];
+      }
+    }
+
+    // Check if customer exists
+    const customerRef = db.collection('customers').doc(decodedEmail);
+    const customerDoc = await customerRef.get();
+    
+    if (!customerDoc.exists) {
+      return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+    }
+
+    // Update the customer document
+    await customerRef.update(updateData);
+
+    // Fetch the updated document
+    const updatedDoc = await customerRef.get();
+    const updatedCustomer = { 
+      email: decodedEmail, 
+      ...updatedDoc.data() 
+    };
+
+    console.log(`[admin/customers] Customer ${decodedEmail} updated by admin:`, updateData);
+
+    return NextResponse.json({
+      ok: true,
+      customer: updatedCustomer,
+      updated_fields: Object.keys(updateData),
+      timestamp: new Date().toISOString(),
+    });
+
+  } catch (error: any) {
+    console.error("[admin/customers] PATCH error:", error);
+    
+    return NextResponse.json(
+      { 
+        ok: false, 
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
+}
