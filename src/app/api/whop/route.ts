@@ -211,12 +211,13 @@ export async function POST(req: NextRequest) {
   try {
     // event log
     await db.collection("subscription_events").add({
-      type: "subscription_created",
-      received_at: new Date().toISOString(),
-      email,
-      sku,
-      pricing_match: pricingMatch || null,
-      whop_payload: json,
+      event_type: "subscription.created",
+      whop_user_id: "unknown",
+      customer_email: email,
+      tier: pricingMatch?.tier?.id || null,
+      timestamp: new Date().toISOString(),
+      processed_at: new Date().toISOString(),
+      raw_data: json,
     });
 
     // upsert customer
