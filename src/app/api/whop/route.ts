@@ -142,13 +142,13 @@ export async function POST(req: NextRequest) {
       // 1) event log
       await db.collection("subscription_events").add({
         whop_event_id: eventId,
-        type: eventType,
-        received_at: new Date().toISOString(),
-        email,
-        sku: possibleSku,
-        pricing_match: pricingMatch || null,
-        whop_payload: json,
-        enriched,
+        event_type: eventType,
+        whop_user_id: "unknown",
+        customer_email: email,
+        tier: pricingMatch?.tier?.id || null,
+        timestamp: ts || new Date().toISOString(),
+        processed_at: new Date().toISOString(),
+        raw_data: json,
       });
 
       // 2) upsert customer if we have an email
@@ -157,15 +157,13 @@ export async function POST(req: NextRequest) {
         await customerRef.set(
           {
             email,
-            last_whop_event: eventType,
-            last_whop_event_at: ts || new Date().toISOString(),
-            last_sku: possibleSku || null,
-            service_id: pricingMatch?.service?.id || null,
-            tier_id: pricingMatch?.tier?.id || null,
             status:
               eventType === "payment.succeeded" || eventType === "invoice.paid"
                 ? "active"
                 : "updated",
+            service_id: pricingMatch?.service?.id || null,
+            tier_id: pricingMatch?.tier?.id || null,
+            billing_sku: possibleSku || null,
             updated_at: new Date().toISOString(),
           },
           { merge: true }
