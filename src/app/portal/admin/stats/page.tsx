@@ -31,7 +31,7 @@ export default function AdminStatsPage() {
     try {
       const response = await fetch('/api/admin/stats', {
         headers: {
-          'X-Admin-Key': 'gGho3TE8ztiSAMvORfyCDem62Fk0xpW1',
+          'admin-key': 'gGho3TE8ztiSAMvORfyCDem62Fk0xpW1',
         },
       });
 

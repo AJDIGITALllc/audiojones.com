@@ -27,9 +27,15 @@ function getFirebaseApp(): App {
 
 export async function GET(req: NextRequest) {
   // Verify admin access
-  const adminKey = req.headers.get("X-Admin-Key");
-  if (adminKey !== process.env.ADMIN_KEY) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminKey = req.headers.get('admin-key') || req.headers.get('X-Admin-Key');
+  const expectedAdminKey = process.env.ADMIN_KEY;
+  
+  if (!expectedAdminKey) {
+    return NextResponse.json({ error: 'Server configuration error: ADMIN_KEY not set' }, { status: 500 });
+  }
+  
+  if (!adminKey || adminKey !== expectedAdminKey) {
+    return NextResponse.json({ error: 'Unauthorized: Invalid or missing admin key' }, { status: 401 });
   }
 
   try {
