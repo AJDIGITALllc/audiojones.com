@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { RefreshCw, Users, Clock, DollarSign, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
+import { RefreshCw, Users, Clock, DollarSign, Calendar, AlertCircle, CheckCircle, TrendingUp, AlertTriangle } from 'lucide-react';
 import { formatOpenDate, calculateUtilization, getCapacityStatusColor } from '@/lib/capacity';
 
 interface CapacityData {
@@ -27,9 +27,31 @@ interface CapacityData {
   timestamp: string;
 }
 
+interface ForecastData {
+  current: {
+    mrr: number;
+    hours: number;
+    retainers: number;
+    status: 'open' | 'limited' | 'full';
+  };
+  forecast: {
+    projected_status: 'open' | 'limited' | 'full';
+    projected_open_date: string | null;
+    projected_hours_in_7d: number;
+    projected_mrr_in_7d: number;
+    risk: 'low' | 'medium' | 'high';
+  };
+  meta: {
+    generated_at: string;
+    source: string;
+  };
+}
+
 export default function AdminCapacityPage() {
   const [capacity, setCapacity] = useState<CapacityData | null>(null);
+  const [forecast, setForecast] = useState<ForecastData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [forecastLoading, setForecastLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
@@ -52,11 +74,33 @@ export default function AdminCapacityPage() {
     }
   };
 
+  const fetchForecast = async () => {
+    try {
+      setForecastLoading(true);
+      const response = await fetch('/api/capacity/forecast');
+      const data = await response.json();
+
+      if (data.ok) {
+        setForecast(data);
+      } else {
+        console.error('Failed to load forecast:', data.message);
+      }
+    } catch (err) {
+      console.error('Forecast error:', err);
+    } finally {
+      setForecastLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchCapacity();
+    fetchForecast();
     
     // Auto-refresh every 5 minutes
-    const interval = setInterval(fetchCapacity, 5 * 60 * 1000);
+    const interval = setInterval(() => {
+      fetchCapacity();
+      fetchForecast();
+    }, 5 * 60 * 1000);
     
     return () => clearInterval(interval);
   }, []);
@@ -84,6 +128,32 @@ export default function AdminCapacityPage() {
         return 'destructive';
       default:
         return 'outline';
+    }
+  };
+
+  const getRiskBadgeVariant = (risk: string) => {
+    switch (risk) {
+      case 'low':
+        return 'default';
+      case 'medium':
+        return 'secondary';
+      case 'high':
+        return 'destructive';
+      default:
+        return 'outline';
+    }
+  };
+
+  const getRiskIcon = (risk: string) => {
+    switch (risk) {
+      case 'low':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'medium':
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+      case 'high':
+        return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      default:
+        return <AlertCircle className="h-4 w-4 text-gray-500" />;
     }
   };
 
@@ -157,7 +227,10 @@ export default function AdminCapacityPage() {
           </p>
         </div>
         <button
-          onClick={fetchCapacity}
+          onClick={() => {
+            fetchCapacity();
+            fetchForecast();
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           <RefreshCw className="h-4 w-4" />
@@ -196,6 +269,125 @@ export default function AdminCapacityPage() {
               <p className="text-sm text-muted-foreground">Slots filled</p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Forecast Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Capacity Forecast
+          </CardTitle>
+          <CardDescription>
+            Predictive capacity analysis and risk assessment
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {forecastLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-muted-foreground">Loading forecast...</span>
+            </div>
+          ) : forecast ? (
+            <div className="space-y-4">
+              {/* Current Status & Risk */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Badge variant={getStatusBadgeVariant(forecast.current.status) as any}>
+                    {forecast.current.status.toUpperCase()}
+                  </Badge>
+                  <div className="flex items-center gap-2">
+                    {getRiskIcon(forecast.forecast.risk)}
+                    <Badge variant={getRiskBadgeVariant(forecast.forecast.risk) as any}>
+                      {forecast.forecast.risk.toUpperCase()} RISK
+                    </Badge>
+                  </div>
+                </div>
+                {forecast.forecast.projected_open_date && (
+                  <div className="text-right">
+                    <p className="text-sm font-medium">Next Open Slot</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatOpenDate(forecast.forecast.projected_open_date)}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Utilization Table */}
+              <div className="border rounded-lg">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="text-left p-3 font-medium">Metric</th>
+                      <th className="text-right p-3 font-medium">Current</th>
+                      <th className="text-right p-3 font-medium">Target/Max</th>
+                      <th className="text-right p-3 font-medium">Utilization</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b">
+                      <td className="p-3 font-medium">Hours Committed</td>
+                      <td className="text-right p-3">{forecast.current.hours}</td>
+                      <td className="text-right p-3">{capacity?.thresholds.max_hours}</td>
+                      <td className="text-right p-3">
+                        <span className={`font-medium ${
+                          capacity && forecast.current.hours >= capacity.thresholds.max_hours * 0.9 
+                            ? 'text-red-600' 
+                            : capacity && forecast.current.hours >= capacity.thresholds.max_hours * 0.7 
+                              ? 'text-yellow-600' 
+                              : 'text-green-600'
+                        }`}>
+                          {capacity ? Math.round((forecast.current.hours / capacity.thresholds.max_hours) * 100) : 0}%
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-medium">Monthly Revenue</td>
+                      <td className="text-right p-3">${forecast.current.mrr.toLocaleString()}</td>
+                      <td className="text-right p-3">${capacity?.thresholds.min_mrr.toLocaleString()}</td>
+                      <td className="text-right p-3">
+                        <span className={`font-medium ${
+                          capacity && forecast.current.mrr >= capacity.thresholds.min_mrr 
+                            ? 'text-green-600' 
+                            : 'text-yellow-600'
+                        }`}>
+                          {capacity ? Math.round((forecast.current.mrr / capacity.thresholds.min_mrr) * 100) : 0}%
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Forecast Projection */}
+              <div className="bg-muted/30 rounded-lg p-4">
+                <h4 className="font-medium mb-2">7-Day Projection</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Projected Status</p>
+                    <Badge variant={getStatusBadgeVariant(forecast.forecast.projected_status) as any} className="mt-1">
+                      {forecast.forecast.projected_status.toUpperCase()}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Risk Assessment</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      {getRiskIcon(forecast.forecast.risk)}
+                      <span className="font-medium">
+                        {forecast.forecast.risk.charAt(0).toUpperCase() + forecast.forecast.risk.slice(1)} Risk
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-4 text-muted-foreground">
+              <AlertCircle className="h-8 w-8 mx-auto mb-2" />
+              <p>Forecast data unavailable</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
