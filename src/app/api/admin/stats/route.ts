@@ -1,47 +1,12 @@
 // src/app/api/admin/stats/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert, App } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-
-function getFirebaseApp(): App {
-  if (getApps().length === 0) {
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-    if (!projectId || !clientEmail || !privateKey) {
-      console.warn("[admin/stats] Firebase env vars missing");
-      return initializeApp();
-    }
-
-    return initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-    });
-  }
-  return getApps()[0];
-}
+import { db } from "@/lib/server/firebaseAdmin";
+import { requireAdmin } from "@/lib/server/requireAdmin";
+import { AdminCustomer, SubscriptionEvent, safeDocCast } from "@/types/admin";
 
 export async function GET(req: NextRequest) {
-  // Verify admin access
-  const adminKey = req.headers.get('admin-key') || req.headers.get('X-Admin-Key');
-  const expectedAdminKey = process.env.ADMIN_KEY;
-  
-  if (!expectedAdminKey) {
-    return NextResponse.json({ error: 'Server configuration error: ADMIN_KEY not set' }, { status: 500 });
-  }
-  
-  if (!adminKey || adminKey !== expectedAdminKey) {
-    return NextResponse.json({ error: 'Unauthorized: Invalid or missing admin key' }, { status: 401 });
-  }
-
   try {
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
-
+    requireAdmin(req);
     // Get total customers
     const customersSnapshot = await db.collection("customers").get();
     const totalCustomers = customersSnapshot.size;
@@ -96,6 +61,11 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error) {
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
+
     console.error("[admin/stats] Error:", error);
     return NextResponse.json(
       { 

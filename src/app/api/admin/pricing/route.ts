@@ -1,46 +1,13 @@
 // src/app/api/admin/pricing/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { db } from "@/lib/server/firebaseAdmin";
 import { createAuditLog } from "../audit/route";
-
-// Initialize Firebase Admin
-function getFirebaseApp() {
-  if (getApps().length === 0) {
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-    if (!projectId || !clientEmail || !privateKey) {
-      throw new Error("Firebase Admin credentials not configured");
-    }
-
-    return initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-    });
-  }
-  return getApps()[0]!;
-}
-
-// Admin authentication middleware
-function requireAdmin(req: NextRequest) {
-  const adminKey = req.headers.get("admin-key");
-  if (adminKey !== process.env.ADMIN_KEY) {
-    throw new Error("Admin access required");
-  }
-}
+import { requireAdmin } from "@/lib/server/requireAdmin";
 
 // GET - Fetch all pricing SKUs
 export async function GET(req: NextRequest) {
   try {
     requireAdmin(req);
-
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     const snapshot = await db.collection("pricing_skus")
       .orderBy("billing_sku", "asc")
@@ -63,9 +30,15 @@ export async function GET(req: NextRequest) {
 
   } catch (error) {
     console.error("[pricing API] GET error:", error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
+    
     return NextResponse.json(
       { ok: false, error: error instanceof Error ? error.message : "Unknown error" },
-      { status: error instanceof Error && error.message.includes("Admin") ? 403 : 500 }
+      { status: 500 }
     );
   }
 }
@@ -84,9 +57,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     const skuData: any = {
       billing_sku: billing_sku.trim(),
@@ -141,9 +111,15 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error("[pricing API] POST error:", error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
+    
     return NextResponse.json(
       { ok: false, error: error instanceof Error ? error.message : "Unknown error" },
-      { status: error instanceof Error && error.message.includes("Admin") ? 403 : 500 }
+      { status: 500 }
     );
   }
 }

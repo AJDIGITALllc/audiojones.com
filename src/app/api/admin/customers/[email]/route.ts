@@ -1,52 +1,18 @@
 // src/app/api/admin/customers/[email]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert, type App } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { db } from "@/lib/server/firebaseAdmin";
+import { requireAdmin } from "@/lib/server/requireAdmin";
+import { AdminCustomer, SubscriptionEvent, safeDocCast } from "@/types/admin";
 import { createAuditLog } from "../../audit/route";
-
-function getFirebaseApp(): App {
-  if (getApps().length === 0) {
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-    if (!projectId || !clientEmail || !privateKey) {
-      console.warn("[admin/customers] Firebase env vars missing");
-      return initializeApp();
-    }
-
-    return initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-    });
-  }
-  return getApps()[0];
-}
 
 export async function GET(
   req: NextRequest, 
   { params }: { params: Promise<{ email: string }> }
 ) {
-  // Verify admin access
-  const adminKey = req.headers.get('admin-key') || req.headers.get('X-Admin-Key');
-  const expectedAdminKey = process.env.ADMIN_KEY;
-  
-  if (!expectedAdminKey) {
-    return NextResponse.json({ error: 'Server configuration error: ADMIN_KEY not set' }, { status: 500 });
-  }
-  
-  if (!adminKey || adminKey !== expectedAdminKey) {
-    return NextResponse.json({ error: 'Unauthorized: Invalid or missing admin key' }, { status: 401 });
-  }
-
   try {
+    requireAdmin(req);
     const { email } = await params;
     const decodedEmail = decodeURIComponent(email);
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     // Get customer by email (document ID = email)
     const customerDoc = await db.collection("customers").doc(decodedEmail).get();
@@ -137,19 +103,9 @@ export async function PATCH(
   req: NextRequest, 
   { params }: { params: Promise<{ email: string }> }
 ) {
-  // Verify admin access
-  const adminKey = req.headers.get('admin-key') || req.headers.get('X-Admin-Key');
-  const expectedAdminKey = process.env.ADMIN_KEY;
-  
-  if (!expectedAdminKey) {
-    return NextResponse.json({ error: 'Server configuration error: ADMIN_KEY not set' }, { status: 500 });
-  }
-  
-  if (!adminKey || adminKey !== expectedAdminKey) {
-    return NextResponse.json({ error: 'Unauthorized: Invalid or missing admin key' }, { status: 401 });
-  }
-
   try {
+    requireAdmin(req);
+
     const { email } = await params;
     const decodedEmail = decodeURIComponent(email);
     
@@ -160,9 +116,6 @@ export async function PATCH(
     } catch (error) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
-
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     // Validate allowed fields
     const allowedFields = ['status', 'billing_sku', 'service_id', 'tier_id'];
@@ -216,6 +169,11 @@ export async function PATCH(
     });
 
   } catch (error: any) {
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
+
     console.error("[admin/customers] PATCH error:", error);
     
     return NextResponse.json(

@@ -1,45 +1,13 @@
 // src/app/api/admin/alerts/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-
-// Initialize Firebase Admin
-function getFirebaseApp() {
-  if (getApps().length === 0) {
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-    if (!projectId || !clientEmail || !privateKey) {
-      throw new Error("Firebase Admin credentials not configured");
-    }
-
-    return initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-    });
-  }
-  return getApps()[0]!;
-}
-
-// Admin authentication middleware
-function requireAdmin(req: NextRequest) {
-  const adminKey = req.headers.get("admin-key");
-  if (adminKey !== process.env.ADMIN_KEY) {
-    throw new Error("Admin access required");
-  }
-}
+import { db } from "@/lib/server/firebaseAdmin";
+import { requireAdmin } from "@/lib/server/requireAdmin";
+import { AdminAlert, safeDocCast } from "@/types/admin";
 
 // GET - Fetch all alerts with optional filtering
 export async function GET(req: NextRequest) {
   try {
     requireAdmin(req);
-
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
     
     const url = new URL(req.url);
     const status = url.searchParams.get('status'); // 'active', 'dismissed', 'all'
@@ -121,9 +89,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     const alertData = {
       title: title.trim(),

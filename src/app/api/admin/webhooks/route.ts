@@ -1,50 +1,17 @@
 // src/app/api/admin/webhooks/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-
-// Firebase Admin init
-function getFirebaseApp() {
-  if (getApps().length > 0) {
-    return getApps()[0]!;
-  }
-
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error("Firebase credentials missing");
-  }
-
-  return initializeApp({
-    credential: cert({
-      projectId,
-      clientEmail,
-      privateKey,
-    }),
-  });
-}
+import { db } from "@/lib/server/firebaseAdmin";
+import { requireAdmin } from "@/lib/server/requireAdmin";
 
 export async function GET(req: NextRequest) {
   try {
-    // Admin authentication
-    const adminKey = req.headers.get('admin-key');
-    if (adminKey !== process.env.ADMIN_API_KEY) {
-      return NextResponse.json(
-        { error: 'Unauthorized - invalid admin key' },
-        { status: 401 }
-      );
-    }
+    // Admin authentication using shared helper
+    requireAdmin(req);
 
     // Get query parameters
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
-
-    // Initialize Firebase
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     // Query subscription_events collection
     let query = db.collection('subscription_events')
@@ -83,6 +50,11 @@ export async function GET(req: NextRequest) {
 
   } catch (error) {
     console.error('[webhooks API] Error:', error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
     
     return NextResponse.json(
       { 

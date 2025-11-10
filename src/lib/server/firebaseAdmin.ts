@@ -35,3 +35,11 @@ export function adminAuth() {
 
 /** Back-compat alias for existing imports */
 export const getAdminAuth = adminAuth;
+
+/** Firebase Admin Firestore accessor (server only) */
+export function getFirestoreDb() {
+  return admin.firestore(getAdminApp());
+}
+
+/** Direct Firestore export for convenience */
+export const db = getFirestoreDb();

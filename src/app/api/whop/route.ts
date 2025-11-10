@@ -1,7 +1,6 @@
 // src/app/api/whop/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert, App } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { db } from "@/lib/server/firebaseAdmin";
 import { getTierByBillingSku } from "@/lib/getPricing";
 import { AlertTemplates } from "@/lib/alerts";
 import crypto from "crypto";
@@ -77,33 +76,8 @@ function validateWebhookSignature(
 }
 
 // ─────────────────────────────────────────────
-// Firebase Admin init (server-only)
-// Requires env:
-// FIREBASE_PROJECT_ID
-// FIREBASE_CLIENT_EMAIL
-// FIREBASE_PRIVATE_KEY  (with \n)
+// Firebase Admin - using shared utility
 // ─────────────────────────────────────────────
-function getFirebaseApp(): App {
-  if (getApps().length === 0) {
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-    if (!projectId || !clientEmail || !privateKey) {
-      console.warn("[whop webhook] Firebase env vars missing – will still respond 200 but not write to Firestore.");
-      return initializeApp(); // init with default (will fail on write if no creds)
-    }
-
-    return initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-    });
-  }
-  return getApps()[0]!;
-}
 
 // ─────────────────────────────────────────────
 // Enhanced pricing lookup - checks Firestore first, then falls back to hardcoded
@@ -256,9 +230,6 @@ export async function POST(req: NextRequest) {
   } else {
     console.warn(`[whop webhook:${requestId}] WHOP_WEBHOOK_SECRET not configured - signature verification skipped`);
   }
-
-  const app = getFirebaseApp();
-  const db = getFirestore(app);
 
   // Branch 1: event-style payloads from the Whop docs (have "type")
   if (typeof json.type === "string") {

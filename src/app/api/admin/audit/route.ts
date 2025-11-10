@@ -1,30 +1,6 @@
 // src/app/api/admin/audit/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-
-// Firebase Admin init
-function getFirebaseApp() {
-  if (getApps().length > 0) {
-    return getApps()[0]!;
-  }
-
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error("Firebase credentials missing");
-  }
-
-  return initializeApp({
-    credential: cert({
-      projectId,
-      clientEmail,
-      privateKey,
-    }),
-  });
-}
+import { db } from "@/lib/server/firebaseAdmin";
 
 export async function GET(req: NextRequest) {
   try {
@@ -42,10 +18,6 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '100'), 500); // Cap at 500
     const action = searchParams.get('action'); // Filter by action type
     const target = searchParams.get('target'); // Filter by target email
-
-    // Initialize Firebase
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     // Build query
     let query = db.collection('admin_audit_log')
@@ -120,9 +92,6 @@ export async function createAuditLog(
   actor: string = 'admin'
 ) {
   try {
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
-
     await db.collection('admin_audit_log').add({
       action,
       actor,

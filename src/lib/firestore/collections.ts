@@ -112,20 +112,20 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
     // Calculate metrics
     const totalCustomers = customers.length;
-    const activeSubscriptions = customers.filter(c => c.subscription_status === 'active').length;
+    const activeSubscriptions = customers.filter(c => c.subscription_status && c.subscription_status === 'active').length;
     
     // Calculate total revenue from payment events
-    const paymentEvents = allEvents.filter(e => e.event_type === 'payment.succeeded');
+    const paymentEvents = allEvents.filter(e => e.event_type && e.event_type === 'payment.succeeded');
     const totalRevenue = paymentEvents.reduce((sum, event) => sum + (event.amount || 0), 0) / 100; // Convert from cents
 
     // Get recent events (last 10)
     const recentEvents = allEvents.slice(0, 10);
 
-    // Event type counts
+    // Event type counts (safe null checking)
     const eventCounts = {
-      payments: allEvents.filter(e => e.event_type.includes('payment')).length,
-      subscriptions: allEvents.filter(e => e.event_type.includes('subscription')).length,
-      cancellations: allEvents.filter(e => e.event_type === 'subscription.cancelled').length,
+      payments: allEvents.filter(e => e.event_type && typeof e.event_type === 'string' && e.event_type.includes('payment')).length,
+      subscriptions: allEvents.filter(e => e.event_type && typeof e.event_type === 'string' && e.event_type.includes('subscription')).length,
+      cancellations: allEvents.filter(e => e.event_type && e.event_type === 'subscription.cancelled').length,
     };
 
     // Calculate growth (simplified - would need time-based queries for real implementation)

@@ -1,30 +1,6 @@
 // src/app/api/admin/webhooks/replay/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-
-// Firebase Admin init
-function getFirebaseApp() {
-  if (getApps().length > 0) {
-    return getApps()[0]!;
-  }
-
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error("Firebase credentials missing");
-  }
-
-  return initializeApp({
-    credential: cert({
-      projectId,
-      clientEmail,
-      privateKey,
-    }),
-  });
-}
+import { db } from "@/lib/server/firebaseAdmin";
 
 // Internal webhook processing function
 async function processWebhookEvent(db: FirebaseFirestore.Firestore, eventData: any) {
@@ -118,10 +94,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Initialize Firebase
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     // Find the event in subscription_events collection
     const eventDoc = await db.collection('subscription_events').doc(event_id).get();

@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getDashboardStats, getCustomers, getSubscriptionEvents } from '@/lib/firestore/collections';
+import { requireAdmin } from '@/lib/server/requireAdmin';
 
 /**
  * Admin-only sync endpoint
@@ -10,23 +11,8 @@ import { getDashboardStats, getCustomers, getSubscriptionEvents } from '@/lib/fi
  */
 export async function GET(request: NextRequest) {
   try {
-    // Simple auth check - verify ADMIN_KEY header
-    const adminKey = request.headers.get('admin-key') || request.headers.get('authorization')?.replace('Bearer ', '');
-    const expectedAdminKey = process.env.ADMIN_KEY;
-
-    if (!expectedAdminKey) {
-      return NextResponse.json(
-        { error: 'Server configuration error: ADMIN_KEY not set' },
-        { status: 500 }
-      );
-    }
-
-    if (!adminKey || adminKey !== expectedAdminKey) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Invalid or missing admin key' },
-        { status: 401 }
-      );
-    }
+    // Admin authentication using shared helper
+    requireAdmin(request);
 
     // Fetch dashboard statistics
     const stats = await getDashboardStats();
@@ -80,6 +66,12 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Admin sync error:', error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
+    
     return NextResponse.json(
       { 
         error: 'Internal server error',

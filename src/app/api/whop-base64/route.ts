@@ -1,7 +1,6 @@
 // src/app/api/whop-base64/route.ts - Webhook using Base64 private key
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert, App } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { db } from "@/lib/server/firebaseAdmin";
 import { getTierByBillingSku } from "@/lib/getPricing";
 
 // Enhanced pricing lookup - checks Firestore first, then falls back to hardcoded
@@ -39,52 +38,6 @@ async function getTierByBillingSkuEnhanced(db: FirebaseFirestore.Firestore, bill
   return getTierByBillingSku(billingSku);
 }
 
-// Firebase Admin init with Base64 private key support
-function getFirebaseApp(): App {
-  if (getApps().length === 0) {
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKeyBase64 = process.env.FIREBASE_PRIVATE_KEY_BASE64;
-    const privateKeyDirect = process.env.FIREBASE_PRIVATE_KEY;
-
-    if (!projectId || !clientEmail) {
-      console.warn("[whop webhook] Firebase project/email missing");
-      return initializeApp();
-    }
-
-    let privateKey: string | undefined;
-
-    // Try Base64 first, then direct
-    if (privateKeyBase64) {
-      try {
-        privateKey = Buffer.from(privateKeyBase64, 'base64').toString('utf8');
-        console.log("[whop webhook] Using Base64 private key, length:", privateKey.length);
-      } catch (error) {
-        console.error("[whop webhook] Base64 decode failed:", error);
-      }
-    }
-
-    if (!privateKey && privateKeyDirect) {
-      privateKey = privateKeyDirect.replace(/\\n/g, "\n");
-      console.log("[whop webhook] Using direct private key, length:", privateKey.length);
-    }
-
-    if (!privateKey) {
-      console.warn("[whop webhook] No private key available");
-      return initializeApp();
-    }
-
-    return initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-    });
-  }
-  return getApps()[0]!;
-}
-
 export async function GET() {
   return NextResponse.json({ 
     status: "ok", 
@@ -106,10 +59,6 @@ export async function POST(req: NextRequest) {
   try {
     console.log("[whop webhook] Processing request...");
     const body = await req.json();
-    
-    // Get Firebase app
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
     
     // Determine payload type and extract data
     let customerData: any = {};

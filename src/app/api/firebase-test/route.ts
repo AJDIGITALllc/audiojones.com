@@ -22,37 +22,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log("[firebase test] Received:", body);
     
-    // Test Firebase initialization with minimal code
-    const { getApps, initializeApp, cert } = await import("firebase-admin/app");
-    const { getFirestore } = await import("firebase-admin/firestore");
+    // Test Firebase with shared utility
+    const { db } = await import("@/lib/server/firebaseAdmin");
     
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-    
-    console.log("[firebase test] Env vars:", { 
-      projectId: !!projectId, 
-      clientEmail: !!clientEmail, 
-      privateKey: !!privateKey,
-      privateKeyLength: privateKey?.length 
-    });
-    
-    if (getApps().length === 0) {
-      const processedPrivateKey = privateKey?.replace(/\\n/g, "\n");
-      
-      const app = initializeApp({
-        credential: cert({
-          projectId: projectId!,
-          clientEmail: clientEmail!,
-          privateKey: processedPrivateKey!,
-        }),
-      });
-      
-      console.log("[firebase test] Firebase initialized successfully");
-    }
-    
-    // Try to get Firestore
-    const db = getFirestore();
+    console.log("[firebase test] Firebase loaded from shared utility");
     console.log("[firebase test] Firestore connected");
     
     return NextResponse.json({

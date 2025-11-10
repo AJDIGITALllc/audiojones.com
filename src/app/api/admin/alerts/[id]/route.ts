@@ -1,29 +1,6 @@
 // src/app/api/admin/alerts/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-
-// Initialize Firebase Admin
-function getFirebaseApp() {
-  if (getApps().length === 0) {
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-    if (!projectId || !clientEmail || !privateKey) {
-      throw new Error("Firebase Admin credentials not configured");
-    }
-
-    return initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-    });
-  }
-  return getApps()[0]!;
-}
+import { db } from "@/lib/server/firebaseAdmin";
 
 // Admin authentication middleware
 function requireAdmin(req: NextRequest) {
@@ -38,9 +15,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     requireAdmin(req);
     const { id } = await params;
-
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     const doc = await db.collection("alerts").doc(id).get();
     
@@ -72,9 +46,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     requireAdmin(req);
     const { id } = await params;
     const body = await req.json();
-
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     const docRef = db.collection("alerts").doc(id);
     const doc = await docRef.get();
@@ -136,9 +107,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     requireAdmin(req);
     const { id } = await params;
-
-    const app = getFirebaseApp();
-    const db = getFirestore(app);
 
     const docRef = db.collection("alerts").doc(id);
     const doc = await docRef.get();

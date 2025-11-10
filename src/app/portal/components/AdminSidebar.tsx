@@ -16,7 +16,8 @@ import {
   Bell,
   Package,
   RefreshCw,
-  Clock
+  Clock,
+  Download
 } from 'lucide-react';
 
 interface NavItem {
@@ -74,6 +75,12 @@ const navigation: NavItem[] = [
     href: '/portal/admin/audit',
     icon: Clock,
     description: 'Admin action log'
+  },
+  {
+    name: 'Reports',
+    href: '/portal/admin/reports',
+    icon: Download,
+    description: 'Analytics & exports'
   },
   {
     name: 'Analytics',

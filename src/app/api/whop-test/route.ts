@@ -37,27 +37,14 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
     
-    // Try to initialize Firebase
+    // Try to use shared Firebase utility
     try {
-      const { getApps, initializeApp, cert } = await import("firebase-admin/app");
-      
-      if (getApps().length === 0) {
-        const processedPrivateKey = privateKey.replace(/\\n/g, "\n");
-        
-        initializeApp({
-          credential: cert({
-            projectId,
-            clientEmail,
-            privateKey: processedPrivateKey,
-          }),
-        });
-        
-        console.log("[test webhook] Firebase initialized successfully");
-      }
+      const { db } = await import("@/lib/server/firebaseAdmin");
+      console.log("[whop-test] Using shared Firebase utility");
       
       return NextResponse.json({
         success: true,
-        message: "Firebase initialized successfully",
+        message: "Firebase loaded from shared utility successfully",
         payload: body
       });
       

@@ -145,17 +145,17 @@ export default async function AdminDashboard() {
                       <Badge 
                         variant="outline" 
                         className={`text-xs ${
-                          event.event_type.includes('payment') ? 'border-green-500 text-green-400' :
-                          event.event_type.includes('subscription') ? 'border-blue-500 text-blue-400' :
+                          event.event_type && typeof event.event_type === 'string' && event.event_type.includes('payment') ? 'border-green-500 text-green-400' :
+                          event.event_type && typeof event.event_type === 'string' && event.event_type.includes('subscription') ? 'border-blue-500 text-blue-400' :
                           'border-gray-500 text-gray-400'
                         }`}
                       >
-                        {event.event_type}
+                        {event.event_type || 'unknown'}
                       </Badge>
                       <span className="text-sm text-gray-300">{event.customer_email}</span>
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      {new Date(event.timestamp).toLocaleString()}
+                      {event.timestamp && typeof event.timestamp === 'string' ? new Date(event.timestamp).toLocaleString() : 'No timestamp'}
                     </div>
                   </div>
                   {event.amount && (
