@@ -71,18 +71,14 @@ async function processWebhookEvent(db: FirebaseFirestore.Firestore, eventData: a
   }
 }
 
+import { requireAdmin } from "@/lib/server/requireAdmin";
+
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
 
   try {
-    // Admin authentication
-    const adminKey = req.headers.get('admin-key');
-    if (adminKey !== process.env.ADMIN_API_KEY) {
-      return NextResponse.json(
-        { error: 'Unauthorized - invalid admin key' },
-        { status: 401 }
-      );
-    }
+    // Admin authentication using shared helper
+    requireAdmin(req);
 
     // Parse request body
     const body = await req.json();
@@ -143,6 +139,11 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('[webhook replay] API error:', error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
     
     return NextResponse.json(
       { 

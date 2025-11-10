@@ -1,6 +1,7 @@
 // src/app/api/admin/export/[type]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/server/firebaseAdmin";
+import { requireAdmin } from "@/lib/server/requireAdmin";
 
 // CSV conversion helper
 function arrayToCSV(data: any[], headers: string[]): string {
@@ -20,14 +21,8 @@ function arrayToCSV(data: any[], headers: string[]): string {
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ type: string }> }) {
   try {
-    // Admin authentication
-    const adminKey = req.headers.get('admin-key');
-    if (adminKey !== process.env.ADMIN_API_KEY) {
-      return NextResponse.json(
-        { error: 'Unauthorized - invalid admin key' },
-        { status: 401 }
-      );
-    }
+    // Admin authentication using shared helper
+    requireAdmin(req);
 
     const { type } = await params;
     const { searchParams } = new URL(req.url);
@@ -145,6 +140,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ type
 
   } catch (error) {
     console.error('[export] Error:', error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
     
     return NextResponse.json(
       { 

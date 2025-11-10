@@ -88,13 +88,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Admin auth check
-    const adminKey = request.headers.get('admin-key') || request.headers.get('authorization')?.replace('Bearer ', '');
-    const expectedAdminKey = process.env.ADMIN_KEY;
-
-    if (!adminKey || !expectedAdminKey || adminKey !== expectedAdminKey) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // Admin authentication using shared helper
+    requireAdmin(request);
 
     const body = await request.json();
     const { action } = body;
@@ -131,6 +126,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Admin sync POST error:', error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

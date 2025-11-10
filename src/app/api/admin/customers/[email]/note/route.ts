@@ -1,24 +1,15 @@
 // src/app/api/admin/customers/[email]/note/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/server/firebaseAdmin";
+import { requireAdmin } from "@/lib/server/requireAdmin";
 
 export async function POST(
   req: NextRequest, 
   { params }: { params: Promise<{ email: string }> }
 ) {
-  // Verify admin access
-  const adminKey = req.headers.get('admin-key') || req.headers.get('X-Admin-Key');
-  const expectedAdminKey = process.env.ADMIN_KEY;
-  
-  if (!expectedAdminKey) {
-    return NextResponse.json({ error: 'Server configuration error: ADMIN_KEY not set' }, { status: 500 });
-  }
-  
-  if (!adminKey || adminKey !== expectedAdminKey) {
-    return NextResponse.json({ error: 'Unauthorized: Invalid or missing admin key' }, { status: 401 });
-  }
-
   try {
+    // Admin authentication using shared helper
+    requireAdmin(req);
     const { email } = await params;
     const decodedEmail = decodeURIComponent(email);
     
@@ -53,6 +44,11 @@ export async function POST(
 
   } catch (error) {
     console.error("[admin/customers/note] Error:", error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
     
     return NextResponse.json(
       { 

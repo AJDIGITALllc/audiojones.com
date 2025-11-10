@@ -1,14 +1,7 @@
 // src/app/api/admin/alerts/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/server/firebaseAdmin";
-
-// Admin authentication middleware
-function requireAdmin(req: NextRequest) {
-  const adminKey = req.headers.get("admin-key");
-  if (adminKey !== process.env.ADMIN_KEY) {
-    throw new Error("Admin access required");
-  }
-}
+import { requireAdmin } from "@/lib/server/requireAdmin";
 
 // GET - Get specific alert
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -33,9 +26,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   } catch (error) {
     console.error("[alerts API] GET error:", error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
+    
     return NextResponse.json(
       { ok: false, error: error instanceof Error ? error.message : "Unknown error" },
-      { status: error instanceof Error && error.message.includes("Admin") ? 403 : 500 }
+      { status: 500 }
     );
   }
 }
@@ -129,9 +128,15 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   } catch (error) {
     console.error("[alerts API] DELETE error:", error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
+    
     return NextResponse.json(
       { ok: false, error: error instanceof Error ? error.message : "Unknown error" },
-      { status: error instanceof Error && error.message.includes("Admin") ? 403 : 500 }
+      { status: 500 }
     );
   }
 }

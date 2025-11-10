@@ -1,17 +1,12 @@
 // src/app/api/admin/reports/export/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/server/firebaseAdmin";
+import { requireAdmin } from "@/lib/server/requireAdmin";
 
 export async function GET(req: NextRequest) {
   try {
-    // Admin authentication
-    const adminKey = req.headers.get('admin-key');
-    if (adminKey !== process.env.ADMIN_API_KEY) {
-      return NextResponse.json(
-        { error: 'Unauthorized - invalid admin key' },
-        { status: 401 }
-      );
-    }
+    // Admin authentication using shared helper
+    requireAdmin(req);
 
     // Parallel data fetching with null safety
     const [
@@ -101,6 +96,11 @@ export async function GET(req: NextRequest) {
 
   } catch (error) {
     console.error('[admin/reports/export] Error:', error);
+    
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (error instanceof NextResponse) {
+      return error;
+    }
     
     return NextResponse.json(
       { 

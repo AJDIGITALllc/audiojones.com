@@ -2,6 +2,7 @@ export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/server/firebaseAdmin';
+import { requireAdmin } from '@/lib/server/requireAdmin';
 
 const FORBIDDEN_CLAIMS = new Set([
   'aud','iss','sub','iat','exp','auth_time','uid','email','email_verified','firebase'
@@ -13,12 +14,8 @@ function bad(status: number, message: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    // --- Check API key header ---
-    const apiKeyHeader = req.headers.get('x-admin-api-key') || '';
-    const apiKeyEnv = process.env.ADMIN_API_KEY || '';
-    if (!apiKeyEnv || apiKeyHeader !== apiKeyEnv) {
-      return bad(401, 'Invalid or missing x-admin-api-key');
-    }
+    // Admin authentication using shared helper
+    requireAdmin(req);
 
     // --- Verify caller is an admin (Firebase custom claim) ---
     const authHeader = req.headers.get('authorization') || '';
@@ -71,6 +68,11 @@ export async function POST(req: NextRequest) {
       newClaims: claims,
     });
   } catch (e: any) {
+    // If it's already a NextResponse (from requireAdmin), return it
+    if (e instanceof NextResponse) {
+      return e;
+    }
+    
     const msg = e?.message || 'Unexpected error';
     const status = /auth\/(id-token|argument|user-not-found)/i.test(msg) ? 400 : 500;
     return bad(status, msg);
