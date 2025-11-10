@@ -15,7 +15,8 @@
     "repo:sync": "node tools/repo.js sync",
     "repo:status": "node tools/repo.js status",
     "repo:commit": "node tools/repo.js commit",
-    "test-client-data": "tsx tools/create-test-client-data.js"
+    "test-client-data": "tsx tools/create-test-client-data.js",
+    "seed:capacity": "tsx scripts/seedCapacitySettings.ts"
   },
   "dependencies": {
     "@dataconnect/generated": "file:src/dataconnect-generated",
