@@ -26,11 +26,51 @@ interface ClientData {
   error?: string;
 }
 
+interface ProfileData {
+  email: string;
+  name?: string;
+  company?: string;
+  phone?: string;
+  status: string;
+}
+
+interface ProfileFormData {
+  name: string;
+  company: string;
+  phone: string;
+}
+
+interface ClientEvent {
+  type: string;
+  received_at: string;
+  sku?: string;
+  status?: string;
+}
+
+interface ClientEventsResponse {
+  ok: boolean;
+  events: ClientEvent[];
+  total: number;
+  error?: string;
+}
+
 export default function ClientPortalPage() {
   const { user, loading: authLoading } = useAuth();
   const [data, setData] = useState<ClientData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Profile editing state
+  const [activeTab, setActiveTab] = useState('overview');
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [profileForm, setProfileForm] = useState<ProfileFormData>({ name: '', company: '', phone: '' });
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  
+  // Events state
+  const [events, setEvents] = useState<ClientEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
 
   const fetchClientData = async () => {
     if (!user) {
@@ -72,14 +112,123 @@ export default function ClientPortalPage() {
     }
   };
 
+  const fetchProfile = async () => {
+    if (!user) return;
+
+    try {
+      setProfileLoading(true);
+      const idToken = await user.getIdToken();
+      
+      const response = await fetch('/api/client/profile', {
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.ok && result.customer) {
+        setProfile(result.customer);
+        setProfileForm({
+          name: result.customer.name || '',
+          company: result.customer.company || '',
+          phone: result.customer.phone || '',
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch profile:', err);
+      setSaveMessage({ type: 'error', text: 'Failed to load profile' });
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const saveProfile = async () => {
+    if (!user) return;
+
+    try {
+      setProfileSaving(true);
+      setSaveMessage(null);
+      const idToken = await user.getIdToken();
+      
+      const response = await fetch('/api/client/profile', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileForm),
+      });
+      
+      const result = await response.json();
+      
+      if (result.ok && result.customer) {
+        setProfile(result.customer);
+        setSaveMessage({ type: 'success', text: 'Profile updated successfully!' });
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setSaveMessage(null), 3000);
+      } else {
+        setSaveMessage({ 
+          type: 'error', 
+          text: result.error || 'Failed to update profile' 
+        });
+      }
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+      setSaveMessage({ type: 'error', text: 'Failed to save profile' });
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  const fetchEvents = async () => {
+    if (!user) return;
+
+    try {
+      setEventsLoading(true);
+      const idToken = await user.getIdToken();
+      
+      const response = await fetch('/api/client/events', {
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result: ClientEventsResponse = await response.json();
+      if (result.ok && result.events) {
+        setEvents(result.events);
+      }
+    } catch (err) {
+      console.error('Failed to fetch events:', err);
+      setEvents([]);
+    } finally {
+      setEventsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!authLoading && user) {
-      fetchClientData();
+      if (activeTab === 'overview') {
+        fetchClientData();
+        fetchEvents();
+      } else if (activeTab === 'account') {
+        fetchProfile();
+      }
     } else if (!authLoading && !user) {
       setError('Please log in to view your client portal');
       setLoading(false);
     }
-  }, [authLoading, user]);
+  }, [authLoading, user, activeTab]);
 
   if (authLoading || loading) {
     return (
@@ -140,7 +289,35 @@ export default function ClientPortalPage() {
           <p className="text-muted-foreground">Your subscription and account details</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'overview'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('account')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'account'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Account
+            </button>
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
           {/* Account Card */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -210,33 +387,150 @@ export default function ClientPortalPage() {
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {data?.events && data.events.length > 0 ? (
-                  data.events.slice(0, 5).map((event, index) => (
-                    <div key={index} className="flex items-center justify-between py-2 border-b last:border-b-0">
-                      <div>
-                        <p className="text-sm font-medium">{event.event_type}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {event.timestamp 
-                            ? new Date(event.timestamp).toLocaleString()
-                            : '—'
-                          }
-                        </p>
+              {eventsLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <span className="text-sm text-muted-foreground">Loading activity...</span>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {events && events.length > 0 ? (
+                    events.slice(0, 5).map((event, index) => (
+                      <div key={index} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                        <div>
+                          <p className="text-sm font-medium capitalize">
+                            {event.type.replace(/_/g, ' ')}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(event.received_at).toLocaleString()}
+                          </p>
+                          {event.sku && (
+                            <p className="text-xs text-gray-400">{event.sku}</p>
+                          )}
+                        </div>
+                        {event.status && (
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {event.status}
+                          </Badge>
+                        )}
                       </div>
-                      {event.status && (
-                        <Badge variant="outline" className="text-xs">
-                          {event.status}
-                        </Badge>
-                      )}
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No recent activity</p>
+                  )}
+                  
+                  {events && events.length > 5 && (
+                    <div className="pt-2 text-center">
+                      <p className="text-xs text-muted-foreground">
+                        Showing 5 of {events.length} recent events
+                      </p>
                     </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">No recent activity</p>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
-        </div>
+          </div>
+        )}
+
+        {activeTab === 'account' && (
+          <div className="max-w-2xl">
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Information</CardTitle>
+                <CardDescription>
+                  Update your profile information and contact details
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {profileLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <span className="ml-2">Loading profile...</span>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Email (read-only) */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={profile?.email || user?.email || ''}
+                        disabled
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                    </div>
+
+                    {/* Name */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.name}
+                        onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter your full name"
+                      />
+                    </div>
+
+                    {/* Company */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Company
+                      </label>
+                      <input
+                        type="text"
+                        value={profileForm.company}
+                        onChange={(e) => setProfileForm({ ...profileForm, company: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter your company name"
+                      />
+                    </div>
+
+                    {/* Phone */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        value={profileForm.phone}
+                        onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+
+                    {/* Save Button */}
+                    <div className="flex items-center justify-between pt-4">
+                      <button
+                        onClick={saveProfile}
+                        disabled={profileSaving}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        {profileSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {profileSaving ? 'Saving...' : 'Save Changes'}
+                      </button>
+                      
+                      {saveMessage && (
+                        <div className={`text-sm ${
+                          saveMessage.type === 'success' ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {saveMessage.text}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );

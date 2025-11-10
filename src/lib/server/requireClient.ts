@@ -14,45 +14,66 @@ import { adminAuth } from './firebaseAdmin';
 export async function requireClient(request: NextRequest): Promise<string> {
   const authHeader = request.headers.get('authorization');
   
-  if (!authHeader?.startsWith('Bearer ')) {
-    throw new AuthError('Authorization header required', 401);
+  // Primary: Check for Authorization Bearer token
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    
+    if (token) {
+      try {
+        // Verify the Firebase ID token
+        const decodedToken = await adminAuth().verifyIdToken(token, true);
+        
+        if (!decodedToken.email) {
+          throw new AuthError('Email not found in token', 401);
+        }
+
+        return decodedToken.email;
+        
+      } catch (error) {
+        console.error('Bearer token verification failed:', error);
+        
+        if (error instanceof AuthError) {
+          throw error;
+        }
+        
+        // Firebase verification errors
+        if (error instanceof Error) {
+          if (error.message.includes('Firebase ID token')) {
+            throw new AuthError('Invalid authentication token', 401);
+          }
+          if (error.message.includes('expired')) {
+            throw new AuthError('Authentication token expired', 401);
+          }
+        }
+        
+        throw new AuthError('Authentication failed', 401);
+      }
+    }
   }
 
-  const token = authHeader.split(' ')[1];
+  // Fallback: Check for session cookie
+  const sessionCookie = request.cookies.get('client-session')?.value;
   
-  if (!token) {
-    throw new AuthError('Bearer token required', 401);
+  if (sessionCookie) {
+    try {
+      // Verify the session cookie
+      const decodedToken = await adminAuth().verifySessionCookie(sessionCookie, true);
+      
+      if (!decodedToken.email) {
+        throw new AuthError('Email not found in session', 401);
+      }
+
+      return decodedToken.email;
+      
+    } catch (error) {
+      console.error('Session cookie verification failed:', error);
+      
+      // Don't throw here, fall through to the final error
+    }
   }
 
-  try {
-    // Verify the Firebase ID token
-    const decodedToken = await adminAuth().verifyIdToken(token, true);
-    
-    if (!decodedToken.email) {
-      throw new AuthError('Email not found in token', 401);
-    }
-
-    return decodedToken.email;
-    
-  } catch (error) {
-    console.error('Client auth verification failed:', error);
-    
-    if (error instanceof AuthError) {
-      throw error;
-    }
-    
-    // Firebase verification errors
-    if (error instanceof Error) {
-      if (error.message.includes('Firebase ID token')) {
-        throw new AuthError('Invalid authentication token', 401);
-      }
-      if (error.message.includes('expired')) {
-        throw new AuthError('Authentication token expired', 401);
-      }
-    }
-    
-    throw new AuthError('Authentication failed', 401);
-  }
+  // No valid authentication found
+  throw new AuthError('Authentication required - provide Bearer token or valid session', 401);
 }
 
 /**
