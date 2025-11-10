@@ -29,12 +29,53 @@ interface HealthData {
   uptime: string;
 }
 
+interface AnalyticsData {
+  timestamp: string;
+  customers: {
+    total: number;
+    active_subscriptions: number;
+    inactive_subscriptions: number;
+    churn_rate: number;
+  };
+  activity: {
+    events_last_7_days: number;
+    events_last_30_days: number;
+    webhooks_last_24_hours: number;
+  };
+  subscription_tiers: Record<string, number>;
+  service_distribution: Record<string, number>;
+  health_indicators: {
+    recent_signups: number;
+    recent_churn: number;
+    average_events_per_customer: number;
+  };
+}
+
 export default function AdminStatsPage() {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [health, setHealth] = useState<HealthData | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+
+  const fetchAnalytics = async () => {
+    try {
+      const response = await fetch('/api/admin/analytics/summary', {
+        headers: {
+          'admin-key': 'gGho3TE8ztiSAMvORfyCDem62Fk0xpW1',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAnalytics(data.analytics);
+      }
+    } catch (err) {
+      console.error('Analytics fetch failed:', err);
+      setAnalytics(null);
+    }
+  };
 
   const fetchHealth = async () => {
     try {
@@ -81,7 +122,7 @@ export default function AdminStatsPage() {
   };
 
   const fetchAll = async () => {
-    await Promise.all([fetchStats(), fetchHealth()]);
+    await Promise.all([fetchStats(), fetchHealth(), fetchAnalytics()]);
   };
 
   useEffect(() => {
@@ -250,6 +291,75 @@ export default function AdminStatsPage() {
               <span className="text-sm text-muted-foreground">{health?.uptime || 'Unknown'}</span>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Business Insights Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Business Insights
+          </CardTitle>
+          <CardDescription>Advanced analytics and growth metrics</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {analytics ? (
+            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-green-600">
+                  {analytics.customers.total > 0 ? ((analytics.customers.active_subscriptions / analytics.customers.total) * 100).toFixed(1) : '0.0'}%
+                </p>
+                <p className="text-xs text-muted-foreground">Activation Rate</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-red-600">
+                  {analytics.customers.churn_rate}%
+                </p>
+                <p className="text-xs text-muted-foreground">Churn Rate</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-blue-600">
+                  {analytics.health_indicators.recent_signups}
+                </p>
+                <p className="text-xs text-muted-foreground">New (7 days)</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-yellow-600">
+                  {analytics.health_indicators.average_events_per_customer.toFixed(1)}
+                </p>
+                <p className="text-xs text-muted-foreground">Events/Customer</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold">
+                  {analytics.activity.events_last_7_days}
+                </p>
+                <p className="text-xs text-muted-foreground">Events (7d)</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold">
+                  {analytics.activity.webhooks_last_24_hours}
+                </p>
+                <p className="text-xs text-muted-foreground">Webhooks (24h)</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-orange-600">
+                  {analytics.health_indicators.recent_churn}
+                </p>
+                <p className="text-xs text-muted-foreground">Churned (7d)</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold">
+                  {Object.keys(analytics.subscription_tiers).length}
+                </p>
+                <p className="text-xs text-muted-foreground">Active Tiers</p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground">Loading analytics...</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 

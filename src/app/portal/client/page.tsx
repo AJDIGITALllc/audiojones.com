@@ -71,6 +71,9 @@ export default function ClientPortalPage() {
   // Events state
   const [events, setEvents] = useState<ClientEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
+  
+  // Billing state
+  const [billingLoading, setBillingLoading] = useState(false);
 
   const fetchClientData = async () => {
     if (!user) {
@@ -216,6 +219,45 @@ export default function ClientPortalPage() {
     }
   };
 
+  const handleBillingPortal = async () => {
+    if (!user) return;
+
+    try {
+      setBillingLoading(true);
+      const idToken = await user.getIdToken();
+      
+      const response = await fetch('/api/client/billing/portal', {
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const result = await response.json();
+      
+      if (result.ok && result.portal_url) {
+        // Redirect to billing portal
+        window.open(result.portal_url, '_blank');
+      } else {
+        // Show error message
+        setSaveMessage({ 
+          type: 'error', 
+          text: result.message || 'Unable to access billing portal' 
+        });
+        setTimeout(() => setSaveMessage(null), 5000);
+      }
+    } catch (err) {
+      console.error('Failed to access billing portal:', err);
+      setSaveMessage({ 
+        type: 'error', 
+        text: 'Failed to access billing portal' 
+      });
+      setTimeout(() => setSaveMessage(null), 5000);
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!authLoading && user) {
       if (activeTab === 'overview') {
@@ -288,6 +330,24 @@ export default function ClientPortalPage() {
           <h1 className="text-3xl font-bold">Client Portal</h1>
           <p className="text-muted-foreground">Your subscription and account details</p>
         </div>
+
+        {/* Global Messages */}
+        {saveMessage && (
+          <div className={`p-4 rounded-md ${
+            saveMessage.type === 'success' 
+              ? 'bg-green-50 border border-green-200 text-green-800' 
+              : 'bg-red-50 border border-red-200 text-red-800'
+          }`}>
+            <div className="flex items-center">
+              {saveMessage.type === 'success' ? (
+                <div className="h-5 w-5 text-green-400 mr-2">✓</div>
+              ) : (
+                <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+              )}
+              <span className="text-sm font-medium">{saveMessage.text}</span>
+            </div>
+          </div>
+        )}
 
         {/* Tab Navigation */}
         <div className="border-b border-gray-200">
@@ -376,6 +436,18 @@ export default function ClientPortalPage() {
                     : '—'
                   }
                 </p>
+              </div>
+              
+              {/* Manage Billing Button */}
+              <div className="pt-3 border-t">
+                <button
+                  onClick={handleBillingPortal}
+                  disabled={billingLoading}
+                  className="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {billingLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {billingLoading ? 'Loading...' : 'Manage Billing'}
+                </button>
               </div>
             </CardContent>
           </Card>
