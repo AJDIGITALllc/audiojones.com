@@ -14,7 +14,8 @@
     "repo:link": "node tools/repo.js link",
     "repo:sync": "node tools/repo.js sync",
     "repo:status": "node tools/repo.js status",
-    "repo:commit": "node tools/repo.js commit"
+    "repo:commit": "node tools/repo.js commit",
+    "test-client-data": "tsx tools/create-test-client-data.js"
   },
   "dependencies": {
     "@dataconnect/generated": "file:src/dataconnect-generated",

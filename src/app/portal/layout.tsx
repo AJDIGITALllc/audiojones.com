@@ -64,6 +64,9 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
               <a href="/portal/files" className="text-gray-300 hover:text-white transition">
                 Files
               </a>
+              <a href="/portal/client" className="text-blue-400 hover:text-blue-300 transition">
+                Client Portal
+              </a>
               
               {/* Admin link for admin users */}
               {user.customClaims?.admin && (
