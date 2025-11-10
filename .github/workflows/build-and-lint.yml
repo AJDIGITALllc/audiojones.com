@@ -1,0 +1,47 @@
+name: Build & Lint
+on: [push, pull_request]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run lint
+        run: npm run lint
+        
+      - name: Build project
+        run: npm run build
+        
+      - name: Type check
+        run: npx tsc --noEmit
+        
+      - name: Test Firebase Admin import
+        run: |
+          echo "Testing Firebase Admin consolidation..."
+          # Ensure no duplicate Firebase Admin initializations
+          if grep -r "initializeApp.*credential" src/ --exclude-dir=node_modules; then
+            echo "❌ Found duplicate Firebase Admin initialization!"
+            exit 1
+          fi
+          echo "✅ Firebase Admin properly consolidated"
+          
+      - name: Test admin auth centralization  
+        run: |
+          echo "Testing admin authentication centralization..."
+          # Ensure no inline admin-key header checks remain
+          if grep -r "headers\.get.*admin-key.*process\.env" src/app/api/admin/ --exclude-dir=node_modules; then
+            echo "❌ Found duplicate admin authentication code!"
+            exit 1
+          fi
+          echo "✅ Admin authentication properly centralized"
