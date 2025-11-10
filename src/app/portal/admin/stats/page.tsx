@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { RefreshCw, Users, UserCheck, Activity, TrendingUp } from 'lucide-react';
+import { RefreshCw, Users, UserCheck, Activity, TrendingUp, Heart, AlertCircle } from 'lucide-react';
 
 interface StatsData {
   totalCustomers: number;
@@ -21,11 +21,36 @@ interface StatsResponse {
   error?: string;
 }
 
+interface HealthData {
+  status: string;
+  firestore: boolean;
+  version: string;
+  timestamp: string;
+  uptime: string;
+}
+
 export default function AdminStatsPage() {
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [health, setHealth] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+
+  const fetchHealth = async () => {
+    try {
+      const response = await fetch('/api/admin/health', {
+        headers: {
+          'admin-key': 'gGho3TE8ztiSAMvORfyCDem62Fk0xpW1',
+        },
+      });
+
+      const data: HealthData = await response.json();
+      setHealth(data);
+    } catch (err) {
+      console.error('Health check failed:', err);
+      setHealth(null);
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -55,11 +80,15 @@ export default function AdminStatsPage() {
     }
   };
 
+  const fetchAll = async () => {
+    await Promise.all([fetchStats(), fetchHealth()]);
+  };
+
   useEffect(() => {
-    fetchStats();
+    fetchAll();
     
     // Auto-refresh every 60 seconds
-    const interval = setInterval(fetchStats, 60000);
+    const interval = setInterval(fetchAll, 60000);
     
     return () => clearInterval(interval);
   }, []);
@@ -150,7 +179,7 @@ export default function AdminStatsPage() {
           </p>
         </div>
         <button
-          onClick={fetchStats}
+          onClick={fetchAll}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           <RefreshCw className="h-4 w-4" />
@@ -187,6 +216,42 @@ export default function AdminStatsPage() {
           variant="warning"
         />
       </div>
+
+      {/* System Health Card */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">System Health</CardTitle>
+          {health?.firestore ? (
+            <Heart className="h-4 w-4 text-green-500" />  
+          ) : (
+            <AlertCircle className="h-4 w-4 text-red-500" />
+          )}
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Status:</span>
+              <Badge variant={health?.status === 'ok' ? 'default' : 'secondary'}>
+                {health?.status || 'Unknown'}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Firestore:</span>
+              <Badge variant={health?.firestore ? 'default' : 'secondary'}>
+                {health?.firestore ? 'Connected' : 'Disconnected'}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Version:</span>
+              <span className="text-sm text-muted-foreground">{health?.version || 'Unknown'}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Uptime:</span>
+              <span className="text-sm text-muted-foreground">{health?.uptime || 'Unknown'}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Detailed Breakdowns */}
       <div className="grid gap-6 md:grid-cols-2">
