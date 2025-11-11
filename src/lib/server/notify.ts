@@ -31,7 +31,7 @@ interface WebhookPayload {
 }
 
 /**
- * Sends alert notification to configured webhook URL
+ * Sends alert notification via Slack Web API or webhook URL
  * 
  * @param alert - Alert data to send
  * @returns Promise<boolean> - true if sent successfully, false otherwise
@@ -50,10 +50,20 @@ interface WebhookPayload {
  * ```
  */
 export async function sendAlertNotification(alert: AlertNotification): Promise<boolean> {
+  // Check for Slack App token first
+  const slackToken = process.env.SLACK_BOT_TOKEN || process.env.SLACK_ACCESS_TOKEN;
+  const slackChannel = process.env.SLACK_CHANNEL || '#alerts';
+  
+  if (slackToken) {
+    console.log('📱 Using Slack Web API for notification');
+    return await sendSlackWebApiNotification(alert, slackToken, slackChannel);
+  }
+
+  // Fallback to webhook URL
   const webhookUrl = process.env.ALERT_WEBHOOK_URL;
   
   if (!webhookUrl) {
-    console.warn('⚠️ ALERT_WEBHOOK_URL not configured, skipping notification');
+    console.warn('⚠️ Neither SLACK_BOT_TOKEN nor ALERT_WEBHOOK_URL configured, skipping notification');
     return false;
   }
 
@@ -173,7 +183,156 @@ export function formatSlackAlert(alert: AlertNotification): any {
 }
 
 /**
- * Sends Slack-formatted alert notification
+ * Sends notification via Slack Web API (chat.postMessage)
+ * 
+ * @param alert - Alert data
+ * @param token - Slack bot token
+ * @param channel - Slack channel ID or name
+ * @returns Promise<boolean>
+ */
+export async function sendSlackWebApiNotification(
+  alert: AlertNotification, 
+  token: string, 
+  channel: string
+): Promise<boolean> {
+  try {
+    console.log(`📱 Sending Slack notification to ${channel}`);
+    
+    const severityEmojis = {
+      'info': ':information_source:',
+      'warning': ':warning:',
+      'critical': ':rotating_light:'
+    };
+
+    const severityColors = {
+      'info': '#36a64f',      // Green
+      'warning': '#ff9500',   // Orange  
+      'critical': '#ff0000'   // Red
+    };
+
+    const blocks = [
+      {
+        type: 'header',
+        text: {
+          type: 'plain_text',
+          text: `${severityEmojis[alert.severity]} Audio Jones Alert`,
+          emoji: true
+        }
+      },
+      {
+        type: 'section',
+        fields: [
+          {
+            type: 'mrkdwn',
+            text: `*Type:*\n${alert.type}`
+          },
+          {
+            type: 'mrkdwn',
+            text: `*Severity:*\n${alert.severity.toUpperCase()}`
+          },
+          {
+            type: 'mrkdwn',
+            text: `*Message:*\n${alert.message || alert.title || 'No message provided'}`
+          },
+          {
+            type: 'mrkdwn',
+            text: `*Time:*\n<!date^${Math.floor(new Date(alert.created_at || Date.now()).getTime() / 1000)}^{date_short} {time}|${alert.created_at}>`
+          }
+        ]
+      }
+    ];
+
+    // Add metadata fields if available
+    if (alert.email || alert.source || alert.meta) {
+      const metaFields = [];
+      
+      if (alert.email) {
+        metaFields.push({
+          type: 'mrkdwn',
+          text: `*Customer:*\n${alert.email}`
+        });
+      }
+      
+      if (alert.source) {
+        metaFields.push({
+          type: 'mrkdwn',
+          text: `*Source:*\n${alert.source}`
+        });
+      }
+
+      if (alert.meta && Object.keys(alert.meta).length > 0) {
+        const metaString = Object.entries(alert.meta)
+          .slice(0, 3) // Limit to first 3 meta fields
+          .map(([key, value]) => `${key}: ${value}`)
+          .join('\n');
+        
+        metaFields.push({
+          type: 'mrkdwn',
+          text: `*Details:*\n\`\`\`${metaString}\`\`\``
+        });
+      }
+
+      if (metaFields.length > 0) {
+        blocks.push({
+          type: 'section',
+          fields: metaFields
+        });
+      }
+    }
+
+    // Add context footer
+    blocks.push({
+      type: 'context',
+      elements: [
+        {
+          type: 'mrkdwn',
+          text: '🎙️ Audio Jones Alert System'
+        }
+      ]
+    } as any);
+
+    const payload = {
+      channel: channel,
+      blocks: blocks,
+      // Fallback text for notifications
+      text: `${severityEmojis[alert.severity]} ${alert.severity.toUpperCase()} Alert: ${alert.message || alert.title}`,
+      // Add color to message
+      attachments: [
+        {
+          color: severityColors[alert.severity],
+          fallback: `${alert.severity.toUpperCase()} Alert from Audio Jones`
+        }
+      ]
+    };
+
+    const response = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(10000)
+    });
+
+    const result = await response.json();
+
+    if (result.ok) {
+      console.log('✅ Slack Web API notification sent successfully');
+      return true;
+    } else {
+      console.error('❌ Slack Web API error:', result.error);
+      return false;
+    }
+
+  } catch (error) {
+    console.error('❌ Failed to send Slack Web API notification:', error);
+    return false;
+  }
+}
+
+/**
+ * Sends Slack-formatted alert notification (webhook version)
  * 
  * @param alert - Alert data
  * @returns Promise<boolean>
