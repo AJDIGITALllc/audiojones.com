@@ -14,7 +14,7 @@ export type AlertAction =
 
 export interface Alert {
   id?: string;
-  type: 'capacity' | 'webhook' | 'billing' | 'system' | 'discord';
+  type: 'capacity' | 'webhook' | 'billing' | 'system' | 'discord' | 'predictive';
   severity: 'info' | 'warning' | 'error' | 'critical';
   message: string;
   created_at: string;
@@ -74,6 +74,18 @@ export const alertRules: AlertRule[] = [
     condition: (alert) => alert.type === 'system' && alert.severity === 'critical',
     actions: ['notify-team', 'escalate'],
     description: 'Critical system alerts need immediate escalation'
+  },
+  {
+    name: 'predictive-warning',
+    condition: (alert) => alert.type === 'predictive' && alert.severity === 'info',
+    actions: ['notify-team', 'mark-needs-review'],
+    description: 'Predictive capacity warnings need team notification and review'
+  },
+  {
+    name: 'predictive-critical',
+    condition: (alert) => alert.type === 'predictive' && alert.severity === 'warning',
+    actions: ['notify-team', 'mark-needs-review', 'escalate'],
+    description: 'Predictive critical alerts require immediate capacity planning'
   }
 ];
 

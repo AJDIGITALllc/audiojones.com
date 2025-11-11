@@ -20,7 +20,7 @@ export interface AlertAction {
 
 export interface Alert {
   id?: string;
-  type: string;
+  type: 'capacity' | 'webhook' | 'billing' | 'system' | 'discord' | 'predictive';
   severity: 'info' | 'warning' | 'error' | 'critical';
   message: string;
   created_at: string;
@@ -118,6 +118,31 @@ export async function handleAlert(alert: Alert): Promise<AlertAction[]> {
         }
       );
       actions.push(webhookAction);
+    }
+    
+    // Predictive alerts automation
+    else if (alert.type === 'predictive') {
+      const forecast = alert.meta?.forecast_type || 'unknown';
+      const utilization = alert.meta?.projected_utilization || 'unknown';
+      const trend = alert.meta?.trend_hours_per_day || 0;
+      
+      let message = `🔮 PREDICTIVE ALERT: ${alert.message}`;
+      if (alert.severity === 'warning') {
+        message = `🚨 CRITICAL CAPACITY PREDICTION: ${alert.message}`;
+      }
+      
+      const action = await executeSlackNotification(
+        message,
+        alert.severity === 'warning' ? 'critical' : 'warning',
+        {
+          alert_id: alert.id,
+          forecast_type: forecast,
+          projected_utilization: utilization,
+          trend_hours_per_day: trend,
+          action: 'predictive_capacity_notification'
+        }
+      );
+      actions.push(action);
     }
     
     // Default case - no specific automation
