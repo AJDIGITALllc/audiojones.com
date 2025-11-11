@@ -10,6 +10,11 @@ import { requireAdmin } from '@/lib/server/requireAdmin';
 import { db } from '@/lib/server/firebaseAdmin';
 import { getAlertActions, type Alert, type AlertAction } from '@/lib/server/alertRules';
 import { sendAlertNotification, type AlertNotification } from '@/lib/server/notify';
+import { 
+  createIncidentFromAlert, 
+  appendIncidentEvent, 
+  findOpenIncidentBySource 
+} from '@/lib/server/incidents';
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,14 +51,76 @@ export async function POST(req: NextRequest) {
       message: alert.message?.substring(0, 100) + '...'
     });
 
+    // === INCIDENT MANAGEMENT ===
+    // Create or update incident for this alert
+    let incidentId: string | null = null;
+    
+    try {
+      const alertSource = alert.source || alert.type || 'system';
+      
+      // Try to find existing open incident for this source
+      const existingIncident = await findOpenIncidentBySource(alertSource);
+      
+      if (existingIncident) {
+        // Add alert to existing incident
+        incidentId = existingIncident.id!;
+        console.log(`📋 Adding alert ${alertId} to existing incident ${incidentId}`);
+        
+        // Update incident with new alert ID
+        const updatedAlertIds = [...existingIncident.related_alert_ids];
+        if (!updatedAlertIds.includes(alertId)) {
+          updatedAlertIds.push(alertId);
+          await db.collection('incidents').doc(incidentId).update({
+            related_alert_ids: updatedAlertIds,
+            updated_at: new Date().toISOString()
+          });
+        }
+        
+        // Add timeline event
+        await appendIncidentEvent(incidentId, {
+          type: 'alert',
+          message: alert.message || 'Alert received',
+          meta: {
+            alert_id: alertId,
+            alert_type: alert.type,
+            alert_severity: alert.severity,
+            source: alert.source
+          }
+        });
+        
+      } else {
+        // Create new incident
+        incidentId = await createIncidentFromAlert(alert);
+        console.log(`🚨 Created new incident ${incidentId} for alert ${alertId}`);
+      }
+      
+    } catch (error) {
+      console.error(`⚠️ Failed to manage incident for alert ${alertId}:`, error);
+      // Continue processing - incident creation failure shouldn't block alert processing
+    }
+
     // Get actions to execute
     const actions = getAlertActions(alert);
     
     if (actions.length === 0) {
       console.log(`ℹ️ No actions required for alert ${alertId}`);
+      
+      // Link alert to incident even if no actions
+      if (incidentId) {
+        try {
+          await db.collection('alerts').doc(alertId).update({
+            incident_id: incidentId,
+            updated_at: new Date().toISOString()
+          });
+        } catch (error) {
+          console.error(`⚠️ Failed to link alert ${alertId} to incident ${incidentId}:`, error);
+        }
+      }
+      
       return NextResponse.json({
         ok: true,
         alertId,
+        incidentId,
         actionsRun: [],
         message: 'No actions required for this alert'
       });
@@ -105,11 +172,44 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // === LOG ACTIONS TO INCIDENT ===
+    if (incidentId && (actionsRun.length > 0 || errors.length > 0)) {
+      try {
+        const actionSummary = `${actionsRun.length} actions executed${errors.length > 0 ? `, ${errors.length} failed` : ''}`;
+        await appendIncidentEvent(incidentId, {
+          type: 'auto',
+          message: `Rule-based processing: ${actionSummary}`,
+          meta: {
+            alert_id: alertId,
+            actions_executed: actionsRun,
+            errors: errors,
+            total_actions: actions.length,
+            successful_actions: actionsRun.length
+          }
+        });
+      } catch (error) {
+        console.error(`⚠️ Failed to log actions to incident ${incidentId}:`, error);
+      }
+    }
+
+    // Link alert to incident
+    if (incidentId) {
+      try {
+        await db.collection('alerts').doc(alertId).update({
+          incident_id: incidentId,
+          updated_at: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error(`⚠️ Failed to link alert ${alertId} to incident ${incidentId}:`, error);
+      }
+    }
+
     console.log(`✅ Alert processing complete for ${alertId}:`, { actionsRun, errors });
 
     return NextResponse.json({
       ok: true,
       alertId,
+      incidentId,
       actionsRun,
       errors: errors.length > 0 ? errors : undefined,
       totalActions: actions.length,

@@ -9,6 +9,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/requireAdmin';
 import { db } from '@/lib/server/firebaseAdmin';
 import { handleAlert, getActionsSummary, type Alert, type AlertAction } from '@/lib/server/alertActions';
+import { 
+  createIncidentFromAlert, 
+  appendIncidentEvent, 
+  findOpenIncidentBySource 
+} from '@/lib/server/incidents';
 
 export async function POST(req: NextRequest) {
   try {
@@ -63,10 +68,82 @@ export async function POST(req: NextRequest) {
       message: alert.message?.substring(0, 100) + '...'
     });
 
+    // === INCIDENT MANAGEMENT ===
+    // Create or update incident for this alert
+    let incidentId: string | null = null;
+    
+    try {
+      const alertSource = alert.source || alert.type || 'system';
+      
+      // Try to find existing open incident for this source
+      const existingIncident = await findOpenIncidentBySource(alertSource);
+      
+      if (existingIncident) {
+        // Add alert to existing incident
+        incidentId = existingIncident.id!;
+        console.log(`📋 Adding alert ${alertId} to existing incident ${incidentId}`);
+        
+        // Update incident with new alert ID
+        const updatedAlertIds = [...existingIncident.related_alert_ids];
+        if (!updatedAlertIds.includes(alertId)) {
+          updatedAlertIds.push(alertId);
+          await db.collection('incidents').doc(incidentId).update({
+            related_alert_ids: updatedAlertIds,
+            updated_at: new Date().toISOString()
+          });
+        }
+        
+        // Add timeline event
+        await appendIncidentEvent(incidentId, {
+          type: 'alert',
+          message: alert.message || 'Alert received',
+          meta: {
+            alert_id: alertId,
+            alert_type: alert.type,
+            alert_severity: alert.severity,
+            source: alert.source
+          }
+        });
+        
+      } else {
+        // Create new incident
+        incidentId = await createIncidentFromAlert(alert);
+        console.log(`🚨 Created new incident ${incidentId} for alert ${alertId}`);
+      }
+      
+    } catch (error) {
+      console.error(`⚠️ Failed to manage incident for alert ${alertId}:`, error);
+      // Continue processing - incident creation failure shouldn't block alert processing
+    }
+
     // Execute automated actions
     const actions = await handleAlert(alert);
     
-    // Log actions to Firestore subcollection
+    // === LOG ACTIONS TO INCIDENT ===
+    if (incidentId && actions.length > 0) {
+      try {
+        const actionSummary = getActionsSummary(actions);
+        await appendIncidentEvent(incidentId, {
+          type: 'auto',
+          message: `Auto-processed: ${actionSummary}`,
+          meta: {
+            alert_id: alertId,
+            actions_count: actions.length,
+            successful_actions: actions.filter(a => a.success).length,
+            failed_actions: actions.filter(a => !a.success).length,
+            actions: actions.map(a => ({
+              type: a.type,
+              description: a.description,
+              success: a.success
+            }))
+          }
+        });
+      } catch (error) {
+        console.error(`⚠️ Failed to log actions to incident ${incidentId}:`, error);
+      }
+    }
+    
+    // Log actions to Firestore subcollection (existing functionality)
     const actionsLogRef = db.collection('alerts').doc(alertId).collection('actions_log');
     
     const logEntry = {
@@ -77,7 +154,8 @@ export async function POST(req: NextRequest) {
       actions: actions,
       summary: getActionsSummary(actions),
       processor: 'automated-alert-handler',
-      processor_version: '1.0.0'
+      processor_version: '1.0.0',
+      incident_id: incidentId // Link to incident
     };
 
     await actionsLogRef.add(logEntry);
@@ -89,6 +167,7 @@ export async function POST(req: NextRequest) {
       auto_processed_at: new Date().toISOString(),
       last_action_count: actions.length,
       last_action_summary: getActionsSummary(actions),
+      incident_id: incidentId, // Link alert to incident
       updated_at: new Date().toISOString()
     });
 
@@ -99,6 +178,7 @@ export async function POST(req: NextRequest) {
     const response = {
       ok: true,
       alertId,
+      incidentId, // Include incident information
       actionsRun: actions.map(a => a.description),
       totalActions: actions.length,
       successfulActions: successfulActions.length,

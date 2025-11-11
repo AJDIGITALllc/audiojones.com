@@ -14,6 +14,7 @@ import {
   Shield,
   TrendingUp,
   Bell,
+  AlertTriangle,
   Package,
   RefreshCw,
   Clock,
@@ -57,6 +58,12 @@ const navigation: NavItem[] = [
     href: '/portal/admin/alerts',
     icon: Bell,
     description: 'System notifications'
+  },
+  {
+    name: 'Incidents',
+    href: '/portal/admin/incidents',
+    icon: AlertTriangle,
+    description: 'Incident management'
   },
   {
     name: 'Pricing',
