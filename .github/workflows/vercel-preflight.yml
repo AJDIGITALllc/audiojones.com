@@ -1,0 +1,38 @@
+name: Vercel Preflight
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Preflight Next.js build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Print commit context
+        run: |
+          echo "Commit: $GITHUB_SHA"
+          echo "Branch: $GITHUB_REF_NAME"
+          git show -s --format='Author: %an <%ae>' $GITHUB_SHA
+
+      - name: Install dependencies
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: npm ci
+
+      - name: Build Next.js application
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          NODE_ENV: production
+        run: npm run build
