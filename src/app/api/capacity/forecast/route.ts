@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { db } from '@/lib/server/firebaseAdmin';
 import { deriveHoursFromPlan, isWithinWindow } from '@/lib/capacity';
+import { sendAlertNotification } from '@/lib/server/notify';
 import type { 
   CapacitySettings, 
   ClientContract, 
@@ -166,14 +167,28 @@ export async function GET(request: NextRequest) {
           .get();
 
         if (existingAlert.empty) {
-          await db.collection('alerts').add({
+          const alertData = {
             type: 'capacity',
-            severity: 'warning',
+            severity: 'warning' as const,
             message: alertMessage,
             created_at: new Date().toISOString(),
             source: 'capacity-forecast'
-          });
+          };
+          
+          // Write alert to Firestore
+          await db.collection('alerts').add(alertData);
           console.log('🚨 High capacity risk alert created');
+          
+          // Send outbound notification
+          await sendAlertNotification({
+            ...alertData,
+            meta: {
+              current_hours: totalHours,
+              max_hours: capacitySettings.max_hours,
+              utilization_percent: Math.round(hourUtilization),
+              risk_level: risk
+            }
+          });
         } else {
           console.log('🚨 High capacity risk alert already exists for today');
         }

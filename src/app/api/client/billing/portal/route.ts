@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getFirestore } from 'firebase-admin/firestore';
 import { requireClient, AuthError, createAuthErrorResponse } from '@/lib/server/requireClient';
+import { sendAlertNotification } from '@/lib/server/notify';
 
 /**
  * Client Billing Portal API Route
@@ -178,7 +179,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create an admin alert for manual processing
-    await db.collection('alerts').add({
+    const alertData = {
       category: 'billing',
       severity: 'medium',
       title: `Billing ${action} request`,
@@ -187,6 +188,24 @@ export async function POST(request: NextRequest) {
       resolved: false,
       metadata: {
         customer_email: userEmail,
+        action,
+        target_tier,
+        target_sku
+      }
+    };
+    
+    // Write alert to Firestore
+    await db.collection('alerts').add(alertData);
+    
+    // Send outbound notification
+    await sendAlertNotification({
+      type: 'billing',
+      severity: 'warning',
+      message: alertData.message,
+      created_at: alertData.created_at,
+      source: 'client_portal',
+      email: userEmail,
+      meta: {
         action,
         target_tier,
         target_sku

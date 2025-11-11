@@ -45,6 +45,7 @@ export default function AdminAlertsPage() {
     category: 'system',
     auto_dismiss_minutes: '',
   });
+  const [testAlertLoading, setTestAlertLoading] = useState(false);
 
   const fetchAlerts = async () => {
     try {
@@ -143,6 +144,41 @@ export default function AdminAlertsPage() {
     }
   };
 
+  const sendTestAlert = async (severity: 'info' | 'warning' | 'critical' = 'warning') => {
+    try {
+      setTestAlertLoading(true);
+      
+      const response = await fetch('/api/admin/alerts/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'admin-key': 'gGho3TE8ztiSAMvORfyCDem62Fk0xpW1',
+        },
+        body: JSON.stringify({
+          message: `Test notification alert - ${severity.toUpperCase()}`,
+          severity: severity,
+          type: 'notification-test'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.ok) {
+        alert(`✅ Test alert sent successfully! ${result.notification_sent ? 'Notification delivered.' : 'Notification failed to send.'}`);
+        fetchAlerts(); // Refresh to show the new test alert
+      } else {
+        throw new Error(result.message || 'Failed to send test alert');
+      }
+    } catch (err) {
+      alert(`❌ Test alert failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setTestAlertLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchAlerts();
   }, [filter, severityFilter]);
@@ -184,6 +220,18 @@ export default function AdminAlertsPage() {
           >
             <RefreshCw className="h-4 w-4" />
             Refresh
+          </button>
+          <button
+            onClick={() => sendTestAlert('warning')}
+            disabled={testAlertLoading}
+            className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
+          >
+            {testAlertLoading ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <Bell className="h-4 w-4" />
+            )}
+            {testAlertLoading ? 'Sending...' : 'Test Alert'}
           </button>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
