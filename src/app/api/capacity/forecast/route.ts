@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { db } from '@/lib/server/firebaseAdmin';
 import { deriveHoursFromPlan, isWithinWindow } from '@/lib/capacity';
 import { sendAlertNotification } from '@/lib/server/notify';
+import { enqueueAlertProcessing } from '@/lib/server/alertProcessing';
 import type { 
   CapacitySettings, 
   ClientContract, 
@@ -172,12 +173,14 @@ export async function GET(request: NextRequest) {
             severity: 'warning' as const,
             message: alertMessage,
             created_at: new Date().toISOString(),
-            source: 'capacity-forecast'
+            source: 'capacity-forecast',
+            auto_process: true  // Enable auto-processing for capacity alerts
           };
           
           // Write alert to Firestore
-          await db.collection('alerts').add(alertData);
-          console.log('🚨 High capacity risk alert created');
+          const alertRef = await db.collection('alerts').add(alertData);
+          const alertId = alertRef.id;
+          console.log('🚨 High capacity risk alert created with auto-processing enabled');
           
           // Send outbound notification
           await sendAlertNotification({
@@ -189,6 +192,9 @@ export async function GET(request: NextRequest) {
               risk_level: risk
             }
           });
+          
+          // Enqueue for auto-processing (best effort)
+          await enqueueAlertProcessing(alertId);
         } else {
           console.log('🚨 High capacity risk alert already exists for today');
         }

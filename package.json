@@ -21,6 +21,7 @@
   "dependencies": {
     "@dataconnect/generated": "file:src/dataconnect-generated",
     "clsx": "^2.1.1",
+    "discord-interactions": "^4.4.0",
     "firebase": "^12.4.0",
     "firebase-admin": "^13.5.0",
     "imagekit": "^6.0.0",

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Bell, AlertTriangle, Info, X, RefreshCw, Eye, EyeOff, Trash2, Clock } from 'lucide-react';
+import { Bell, AlertTriangle, Info, X, RefreshCw, Eye, EyeOff, Trash2, Clock, Settings, CheckCircle } from 'lucide-react';
 
 interface Alert {
   id: string;
@@ -19,6 +19,11 @@ interface Alert {
   updated_at?: string;
   metadata?: Record<string, any>;
   auto_dismiss_at?: string;
+  needs_review?: boolean;
+  reviewed?: boolean;
+  auto_process?: boolean;
+  auto_processed_at?: string;
+  escalated?: boolean;
 }
 
 interface AlertStats {
@@ -46,6 +51,8 @@ export default function AdminAlertsPage() {
     auto_dismiss_minutes: '',
   });
   const [testAlertLoading, setTestAlertLoading] = useState(false);
+  const [processingAlerts, setProcessingAlerts] = useState<Set<string>>(new Set());
+  const [autoProcessingAlerts, setAutoProcessingAlerts] = useState<Set<string>>(new Set());
 
   const fetchAlerts = async () => {
     try {
@@ -141,6 +148,78 @@ export default function AdminAlertsPage() {
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to create alert');
+    }
+  };
+
+  const processAlert = async (alertId: string) => {
+    try {
+      setProcessingAlerts(prev => new Set(prev).add(alertId));
+      
+      const response = await fetch('/api/admin/alerts/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'admin-key': 'gGho3TE8ztiSAMvORfyCDem62Fk0xpW1',
+        },
+        body: JSON.stringify({ alertId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.ok) {
+        alert(`✅ Alert processed successfully!\n\nActions executed:\n${result.actionsRun.join('\n')}`);
+        await fetchAlerts(); // Refresh the list
+      } else {
+        throw new Error(result.error || 'Failed to process alert');
+      }
+    } catch (err) {
+      alert(`❌ Failed to process alert: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setProcessingAlerts(prev => {
+        const next = new Set(prev);
+        next.delete(alertId);
+        return next;
+      });
+    }
+  };
+
+  const autoProcessAlert = async (alertId: string) => {
+    try {
+      setAutoProcessingAlerts(prev => new Set(prev).add(alertId));
+      
+      const response = await fetch('/api/admin/alerts/auto', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'admin-key': 'gGho3TE8ztiSAMvORfyCDem62Fk0xpW1',
+        },
+        body: JSON.stringify({ alertId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.ok) {
+        // Show detailed toast with actions summary
+        const summary = result.summary || `${result.successfulActions} successful, ${result.failedActions} failed`;
+        alert(`🤖 Automated processing complete!\n\n${summary}\n\nActions:\n${result.actionsRun.join('\n')}`);
+        await fetchAlerts(); // Refresh the list
+      } else {
+        throw new Error(result.error || 'Failed to auto-process alert');
+      }
+    } catch (err) {
+      alert(`❌ Auto-processing failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setAutoProcessingAlerts(prev => {
+        const next = new Set(prev);
+        next.delete(alertId);
+        return next;
+      });
     }
   };
 
@@ -496,6 +575,60 @@ export default function AdminAlertsPage() {
                             {alert.severity}
                           </Badge>
                           <Badge variant="outline">{alert.category}</Badge>
+                          
+                          {/* Needs Review Badge */}
+                          {alert.needs_review && !alert.reviewed && (
+                            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                              Needs Review
+                            </Badge>
+                          )}
+                          
+                          {/* Auto-processed Badge */}
+                          {alert.auto_processed_at && (
+                            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
+                              Auto-processed
+                            </Badge>
+                          )}
+                          
+                          {/* Escalated Badge */}
+                          {alert.escalated && (
+                            <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
+                              Escalated
+                            </Badge>
+                          )}
+                          
+                          {/* Process Button */}
+                          {alert.status === 'active' && (
+                            <button
+                              onClick={() => processAlert(alert.id)}
+                              disabled={processingAlerts.has(alert.id)}
+                              className="p-1 text-blue-500 hover:text-blue-700 disabled:text-gray-400"
+                              title="Process alert (run auto-remediation actions)"
+                            >
+                              {processingAlerts.has(alert.id) ? (
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Settings className="h-4 w-4" />
+                              )}
+                            </button>
+                          )}
+                          
+                          {/* Auto Process Button */}
+                          {alert.status === 'active' && (
+                            <button
+                              onClick={() => autoProcessAlert(alert.id)}
+                              disabled={autoProcessingAlerts.has(alert.id)}
+                              className="p-1 text-green-500 hover:text-green-700 disabled:text-gray-400"
+                              title="Auto Process (run automated remediation based on alert type/severity)"
+                            >
+                              {autoProcessingAlerts.has(alert.id) ? (
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <CheckCircle className="h-4 w-4" />
+                              )}
+                            </button>
+                          )}
+                          
                           {alert.status === 'active' && (
                             <button
                               onClick={() => dismissAlert(alert.id)}

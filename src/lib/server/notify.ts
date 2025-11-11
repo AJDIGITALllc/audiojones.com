@@ -363,3 +363,54 @@ export async function sendSlackAlert(alert: AlertNotification): Promise<boolean>
     return false;
   }
 }
+
+/**
+ * Enqueue a webhook request with timeout
+ * 
+ * Makes a POST request to the specified URL with optional payload.
+ * Includes 5-second timeout for reliable automation.
+ * 
+ * @param url - The webhook URL to POST to
+ * @param payload - Optional JSON payload to send
+ * @returns Promise<boolean> - true if request succeeded, false otherwise
+ * 
+ * @example
+ * ```typescript
+ * const success = await enqueueWebhook(
+ *   'https://audiojones.com/api/admin/capacity/recalculate',
+ *   { trigger: 'critical_alert', alertId: 'abc123' }
+ * );
+ * ```
+ */
+export async function enqueueWebhook(url: string, payload?: any): Promise<boolean> {
+  try {
+    console.log(`🔗 Enqueuing webhook: ${url}`);
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'AudioJones-Alert-Automation/1.0'
+      },
+      body: payload ? JSON.stringify(payload) : undefined,
+      // 5-second timeout as specified
+      signal: AbortSignal.timeout(5000)
+    });
+
+    if (response.ok) {
+      console.log(`✅ Webhook enqueued successfully: ${url} (${response.status})`);
+      return true;
+    } else {
+      console.warn(`⚠️ Webhook returned non-2xx status: ${url} (${response.status})`);
+      return false;
+    }
+
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error(`⏰ Webhook timeout after 5s: ${url}`);
+    } else {
+      console.error(`❌ Webhook failed: ${url}`, error);
+    }
+    return false;
+  }
+}
