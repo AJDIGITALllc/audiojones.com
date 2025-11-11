@@ -1,6 +1,12 @@
 import { NextRequest } from 'next/server';
 import { db } from '@/lib/server/firebaseAdmin';
 import { deriveHoursFromPlan, isWithinWindow } from '@/lib/capacity';
+import type { 
+  CapacitySettings, 
+  ClientContract, 
+  ForecastResponse,
+  CapacityAlert
+} from '@/types/capacity';
 
 /**
  * Capacity Intelligence & Forecasting API
@@ -13,48 +19,6 @@ import { deriveHoursFromPlan, isWithinWindow } from '@/lib/capacity';
  * 
  * Admin endpoint - requires authentication in production
  */
-
-interface CapacitySettings {
-  slots_total: number;
-  min_retainers: number;
-  min_mrr: number;
-  max_hours: number;
-  max_podcast_clients: number;
-  preopen_window_days: number;
-  updated_at: string;
-}
-
-interface ClientContract {
-  id: string;
-  client_id: string;
-  plan_tier?: string;
-  plan_type?: string;
-  monthly_fee?: number;
-  hours_committed?: number;
-  status: string;
-  next_open_date?: string;
-  updated_at: string;
-}
-
-interface ForecastResponse {
-  current: {
-    mrr: number;
-    hours: number;
-    retainers: number;
-    status: 'open' | 'limited' | 'full';
-  };
-  forecast: {
-    projected_status: 'open' | 'limited' | 'full';
-    projected_open_date: string | null;
-    projected_hours_in_7d: number;
-    projected_mrr_in_7d: number;
-    risk: 'low' | 'medium' | 'high';
-  };
-  meta: {
-    generated_at: string;
-    source: string;
-  };
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -165,6 +129,7 @@ export async function GET(request: NextRequest) {
     }
 
     const forecast: ForecastResponse = {
+      ok: true,
       current: {
         mrr: totalMrr,
         hours: totalHours,
@@ -220,15 +185,12 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Forecast complete: ${risk} risk, ${currentStatus} → ${projectedStatus}`);
 
-    return Response.json({
-      ok: true,
-      ...forecast
-    });
+    return Response.json(forecast);
 
   } catch (error) {
     console.error('❌ Capacity forecast failed:', error);
     
-    return Response.json({
+    const errorResponse: ForecastResponse = {
       ok: false,
       error: 'forecast_generation_failed',
       message: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -250,6 +212,8 @@ export async function GET(request: NextRequest) {
         generated_at: new Date().toISOString(),
         source: 'capacity-forecast-v1-error'
       }
-    }, { status: 500 });
+    };
+
+    return Response.json(errorResponse, { status: 500 });
   }
 }

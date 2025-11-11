@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/Badge';
 import { RefreshCw, Users, Clock, DollarSign, Calendar, AlertCircle, CheckCircle, TrendingUp, AlertTriangle } from 'lucide-react';
 import { formatOpenDate, calculateUtilization, getCapacityStatusColor } from '@/lib/capacity';
+import type { ForecastResponse } from '@/types/capacity';
 
 interface CapacityData {
   availability: 'open' | 'limited' | 'full';
@@ -27,29 +28,11 @@ interface CapacityData {
   timestamp: string;
 }
 
-interface ForecastData {
-  current: {
-    mrr: number;
-    hours: number;
-    retainers: number;
-    status: 'open' | 'limited' | 'full';
-  };
-  forecast: {
-    projected_status: 'open' | 'limited' | 'full';
-    projected_open_date: string | null;
-    projected_hours_in_7d: number;
-    projected_mrr_in_7d: number;
-    risk: 'low' | 'medium' | 'high';
-  };
-  meta: {
-    generated_at: string;
-    source: string;
-  };
-}
+// Using imported ForecastResponse type
 
 export default function AdminCapacityPage() {
   const [capacity, setCapacity] = useState<CapacityData | null>(null);
-  const [forecast, setForecast] = useState<ForecastData | null>(null);
+  const [forecast, setForecast] = useState<ForecastResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [forecastLoading, setForecastLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

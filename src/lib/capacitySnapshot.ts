@@ -7,32 +7,13 @@
 
 import 'server-only';
 import { Firestore } from 'firebase-admin/firestore';
-
-interface CapacitySnapshot {
-  current: {
-    mrr: number;
-    hours: number;
-    retainers: number;
-    status: 'open' | 'limited' | 'full';
-  };
-  forecast: {
-    projected_status: 'open' | 'limited' | 'full';
-    projected_open_date: string | null;
-    projected_hours_in_7d: number;
-    projected_mrr_in_7d: number;
-    risk: 'low' | 'medium' | 'high';
-  };
-  meta: {
-    generated_at: string;
-    source: string;
-  };
-}
+import type { CapacitySnapshot, ForecastResponse } from '@/types/capacity';
 
 /**
  * Saves a capacity snapshot to Firestore history collection
  * 
  * @param db - Firebase Firestore instance
- * @param snapshot - Capacity snapshot data from forecast endpoint
+ * @param forecast - Forecast response data from forecast endpoint
  * @returns Promise<void>
  * 
  * @example
@@ -46,7 +27,7 @@ interface CapacitySnapshot {
  */
 export async function saveCapacitySnapshot(
   db: Firestore, 
-  snapshot: CapacitySnapshot
+  forecast: ForecastResponse
 ): Promise<void> {
   try {
     console.log('💾 Saving capacity snapshot to history...');
@@ -55,8 +36,10 @@ export async function saveCapacitySnapshot(
     const today = new Date().toISOString().split('T')[0];
     
     // Prepare snapshot document with timestamp
-    const historyDoc = {
-      ...snapshot,
+    const historyDoc: CapacitySnapshot = {
+      current: forecast.current,
+      forecast: forecast.forecast,
+      meta: forecast.meta,
       snapshot_date: today,
       saved_at: new Date().toISOString(),
     };
