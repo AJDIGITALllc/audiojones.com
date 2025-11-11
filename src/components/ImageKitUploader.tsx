@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import { useToast } from "@/components/Toast";
 
@@ -8,6 +8,26 @@ declare global {
   interface Window {
     ImageKit: any;
   }
+}
+
+export function initializeImageKit(
+  ikRef: { current: any },
+  setReady: Dispatch<SetStateAction<boolean>>
+) {
+  if (typeof window === "undefined" || !window.ImageKit) {
+    return false;
+  }
+
+  if (!ikRef.current) {
+    ikRef.current = new window.ImageKit({
+      publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY,
+      urlEndpoint: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT,
+      authenticationEndpoint: "/api/imagekit-auth",
+    });
+  }
+
+  setReady(true);
+  return true;
 }
 
 export default function ImageKitUploader() {
@@ -19,20 +39,9 @@ export default function ImageKitUploader() {
 
   useEffect(() => {
     // When the SDK is loaded, initialize ImageKit
-    const onReady = () => {
-      if (window.ImageKit && !ikRef.current) {
-        ikRef.current = new window.ImageKit({
-          publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY,
-          urlEndpoint: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT,
-          authenticationEndpoint: "/api/imagekit-auth",
-        });
-        setReady(true);
-      }
-    };
-
     // If the script was already loaded
     if (typeof window !== "undefined" && (window as any).ImageKit) {
-      onReady();
+      initializeImageKit(ikRef, setReady);
     }
 
     return () => {};
@@ -67,7 +76,10 @@ export default function ImageKitUploader() {
 
   return (
     <div className="mt-6">
-      <Script src="https://unpkg.com/imagekit-javascript/dist/imagekit.min.js" onLoad={() => setReady(true)} />
+      <Script
+        src="https://unpkg.com/imagekit-javascript/dist/imagekit.min.js"
+        onLoad={() => initializeImageKit(ikRef, setReady)}
+      />
       <div className="flex items-center gap-3">
         <input id="ik-file" type="file" accept="image/*" className="text-white" />
         <button
