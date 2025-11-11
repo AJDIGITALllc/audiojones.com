@@ -1,14 +1,5 @@
 {
   "git": {
     "submodules": true
-  },
-  "env": {
-    "FIREBASE_PROJECT_ID": ["production", "preview", "development"],
-    "FIREBASE_CLIENT_EMAIL": ["production", "preview", "development"], 
-    "FIREBASE_PRIVATE_KEY": ["production", "preview", "development"],
-    "ADMIN_KEY": ["production", "preview", "development"],
-    "WHOP_API_KEY": ["production", "preview", "development"],
-    "WHOP_APP_ID": ["production", "preview", "development"],
-    "WHOP_WEBHOOK_SECRET": ["production", "preview", "development"]
   }
 }
