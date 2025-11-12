@@ -6,7 +6,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { db } from '@/lib/server/firebaseAdmin';
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { requireAdmin } from '@/lib/server/requireAdmin';
 import { sendAlertNotification } from '@/lib/server/notify';
 
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     // Write test alert to Firestore
     console.log(`📝 Creating test alert: ${severity} - ${message}`);
-    const alertRef = await db.collection('alerts').add(alertData);
+    const alertRef = await getDb().collection('alerts').add(alertData);
     
     // Send outbound notification
     console.log('📨 Sending test notification...');

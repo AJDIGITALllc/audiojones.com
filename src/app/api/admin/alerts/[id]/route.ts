@@ -1,6 +1,6 @@
 // src/app/api/admin/alerts/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from "@/lib/server/firebaseAdmin";
 import { requireAdmin } from "@/lib/server/requireAdmin";
 
 // GET - Get specific alert
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     requireAdmin(req);
     const { id } = await params;
 
-    const doc = await db.collection("alerts").doc(id).get();
+    const doc = await getDb().collection("alerts").doc(id).get();
     
     if (!doc.exists) {
       return NextResponse.json(
@@ -46,7 +46,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const { id } = await params;
     const body = await req.json();
 
-    const docRef = db.collection("alerts").doc(id);
+    const docRef = getDb().collection("alerts").doc(id);
     const doc = await docRef.get();
     
     if (!doc.exists) {
@@ -107,7 +107,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     requireAdmin(req);
     const { id } = await params;
 
-    const docRef = db.collection("alerts").doc(id);
+    const docRef = getDb().collection("alerts").doc(id);
     const doc = await docRef.get();
     
     if (!doc.exists) {

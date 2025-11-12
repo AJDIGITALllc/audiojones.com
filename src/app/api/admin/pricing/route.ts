@@ -1,6 +1,6 @@
 // src/app/api/admin/pricing/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { createAuditLog } from "../audit/route";
 import { requireAdmin } from "@/lib/server/requireAdmin";
 
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   try {
     requireAdmin(req);
 
-    const snapshot = await db.collection("pricing_skus")
+    const snapshot = await getDb().collection("pricing_skus")
       .orderBy("billing_sku", "asc")
       .get();
 
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     };
 
     // Check if SKU already exists
-    const existingQuery = await db.collection("pricing_skus")
+    const existingQuery = await getDb().collection("pricing_skus")
       .where("billing_sku", "==", skuData.billing_sku)
       .get();
 
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     } else {
       // Create new SKU
       skuData.created_at = new Date().toISOString();
-      docRef = await db.collection("pricing_skus").add(skuData);
+      docRef = await getDb().collection("pricing_skus").add(skuData);
     }
 
     // Get the final document

@@ -1,8 +1,9 @@
 import { NextRequest } from 'next/server';
-import { db } from '@/lib/server/firebaseAdmin';
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { deriveHoursFromPlan, isWithinWindow } from '@/lib/capacity';
 import { sendAlertNotification } from '@/lib/server/notify';
 import { enqueueAlertProcessing } from '@/lib/server/alertProcessing';
+import { publishEvent, SUPPORTED_EVENT_TYPES } from '@/lib/server/eventBus';
 import type { 
   CapacitySettings, 
   ClientContract, 
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
     // Get capacity settings from Firestore
     let capacitySettings: CapacitySettings;
     try {
-      const settingsDoc = await db.collection('capacity_settings').doc('default').get();
+      const settingsDoc = await getDb().collection('capacity_settings').doc('default').get();
       if (!settingsDoc.exists) {
         console.warn('⚠️ Capacity settings not found, using defaults');
         capacitySettings = {
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     // Get active client contracts
     const activeStatuses = ['active', 'offboarding', 'pending_renewal'];
-    const contractsSnapshot = await db
+    const contractsSnapshot = await getDb()
       .collection('client_contracts')
       .where('status', 'in', activeStatuses)
       .get();
@@ -158,7 +159,7 @@ export async function GET(request: NextRequest) {
         const alertMessage = 'Capacity utilization above 90%';
         
         // Check if alert already exists for today
-        const existingAlert = await db
+        const existingAlert = await getDb()
           .collection('alerts')
           .where('type', '==', 'capacity')
           .where('message', '==', alertMessage)
@@ -178,7 +179,7 @@ export async function GET(request: NextRequest) {
           };
           
           // Write alert to Firestore
-          const alertRef = await db.collection('alerts').add(alertData);
+          const alertRef = await getDb().collection('alerts').add(alertData);
           const alertId = alertRef.id;
           console.log('🚨 High capacity risk alert created with auto-processing enabled');
           
@@ -191,6 +192,23 @@ export async function GET(request: NextRequest) {
               utilization_percent: Math.round(hourUtilization),
               risk_level: risk
             }
+          });
+          
+          // Publish to event bus
+          publishEvent(SUPPORTED_EVENT_TYPES.CAPACITY_ALERT, {
+            alert_id: alertId,
+            risk_level: risk,
+            current_hours: totalHours,
+            max_hours: capacitySettings.max_hours,
+            utilization_percent: Math.round(hourUtilization),
+            message: alertMessage,
+            threshold_breached: 'high_capacity'
+          }, {
+            source: 'capacity-forecast',
+            alert_type: 'capacity',
+            severity: 'warning'
+          }).catch(error => {
+            console.error('Failed to publish capacity alert event:', error);
           });
           
           // Enqueue for auto-processing (best effort)

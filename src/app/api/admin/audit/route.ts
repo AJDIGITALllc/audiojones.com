@@ -1,6 +1,6 @@
 // src/app/api/admin/audit/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 
 import { requireAdmin } from "@/lib/server/requireAdmin";
 
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const target = searchParams.get('target'); // Filter by target email
 
     // Build query
-    let query = db.collection('admin_audit_log')
+    let query = getDb().collection('admin_audit_log')
       .orderBy('created_at', 'desc')
       .limit(limit);
 
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     }));
 
     // Get summary stats
-    const statsSnapshot = await db.collection('admin_audit_log').get();
+    const statsSnapshot = await getDb().collection('admin_audit_log').get();
     const allLogs = statsSnapshot.docs.map(doc => doc.data());
     
     const actionCounts = allLogs.reduce((acc: any, log: any) => {
@@ -93,7 +93,7 @@ export async function createAuditLog(
   actor: string = 'admin'
 ) {
   try {
-    await db.collection('admin_audit_log').add({
+    await getDb().collection('admin_audit_log').add({
       action,
       actor,
       target_email: targetEmail,

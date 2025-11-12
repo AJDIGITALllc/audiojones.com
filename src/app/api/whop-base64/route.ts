@@ -1,6 +1,6 @@
 // src/app/api/whop-base64/route.ts - Webhook using Base64 private key
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { getTierByBillingSku } from "@/lib/getPricing";
 
 // Enhanced pricing lookup - checks Firestore first, then falls back to hardcoded
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Look up pricing info
-    const tier = await getTierByBillingSkuEnhanced(db, customerData.billing_sku);
+    const tier = await getTierByBillingSkuEnhanced(getDb(), customerData.billing_sku);
     if (tier) {
       customerData.service_name = tier.service.id;
       customerData.tier_name = tier.tier.name;
@@ -101,11 +101,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Write to customers collection
-    const customerRef = db.collection('customers').doc(customerData.whop_user_id);
+    const customerRef = getDb().collection('customers').doc(customerData.whop_user_id);
     await customerRef.set(customerData, { merge: true });
 
     // Write to subscription_events collection  
-    const eventRef = db.collection('subscription_events').doc();
+    const eventRef = getDb().collection('subscription_events').doc();
     await eventRef.set({
       event_type: eventType,
       customer_id: customerData.whop_user_id,

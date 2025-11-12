@@ -1,6 +1,6 @@
 // src/app/api/admin/stats/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { requireAdmin } from "@/lib/server/requireAdmin";
 import { AdminCustomer, SubscriptionEvent, safeDocCast } from "@/types/admin";
 
@@ -8,24 +8,24 @@ export async function GET(req: NextRequest) {
   try {
     requireAdmin(req);
     // Get total customers
-    const customersSnapshot = await db.collection("customers").get();
+    const customersSnapshot = await getDb().collection("customers").get();
     const totalCustomers = customersSnapshot.size;
 
     // Get active subscriptions (customers with status "active")
-    const activeCustomersSnapshot = await db
+    const activeCustomersSnapshot = await getDb()
       .collection("customers")
       .where("status", "==", "active")
       .get();
     const activeSubscriptions = activeCustomersSnapshot.size;
 
     // Get total events
-    const eventsSnapshot = await db.collection("subscription_events").get();
+    const eventsSnapshot = await getDb().collection("subscription_events").get();
     const totalEvents = eventsSnapshot.size;
 
     // Get recent events (last 24 hours)
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const recentEventsSnapshot = await db
+    const recentEventsSnapshot = await getDb()
       .collection("subscription_events")
       .where("timestamp", ">=", yesterday.toISOString())
       .get();

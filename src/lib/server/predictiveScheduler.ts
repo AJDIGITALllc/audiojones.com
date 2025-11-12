@@ -6,7 +6,7 @@
  */
 
 import 'server-only';
-import { db } from '@/lib/server/firebaseAdmin';
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { enqueueAlertProcessing } from '@/lib/server/alertProcessing';
 
 export interface CapacitySnapshot {
@@ -138,7 +138,7 @@ export async function runPredictiveScan(): Promise<PredictiveScanResult> {
  */
 async function loadCapacitySettings(): Promise<CapacitySettings | null> {
   try {
-    const doc = await db.collection('capacity_settings').doc('current').get();
+    const doc = await getDb().collection('capacity_settings').doc('current').get();
     
     if (!doc.exists) {
       console.warn('⚠️ No capacity settings found, using defaults');
@@ -163,7 +163,7 @@ async function loadCapacitySettings(): Promise<CapacitySettings | null> {
  */
 async function loadRecentSnapshots(count: number): Promise<CapacitySnapshot[]> {
   try {
-    const query = await db
+    const query = await getDb()
       .collection('capacity_history')
       .orderBy('created_at', 'desc')
       .limit(count)
@@ -323,7 +323,7 @@ async function createPredictiveAlerts(
         }
       };
       
-      const alertRef = await db.collection('alerts').add(alertData);
+      const alertRef = await getDb().collection('alerts').add(alertData);
       await enqueueAlertProcessing(alertRef.id);
       created++;
       console.log(`🟡 Created predictive warning alert: ${alertRef.id}`);
@@ -356,7 +356,7 @@ async function createPredictiveAlerts(
         }
       };
       
-      const alertRef = await db.collection('alerts').add(alertData);
+      const alertRef = await getDb().collection('alerts').add(alertData);
       await enqueueAlertProcessing(alertRef.id);
       created++;
       console.log(`🔴 Created predictive critical alert: ${alertRef.id}`);
@@ -374,7 +374,7 @@ async function createPredictiveAlerts(
  */
 async function checkExistingPredictiveAlert(forecastType: string, date: string): Promise<boolean> {
   try {
-    const query = await db
+    const query = await getDb()
       .collection('alerts')
       .where('type', '==', 'predictive')
       .where('meta.forecast_type', '==', forecastType)
@@ -395,7 +395,7 @@ async function checkExistingPredictiveAlert(forecastType: string, date: string):
  */
 async function logScanResults(result: PredictiveScanResult): Promise<void> {
   try {
-    await db.collection('predictive_scans').add({
+    await getDb().collection('predictive_scans').add({
       ...result,
       logged_at: new Date().toISOString()
     });

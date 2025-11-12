@@ -1,6 +1,6 @@
 // src/app/api/admin/reports/export/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { requireAdmin } from "@/lib/server/requireAdmin";
 
 export async function GET(req: NextRequest) {
@@ -14,9 +14,9 @@ export async function GET(req: NextRequest) {
       eventsSnapshot,
       alertsSnapshot
     ] = await Promise.all([
-      db.collection('customers').get(),
-      db.collection('subscription_events').get(),
-      db.collection('alerts').get()
+      getDb().collection('customers').get(),
+      getDb().collection('subscription_events').get(),
+      getDb().collection('alerts').get()
     ]);
 
     // Process data with defensive programming

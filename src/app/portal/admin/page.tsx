@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { DegradedBanner } from '@/components/status/DegradedBanner';
+import { useStatusAlerts } from '@/context/SystemStatusProvider';
 
 interface DashboardStats {
   totalUsers: number;
@@ -69,6 +71,9 @@ export default function AdminDashboard() {
     );
   }
 
+  // Get status alert data from context
+  const { shouldShowBanner, bannerType, primaryIncident } = useStatusAlerts();
+
   return (
     <div className="space-y-8">
       {/* Page Header */}
@@ -78,6 +83,14 @@ export default function AdminDashboard() {
           Monitor and manage all Audio Jones operations
         </p>
       </div>
+
+      {/* Status-aware Banner */}
+      {shouldShowBanner && bannerType && (
+        <DegradedBanner 
+          status={bannerType} 
+          incidents={primaryIncident ? [primaryIncident] : []} 
+        />
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
     
     // Try to use shared Firebase utility
     try {
-      const { db } = await import("@/lib/server/firebaseAdmin");
+      const { getDb } = await import("@/lib/server/firebaseAdmin");
+      const db = getDb();
       console.log("[whop-test] Using shared Firebase utility");
       
       return NextResponse.json({

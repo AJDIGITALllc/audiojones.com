@@ -5,7 +5,7 @@
  * Run with: npx tsx scripts/seedRunbooks.ts
  */
 
-import { db } from '../src/lib/server/firebaseAdmin';
+import { getDb } from '../src/lib/server/firebaseAdmin';
 import type { Runbook } from '../src/lib/server/incidents';
 
 const defaultRunbooks: Omit<Runbook, 'id' | 'created_at' | 'updated_at'>[] = [
@@ -85,7 +85,7 @@ async function seedRunbooks() {
   console.log('📚 Starting runbook seeding...');
   
   try {
-    const existingRunbooks = await db.collection('runbooks').get();
+    const existingRunbooks = await getDb().collection('runbooks').get();
     console.log(`Found ${existingRunbooks.size} existing runbooks`);
     
     const now = new Date().toISOString();
@@ -94,7 +94,7 @@ async function seedRunbooks() {
 
     for (const runbookData of defaultRunbooks) {
       // Check if runbook for this source already exists
-      const existingQuery = await db.collection('runbooks')
+      const existingQuery = await getDb().collection('runbooks')
         .where('source', '==', runbookData.source)
         .where('active', '==', true)
         .limit(1)
@@ -113,7 +113,7 @@ async function seedRunbooks() {
         updated_at: now
       };
 
-      const docRef = await db.collection('runbooks').add(runbook);
+      const docRef = await getDb().collection('runbooks').add(runbook);
       console.log(`✅ Created runbook ${docRef.id}: ${runbook.name}`);
       created++;
     }

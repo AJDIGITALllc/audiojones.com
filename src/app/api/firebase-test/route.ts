@@ -23,7 +23,8 @@ export async function POST(req: NextRequest) {
     console.log("[firebase test] Received:", body);
     
     // Test Firebase with shared utility
-    const { db } = await import("@/lib/server/firebaseAdmin");
+    const { getDb } = await import("@/lib/server/firebaseAdmin");
+    const db = getDb();
     
     console.log("[firebase test] Firebase loaded from shared utility");
     console.log("[firebase test] Firestore connected");

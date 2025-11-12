@@ -1,6 +1,6 @@
 // src/app/api/admin/customers/[email]/note/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from "@/lib/server/firebaseAdmin";
 import { requireAdmin } from "@/lib/server/requireAdmin";
 
 export async function POST(
@@ -30,7 +30,7 @@ export async function POST(
       created_by: "admin"
     };
 
-    const noteRef = await db
+    const noteRef = await getDb()
       .collection("customers")
       .doc(decodedEmail)
       .collection("notes")

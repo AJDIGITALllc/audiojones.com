@@ -1,6 +1,6 @@
 // src/app/api/admin/reports/summary/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { requireAdmin } from "@/lib/server/requireAdmin";
 
 export async function GET(req: NextRequest) {
@@ -40,13 +40,13 @@ export async function GET(req: NextRequest) {
       pricingSnapshot,
       alertsSnapshot
     ] = await Promise.all([
-      db.collection('customers').get(),
-      db.collection('subscription_events')
+      getDb().collection('customers').get(),
+      getDb().collection('subscription_events')
         .where('timestamp', '>=', dateFrom.toISOString())
         .where('timestamp', '<=', dateTo.toISOString())
         .get(),
-      db.collection('pricing_skus').get(),
-      db.collection('alerts')
+      getDb().collection('pricing_skus').get(),
+      getDb().collection('alerts')
         .where('created_at', '>=', dateFrom.toISOString())
         .where('created_at', '<=', dateTo.toISOString())
         .get()

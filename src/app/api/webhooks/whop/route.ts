@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseWhopWebhook, type WhopWebhookEvent } from "@aj/whop";
+import { env } from "@aj/config";
 import mappings from "@/config/automation-mappings.json";
 import { upsertMailerLiteSubscriber } from "@/lib/integrations/mailerlite";
 import { mapWhopPlanToInternal } from "@/lib/capacity";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 
 interface WhopWebhookData {
   event: string;
@@ -15,23 +17,31 @@ interface WhopWebhookData {
 }
 
 export async function POST(req: NextRequest) {
-  // Verify webhook signature
-  const secret = process.env.WHOP_WEBHOOK_SECRET;
-  const sig = req.headers.get("x-whop-signature");
+  try {
+    // Verify webhook signature using the adapter
+    const signature = req.headers.get("whop-signature") || req.headers.get("x-whop-signature");
+    
+    if (!signature) {
+      console.log('[whop-webhook] Missing signature');
+      return NextResponse.json({ error: "missing signature" }, { status: 400 });
+    }
+    
+    const rawBody = await req.text();
+    const event = parseWhopWebhook(rawBody, signature);
+    
+    console.log('[whop-webhook] Received verified event:', { 
+      type: event.type,
+      id: event.id,
+      timestamp: event.created_at 
+    });
 
-  if (secret && sig !== secret) {
-    console.log('[whop-webhook] Invalid signature');
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+    // Legacy format compatibility
+    const body: WhopWebhookData = {
+      event: event.type,
+      data: event.data
+    };
 
-  // Parse request body
-  const body: WhopWebhookData = await req.json().catch(() => null);
-  if (!body) {
-    console.log('[whop-webhook] Invalid JSON body');
-    return NextResponse.json({ error: "invalid body" }, { status: 400 });
-  }
-
-  const email = body?.data?.email;
+    const email = body?.data?.email;
   const productId = body?.data?.product_id;
   const name = body?.data?.name ?? "";
 
@@ -78,7 +88,7 @@ export async function POST(req: NextRequest) {
 
   // Upsert client contract for capacity management
   try {
-    await db.collection("client_contracts").doc(contractId).set({
+    await getDb().collection("client_contracts").doc(contractId).set({
       client_id: email,
       whop_product_id: productId,
       plan_tier: contractMapping.plan_tier,
@@ -123,4 +133,15 @@ export async function POST(req: NextRequest) {
       }
     }
   });
+  
+  } catch (error) {
+    console.error('[whop-webhook] Error processing webhook:', error);
+    return NextResponse.json(
+      { 
+        error: error instanceof Error ? error.message : "Webhook processing failed",
+        success: false 
+      }, 
+      { status: 400 }
+    );
+  }
 }

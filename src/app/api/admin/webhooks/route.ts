@@ -1,6 +1,6 @@
 // src/app/api/admin/webhooks/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { requireAdmin } from "@/lib/server/requireAdmin";
 
 export async function GET(req: NextRequest) {
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0');
 
     // Query subscription_events collection
-    let query = db.collection('subscription_events')
+    let query = getDb().collection('subscription_events')
       .orderBy('timestamp', 'desc')
       .limit(limit);
 
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     }));
 
     // Get total count for pagination
-    const totalSnapshot = await db.collection('subscription_events').count().get();
+    const totalSnapshot = await getDb().collection('subscription_events').count().get();
     const total = totalSnapshot.data().count;
 
     return NextResponse.json({

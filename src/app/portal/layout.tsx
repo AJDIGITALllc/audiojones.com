@@ -3,6 +3,8 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { PortalStatusPill } from '@/components/status/PortalStatusPill';
+import { SystemStatusProvider } from '@/context/SystemStatusProvider';
 
 interface PortalLayoutProps {
   children: React.ReactNode;
@@ -34,79 +36,86 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Portal Header */}
-      <header className="border-b border-gray-800 bg-black/95 backdrop-blur sticky top-0 z-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold text-white">
-                Audio Jones Portal
-              </h1>
-            </div>
-            
-            <nav className="hidden md:flex items-center space-x-6">
-              <a href="/portal" className="text-gray-300 hover:text-white transition">
-                Dashboard
-              </a>
-              <a href="/portal/projects" className="text-gray-300 hover:text-white transition">
-                Projects
-              </a>
-              <a href="/portal/billing" className="text-gray-300 hover:text-white transition">
-                Billing
-              </a>
-              <a href="/portal/approvals" className="text-gray-300 hover:text-white transition">
-                Approvals
-              </a>
-              <a href="/portal/bookings" className="text-gray-300 hover:text-white transition">
-                Bookings
-              </a>
-              <a href="/portal/files" className="text-gray-300 hover:text-white transition">
-                Files
-              </a>
-              <a href="/portal/client" className="text-blue-400 hover:text-blue-300 transition">
-                Client Portal
-              </a>
+    <SystemStatusProvider>
+      <div className="min-h-screen bg-black text-white">
+        {/* Portal Header */}
+        <header className="border-b border-gray-800 bg-black/95 backdrop-blur sticky top-0 z-50">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex h-16 items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <h1 className="text-xl font-bold text-white">
+                  Audio Jones Portal
+                </h1>
+              </div>
               
-              {/* Admin link for admin users */}
-              {user.customClaims?.admin && (
-                <a href="/portal/admin" className="text-red-400 hover:text-red-300 transition">
-                  Admin
+              <nav className="hidden md:flex items-center space-x-6">
+                <a href="/portal" className="text-gray-300 hover:text-white transition">
+                  Dashboard
                 </a>
-              )}
-              
-              <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-400">
-                  {user.email}
-                </span>
-                <button
-                  onClick={() => {
-                    // TODO: Implement logout
-                    router.push('/login');
-                  }}
-                  className="text-gray-300 hover:text-white transition text-sm"
-                >
-                  Logout
+                <a href="/portal/projects" className="text-gray-300 hover:text-white transition">
+                  Projects
+                </a>
+                <a href="/portal/billing" className="text-gray-300 hover:text-white transition">
+                  Billing
+                </a>
+                <a href="/portal/approvals" className="text-gray-300 hover:text-white transition">
+                  Approvals
+                </a>
+                <a href="/portal/bookings" className="text-gray-300 hover:text-white transition">
+                  Bookings
+                </a>
+                <a href="/portal/files" className="text-gray-300 hover:text-white transition">
+                  Files
+                </a>
+                <a href="/portal/client" className="text-blue-400 hover:text-blue-300 transition">
+                  Client Portal
+                </a>
+                
+                {/* Admin link for admin users */}
+                {user.customClaims?.admin && (
+                  <a href="/portal/admin" className="text-red-400 hover:text-red-300 transition">
+                    Admin
+                  </a>
+                )}
+                
+                {/* System Status Indicator */}
+                <div className="border-l border-gray-700 pl-4">
+                  <PortalStatusPill />
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-gray-400">
+                    {user.email}
+                  </span>
+                  <button
+                    onClick={() => {
+                      // TODO: Implement logout
+                      router.push('/login');
+                    }}
+                    className="text-gray-300 hover:text-white transition text-sm"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </nav>
+
+              {/* Mobile menu button */}
+              <div className="md:hidden">
+                <button className="text-gray-300 hover:text-white">
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
                 </button>
               </div>
-            </nav>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <button className="text-gray-300 hover:text-white">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Portal Content */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {children}
-      </main>
-    </div>
+        {/* Portal Content */}
+        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          {children}
+        </main>
+      </div>
+    </SystemStatusProvider>
   );
 }

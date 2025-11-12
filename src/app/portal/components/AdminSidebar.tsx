@@ -18,7 +18,12 @@ import {
   Package,
   RefreshCw,
   Clock,
-  Download
+  Download,
+  Target,
+  MessageSquare,
+  Rss,
+  DollarSign,
+  Building2
 } from 'lucide-react';
 
 interface NavItem {
@@ -66,16 +71,88 @@ const navigation: NavItem[] = [
     description: 'Incident management'
   },
   {
+    name: 'Incident Feed',
+    href: '/portal/admin/incidents/feed',
+    icon: Rss,
+    description: 'Public incident API feed'
+  },
+  {
+    name: 'SLOs',
+    href: '/portal/admin/slo',
+    icon: Target,
+    description: 'Service level objectives'
+  },
+  {
+    name: 'Digest',
+    href: '/portal/admin/digest',
+    icon: MessageSquare,
+    description: 'Ops digest & Slack reports'
+  },
+  {
     name: 'Pricing',
     href: '/portal/admin/pricing',
     icon: Package,
     description: 'SKU management'
   },
   {
+    name: 'Billing',
+    href: '/portal/admin/billing',
+    icon: DollarSign,
+    description: 'Whop reconciliation'
+  },
+  {
+    name: 'SLO Credits',
+    href: '/portal/admin/slo-credits',
+    icon: Target,
+    description: 'Auto billing credits'
+  },
+  {
+    name: 'Backup & DR',
+    href: '/portal/admin/backup',
+    icon: Download,
+    description: 'Disaster recovery'
+  },
+  {
+    name: 'Secrets Rotation',
+    href: '/portal/admin/secrets',
+    icon: Shield,
+    description: 'Zero-downtime secret rotation'
+  },
+  {
+    name: 'Organizations',
+    href: '/portal/admin/multitenant',
+    icon: Building2,
+    description: 'Multi-tenant management'
+  },
+  {
+    name: 'Feature Flags',
+    href: '/portal/admin/feature-flags',
+    icon: Target,
+    description: 'Dark launches & kill switches'
+  },
+  {
+    name: 'Observability',
+    href: '/portal/admin/observability',
+    icon: BarChart3,
+    description: 'Distributed tracing & metrics'
+  },
+  {
     name: 'Webhooks',
     href: '/portal/admin/webhooks',
     icon: RefreshCw,
     description: 'Debug & replay events'
+  },
+  {
+    name: 'Webhook Tester',
+    href: '/portal/admin/webhook-tester',
+    icon: Shield,
+    description: 'Test webhook signatures'
+  },
+  {
+    name: 'Webhook Ops',
+    href: '/portal/admin/webhook-ops',
+    icon: Activity,
+    description: 'Monitor webhook operations'
   },
   {
     name: 'Audit',

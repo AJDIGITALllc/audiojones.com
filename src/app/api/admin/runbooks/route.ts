@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/requireAdmin';
-import { db } from '@/lib/server/firebaseAdmin';
+import { getDb } from '@/lib/server/firebaseAdmin';
 import type { Runbook } from '@/lib/server/incidents';
 
 export async function POST(req: NextRequest) {
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       updated_at: now
     };
 
-    const docRef = await db.collection('runbooks').add(runbook);
+    const docRef = await getDb().collection('runbooks').add(runbook);
     
     console.log(`📚 Created runbook ${docRef.id} for source: ${source}`);
     
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
     const source = searchParams.get('source');
     const activeOnly = searchParams.get('active') === 'true';
     
-    let query = db.collection('runbooks').orderBy('created_at', 'desc');
+    let query = getDb().collection('runbooks').orderBy('created_at', 'desc');
     
     if (source) {
       query = query.where('source', '==', source);

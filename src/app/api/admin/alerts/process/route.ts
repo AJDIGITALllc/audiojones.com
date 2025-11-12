@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/requireAdmin';
-import { db } from '@/lib/server/firebaseAdmin';
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { getAlertActions, type Alert, type AlertAction } from '@/lib/server/alertRules';
 import { sendAlertNotification, type AlertNotification } from '@/lib/server/notify';
 import { 
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     console.log(`🔄 Processing alert: ${alertId}`);
 
     // Load alert from Firestore
-    const alertDoc = await db.collection('alerts').doc(alertId).get();
+    const alertDoc = await getDb().collection('alerts').doc(alertId).get();
     
     if (!alertDoc.exists) {
       return NextResponse.json(
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         const updatedAlertIds = [...existingIncident.related_alert_ids];
         if (!updatedAlertIds.includes(alertId)) {
           updatedAlertIds.push(alertId);
-          await db.collection('incidents').doc(incidentId).update({
+          await getDb().collection('incidents').doc(incidentId).update({
             related_alert_ids: updatedAlertIds,
             updated_at: new Date().toISOString()
           });
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       // Link alert to incident even if no actions
       if (incidentId) {
         try {
-          await db.collection('alerts').doc(alertId).update({
+          await getDb().collection('alerts').doc(alertId).update({
             incident_id: incidentId,
             updated_at: new Date().toISOString()
           });
@@ -195,7 +195,7 @@ export async function POST(req: NextRequest) {
     // Link alert to incident
     if (incidentId) {
       try {
-        await db.collection('alerts').doc(alertId).update({
+        await getDb().collection('alerts').doc(alertId).update({
           incident_id: incidentId,
           updated_at: new Date().toISOString()
         });
@@ -261,7 +261,7 @@ async function executeNotifyTeam(alert: Alert): Promise<void> {
  * Action: Mark alert as needing review
  */
 async function executeMarkNeedsReview(alertId: string): Promise<void> {
-  await db.collection('alerts').doc(alertId).update({
+  await getDb().collection('alerts').doc(alertId).update({
     needs_review: true,
     reviewed: false,
     auto_processed_at: new Date().toISOString(),
@@ -280,7 +280,7 @@ async function executeQueueReplay(alert: Alert): Promise<void> {
   }
 
   // Write to webhook_replay_queue collection
-  await db.collection('webhook_replay_queue').add({
+  await getDb().collection('webhook_replay_queue').add({
     event_id: eventId,
     original_alert_id: alert.id,
     alert_type: alert.type,
@@ -326,7 +326,7 @@ async function executeEscalate(alert: Alert): Promise<void> {
   }
 
   // Also update the original alert
-  await db.collection('alerts').doc(alert.id!).update({
+  await getDb().collection('alerts').doc(alert.id!).update({
     escalated: true,
     escalated_at: new Date().toISOString(),
     updated_at: new Date().toISOString()

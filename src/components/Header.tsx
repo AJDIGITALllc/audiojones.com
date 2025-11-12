@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import IKImage from "@/components/IKImage";
+import { PublicStatusDot } from "@/components/status/PublicStatusDot";
+import { usePersona } from "@/hooks/usePersona";
 
 // Dynamically import auth navigation to prevent SSR issues
 const AuthNav = dynamic(() => import("@/components/AuthNav"), {
@@ -20,6 +22,7 @@ const AuthNav = dynamic(() => import("@/components/AuthNav"), {
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const personaDetection = usePersona();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out font-sans bg-black/80 backdrop-blur-lg border-b border-white/10">
@@ -49,11 +52,46 @@ export default function Header() {
           </div>
           <div className="hidden md:flex md:flex-1 md:items-center md:justify-end md:gap-x-10">
             <Link href="/" className="text-sm font-semibold text-white/80 hover:text-white transition">Home</Link>
+            
+            {/* Persona-aware navigation */}
+            {personaDetection.persona === "artist" && (
+              <Link 
+                href="https://artisthub.audiojones.com" 
+                className="text-sm font-semibold text-[#FF4500] hover:text-[#FFD700] transition"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                ArtistHub
+              </Link>
+            )}
+            
             <Link href="/services" className="text-sm font-semibold text-white/80 hover:text-white transition">Services</Link>
             <Link href="/pricing" className="text-sm font-semibold text-white/80 hover:text-white transition">Pricing</Link>
+            
+            <Link 
+              href="/epm" 
+              className="text-sm font-semibold text-[#008080] hover:text-[#FFD700] transition"
+            >
+              EPM Theory
+            </Link>
+            
             <Link href="/podcast" className="text-sm font-semibold text-white/80 hover:text-white transition">Podcast</Link>
             <Link href="/insights" className="text-sm font-semibold text-white/80 hover:text-white transition">Insights</Link>
             <Link href="/about" className="text-sm font-semibold text-white/80 hover:text-white transition">About</Link>
+            
+            {/* Admin/Consultant links */}
+            {personaDetection.persona === "consultant" && (
+              <Link 
+                href="https://admin.audiojones.com" 
+                className="text-sm font-semibold text-red-400 hover:text-red-300 transition"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Admin
+              </Link>
+            )}
+            
+            <PublicStatusDot />
             
             <Link href="/book" className="rounded-full px-4 py-2 text-sm font-bold text-black bg-gradient-to-r from-[#FF4500] to-[#FFD700] hover:opacity-90 transition">Book a Call</Link>
             
@@ -66,11 +104,51 @@ export default function Header() {
         <div className="md:hidden bg-black border-t border-white/10">
           <div className="px-6 py-6 space-y-4">
             <Link href="/" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+            
+            {/* Persona-aware mobile navigation */}
+            {personaDetection.persona === "artist" && (
+              <Link 
+                href="https://artisthub.audiojones.com" 
+                className="block text-base font-semibold text-[#FF4500] hover:text-[#FFD700]"
+                onClick={() => setMobileMenuOpen(false)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                ArtistHub
+              </Link>
+            )}
+            
             <Link href="/services" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Services</Link>
             <Link href="/pricing" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
+            
+            <Link 
+              href="/epm" 
+              className="block text-base font-semibold text-[#008080] hover:text-[#FFD700]"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              EPM Theory
+            </Link>
+            
             <Link href="/podcast" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Podcast</Link>
             <Link href="/insights" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Insights</Link>
             <Link href="/about" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>About</Link>
+            
+            {/* Admin/Consultant links */}
+            {personaDetection.persona === "consultant" && (
+              <Link 
+                href="https://admin.audiojones.com" 
+                className="block text-base font-semibold text-red-400 hover:text-red-300"
+                onClick={() => setMobileMenuOpen(false)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Admin
+              </Link>
+            )}
+            
+            <div className="flex items-center py-2">
+              <PublicStatusDot />
+            </div>
             
             <div className="pt-4 border-t border-white/10 space-y-3">
               <Link href="/book" className="block text-center rounded-full px-4 py-3 text-base font-bold text-black bg-gradient-to-r from-[#FF4500] to-[#FFD700] hover:opacity-90" onClick={() => setMobileMenuOpen(false)}>Book a Call</Link>

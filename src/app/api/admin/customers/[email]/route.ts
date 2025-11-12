@@ -1,6 +1,6 @@
 // src/app/api/admin/customers/[email]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from "@/lib/server/firebaseAdmin";
 import { requireAdmin } from "@/lib/server/requireAdmin";
 import { AdminCustomer, SubscriptionEvent, safeDocCast } from "@/types/admin";
 import { createAuditLog } from "../../audit/route";
@@ -15,7 +15,7 @@ export async function GET(
     const decodedEmail = decodeURIComponent(email);
 
     // Get customer by email (document ID = email)
-    const customerDoc = await db.collection("customers").doc(decodedEmail).get();
+    const customerDoc = await getDb().collection("customers").doc(decodedEmail).get();
     
     let customer = null;
     if (customerDoc.exists) {
@@ -28,7 +28,7 @@ export async function GET(
     // Get all subscription events for this customer
     let events: any[] = [];
     try {
-      const eventsSnapshot = await db
+      const eventsSnapshot = await getDb()
         .collection("subscription_events")
         .where("customer_email", "==", decodedEmail)
         .orderBy("timestamp", "desc")
@@ -47,7 +47,7 @@ export async function GET(
     // Get customer notes
     let notes: any[] = [];
     try {
-      const notesSnapshot = await db
+      const notesSnapshot = await getDb()
         .collection("customers")
         .doc(decodedEmail)
         .collection("notes")
@@ -131,7 +131,7 @@ export async function PATCH(
     }
 
     // Check if customer exists
-    const customerRef = db.collection('customers').doc(decodedEmail);
+    const customerRef = getDb().collection('customers').doc(decodedEmail);
     const customerDoc = await customerRef.get();
     
     if (!customerDoc.exists) {

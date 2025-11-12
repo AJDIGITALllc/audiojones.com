@@ -14,7 +14,7 @@ export type AlertAction =
 
 export interface Alert {
   id?: string;
-  type: 'capacity' | 'webhook' | 'billing' | 'system' | 'discord' | 'predictive';
+  type: 'capacity' | 'webhook' | 'billing' | 'system' | 'discord' | 'predictive' | 'slo';
   severity: 'info' | 'warning' | 'error' | 'critical';
   message: string;
   created_at: string;
@@ -86,6 +86,18 @@ export const alertRules: AlertRule[] = [
     condition: (alert) => alert.type === 'predictive' && alert.severity === 'warning',
     actions: ['notify-team', 'mark-needs-review', 'escalate'],
     description: 'Predictive critical alerts require immediate capacity planning'
+  },
+  {
+    name: 'slo-at-risk',
+    condition: (alert) => alert.type === 'slo' && alert.severity === 'warning',
+    actions: ['notify-team', 'mark-needs-review'],
+    description: 'SLO error budget consumption warnings need team awareness'
+  },
+  {
+    name: 'slo-violating',
+    condition: (alert) => alert.type === 'slo' && alert.severity === 'critical',
+    actions: ['notify-team', 'mark-needs-review', 'escalate'],
+    description: 'SLO violations require immediate attention to restore service reliability'
   }
 ];
 

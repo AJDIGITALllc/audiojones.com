@@ -21,6 +21,7 @@ import {
   ExternalLink,
   BookOpen
 } from 'lucide-react';
+import IncidentSubscriptionManager from './components/IncidentSubscriptionManager';
 
 interface Incident {
   id: string;
@@ -550,6 +551,9 @@ export default function IncidentDetailPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Subscription Manager */}
+          <IncidentSubscriptionManager incidentId={incidentId} />
 
           {/* Runbook */}
           {runbook && (

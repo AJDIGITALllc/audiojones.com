@@ -1,8 +1,9 @@
 // src/app/api/whop/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { getTierByBillingSku } from "@/lib/getPricing";
 import { AlertTemplates } from "@/lib/alerts";
+import TracingMiddleware from '@/lib/observability/TracingMiddleware';
 import crypto from "crypto";
 
 // ⬇️ optional: if you installed @whop/sdk
@@ -163,7 +164,7 @@ export async function GET() {
 // 1) legacy/simple payloads: { user: {email}, product_id/billing_sku/... }
 // 2) event-based payloads: { type: "payment.succeeded", data: {...} }
 // ─────────────────────────────────────────────
-export async function POST(req: NextRequest) {
+export const POST = TracingMiddleware.wrapWebhookHandler('whop', async (req: NextRequest) => {
   const startTime = Date.now();
   const requestId = crypto.randomUUID();
   
@@ -267,7 +268,7 @@ export async function POST(req: NextRequest) {
 
     let pricingMatch: any = null;
     if (possibleSku) {
-      pricingMatch = await getTierByBillingSkuEnhanced(db, possibleSku);
+      pricingMatch = await getTierByBillingSkuEnhanced(getDb(), possibleSku);
     }
 
     // write to Firestore (best-effort)
@@ -275,7 +276,7 @@ export async function POST(req: NextRequest) {
       console.log(`[whop webhook:${requestId}] Processing event: ${eventType}, email: ${email}, sku: ${possibleSku}`);
       
       // 1) event log with enhanced metadata
-      await db.collection("subscription_events").add({
+      await getDb().collection("subscription_events").add({
         whop_event_id: eventId,
         event_type: eventType,
         whop_user_id: "unknown",
@@ -291,7 +292,7 @@ export async function POST(req: NextRequest) {
 
       // 2) upsert customer if we have an email
       if (email) {
-        const customerRef = db.collection("customers").doc(email);
+        const customerRef = getDb().collection("customers").doc(email);
         const customerData = {
           email,
           status:
@@ -332,7 +333,7 @@ export async function POST(req: NextRequest) {
       
       // Log error details for debugging
       try {
-        await db.collection("webhook_errors").add({
+        await getDb().collection("webhook_errors").add({
           request_id: requestId,
           error_type: "firestore_write_failed",
           error_message: err instanceof Error ? err.message : String(err),
@@ -401,14 +402,14 @@ export async function POST(req: NextRequest) {
 
   let pricingMatch: any = null;
   if (sku) {
-    pricingMatch = await getTierByBillingSkuEnhanced(db, sku);
+    pricingMatch = await getTierByBillingSkuEnhanced(getDb(), sku);
   }
 
   try {
     console.log(`[whop webhook:${requestId}] Processing simple webhook: email: ${email}, sku: ${sku}`);
     
     // event log with enhanced metadata
-    await db.collection("subscription_events").add({
+    await getDb().collection("subscription_events").add({
       event_type: "subscription.created",
       whop_user_id: "unknown",
       customer_email: email,
@@ -422,7 +423,7 @@ export async function POST(req: NextRequest) {
 
     // upsert customer with enhanced data
     if (email) {
-      const customerRef = db.collection("customers").doc(email);
+      const customerRef = getDb().collection("customers").doc(email);
       const customerData = {
         email,
         status: "active",
@@ -443,7 +444,7 @@ export async function POST(req: NextRequest) {
     
     // Log error for debugging
     try {
-      await db.collection("webhook_errors").add({
+      await getDb().collection("webhook_errors").add({
         request_id: requestId,
         error_type: "firestore_write_failed",
         error_message: err instanceof Error ? err.message : String(err),
@@ -478,4 +479,4 @@ export async function POST(req: NextRequest) {
     pricingMatch: pricingMatch || null,
     processing_time_ms: processingTime,
   });
-}
+});

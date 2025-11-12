@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { db } from '@/lib/server/firebaseAdmin';
+import { getDb } from '@/lib/server/firebaseAdmin';
 
 /**
  * Capacity Waitlist API
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim();
 
     // Check if email already exists
-    const existingDoc = await db.collection('capacity_waitlist').doc(normalizedEmail).get();
+    const existingDoc = await getDb().collection('capacity_waitlist').doc(normalizedEmail).get();
     
     if (existingDoc.exists) {
       const existing = existingDoc.data();
@@ -115,10 +115,10 @@ export async function POST(request: NextRequest) {
       status: 'active'
     };
 
-    await db.collection('capacity_waitlist').doc(normalizedEmail).set(waitlistEntry);
+    await getDb().collection('capacity_waitlist').doc(normalizedEmail).set(waitlistEntry);
 
     // Log the waitlist addition
-    await db.collection('admin_audit_log').add({
+    await getDb().collection('admin_audit_log').add({
       action: 'waitlist_join',
       performed_by: 'capacity_system',
       timestamp: new Date().toISOString(),
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   // Simple health check for the waitlist endpoint
   try {
-    const waitlistSnapshot = await db.collection('capacity_waitlist')
+    const waitlistSnapshot = await getDb().collection('capacity_waitlist')
       .where('status', '==', 'active')
       .get();
     

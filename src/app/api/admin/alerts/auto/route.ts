@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/requireAdmin';
-import { db } from '@/lib/server/firebaseAdmin';
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { handleAlert, getActionsSummary, type Alert, type AlertAction } from '@/lib/server/alertActions';
 import { 
   createIncidentFromAlert, 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     console.log(`🤖 Starting automated processing for alert: ${alertId}`);
 
     // Load alert from Firestore
-    const alertDoc = await db.collection('alerts').doc(alertId).get();
+    const alertDoc = await getDb().collection('alerts').doc(alertId).get();
     
     if (!alertDoc.exists) {
       return NextResponse.json(
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
         const updatedAlertIds = [...existingIncident.related_alert_ids];
         if (!updatedAlertIds.includes(alertId)) {
           updatedAlertIds.push(alertId);
-          await db.collection('incidents').doc(incidentId).update({
+          await getDb().collection('incidents').doc(incidentId).update({
             related_alert_ids: updatedAlertIds,
             updated_at: new Date().toISOString()
           });
@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
     }
     
     // Log actions to Firestore subcollection (existing functionality)
-    const actionsLogRef = db.collection('alerts').doc(alertId).collection('actions_log');
+    const actionsLogRef = getDb().collection('alerts').doc(alertId).collection('actions_log');
     
     const logEntry = {
       processed_at: new Date().toISOString(),
@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
     console.log(`📝 Logged ${actions.length} actions to Firestore for alert ${alertId}`);
 
     // Also update the main alert document with processing info
-    await db.collection('alerts').doc(alertId).update({
+    await getDb().collection('alerts').doc(alertId).update({
       auto_processed: true,
       auto_processed_at: new Date().toISOString(),
       last_action_count: actions.length,

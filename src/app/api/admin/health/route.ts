@@ -1,6 +1,6 @@
 // src/app/api/admin/health/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { requireAdmin } from "@/lib/server/requireAdmin";
 
 const startTime = Date.now();
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     // Test Firestore connection with a simple read
     let firestoreConnected = false;
     try {
-      await db.collection("customers").limit(1).get();
+      await getDb().collection("customers").limit(1).get();
       firestoreConnected = true;
     } catch (firestoreError) {
       console.error("Firestore connection failed:", firestoreError);

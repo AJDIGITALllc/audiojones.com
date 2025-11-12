@@ -5,6 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/Badge';
 import { User, CreditCard, Activity, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { ServiceNotices } from '@/components/status/ServiceNotices';
+import { DegradedBanner } from '@/components/status/DegradedBanner';
+import { useStatusAlerts } from '@/context/SystemStatusProvider';
 
 interface ClientData {
   ok: boolean;
@@ -323,6 +326,9 @@ export default function ClientPortalPage() {
     );
   }
 
+  // Get status alert data from context
+  const { shouldShowBanner, bannerType, primaryIncident, incidentCount } = useStatusAlerts();
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-6">
@@ -330,6 +336,14 @@ export default function ClientPortalPage() {
           <h1 className="text-3xl font-bold">Client Portal</h1>
           <p className="text-muted-foreground">Your subscription and account details</p>
         </div>
+
+        {/* Status-aware Banner */}
+        {shouldShowBanner && bannerType && (
+          <DegradedBanner 
+            status={bannerType} 
+            incidents={primaryIncident ? [primaryIncident] : []} 
+          />
+        )}
 
         {/* Global Messages */}
         {saveMessage && (
@@ -348,6 +362,9 @@ export default function ClientPortalPage() {
             </div>
           </div>
         )}
+
+        {/* Service Notices - Only shown when there are active incidents */}
+        <ServiceNotices />
 
         {/* Tab Navigation */}
         <div className="border-b border-gray-200">

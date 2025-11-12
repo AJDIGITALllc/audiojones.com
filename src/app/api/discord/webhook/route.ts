@@ -7,7 +7,7 @@
 
 import { verifyKey } from 'discord-interactions';
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/server/firebaseAdmin';
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { sendAlertNotification } from '@/lib/server/notify';
 
 export async function POST(req: NextRequest) {
@@ -81,7 +81,7 @@ async function handleDiscordEvent(event: any): Promise<void> {
     console.log('🎮 Processing Discord event:', event.type);
 
     // Store event in Firestore for audit trail
-    await db.collection('discord_events').add({
+    await getDb().collection('discord_events').add({
       event_type: event.type,
       event_data: event.data || {},
       received_at: new Date().toISOString(),
@@ -151,7 +151,7 @@ async function handleApplicationAuthorized(data: any): Promise<void> {
   });
 
   // Store authorization record
-  await db.collection('discord_authorizations').add({
+  await getDb().collection('discord_authorizations').add({
     user_id: data.user?.id,
     guild_id: data.guild?.id,
     application_id: data.application_id,

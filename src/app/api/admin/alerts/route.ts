@@ -1,7 +1,8 @@
 // src/app/api/admin/alerts/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { requireAdmin } from "@/lib/server/requireAdmin";
+import { publishEvent, SUPPORTED_EVENT_TYPES } from "@/lib/server/eventBus";
 import { AdminAlert, safeDocCast } from "@/types/admin";
 
 // GET - Fetch all alerts with optional filtering
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
     const severity = url.searchParams.get('severity'); // 'critical', 'warning', 'info'
     const limit = parseInt(url.searchParams.get('limit') || '50');
 
-    let query = db.collection("alerts").orderBy("created_at", "desc");
+    let query = getDb().collection("alerts").orderBy("created_at", "desc");
 
     // Filter by status
     if (status && status !== 'all') {
@@ -40,7 +41,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Get alert counts by status and severity
-    const statsSnapshot = await db.collection("alerts").get();
+    const statsSnapshot = await getDb().collection("alerts").get();
     const stats = {
       total: statsSnapshot.size,
       active: 0,
@@ -106,7 +107,24 @@ export async function POST(req: NextRequest) {
         : null,
     };
 
-    const docRef = await db.collection("alerts").add(alertData);
+    const docRef = await getDb().collection("alerts").add(alertData);
+
+    // Publish alert event to event bus
+    publishEvent(SUPPORTED_EVENT_TYPES.ALERT_TRIGGERED, {
+      alert_id: docRef.id,
+      title: alertData.title,
+      message: alertData.message,
+      severity: alertData.severity,
+      category: alertData.category,
+      created_at: alertData.created_at
+    }, {
+      source: 'admin-api',
+      alert_type: alertData.category,
+      severity: alertData.severity,
+      ...(alertData.metadata && { metadata: alertData.metadata })
+    }).catch(error => {
+      console.error('Failed to publish alert event:', error);
+    });
 
     return NextResponse.json({
       ok: true,

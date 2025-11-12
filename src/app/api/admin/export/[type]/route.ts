@@ -1,6 +1,6 @@
 // src/app/api/admin/export/[type]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from "@/lib/server/firebaseAdmin";
 import { requireAdmin } from "@/lib/server/requireAdmin";
 
 // CSV conversion helper
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ type
 
     switch (type) {
       case 'customers':
-        const customersSnapshot = await db.collection('customers').limit(limit).get();
+        const customersSnapshot = await getDb().collection('customers').limit(limit).get();
         data = customersSnapshot.docs.map(doc => ({
           email: doc.id,
           ...doc.data(),
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ type
         break;
 
       case 'events':
-        let eventsQuery = db.collection('subscription_events').orderBy('timestamp', 'desc').limit(limit);
+        let eventsQuery = getDb().collection('subscription_events').orderBy('timestamp', 'desc').limit(limit);
         
         if (startDate) {
           eventsQuery = eventsQuery.where('timestamp', '>=', startDate);
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ type
 
       case 'revenue':
         // Get customers grouped by service and tier for revenue analysis
-        const revenueSnapshot = await db.collection('customers').get();
+        const revenueSnapshot = await getDb().collection('customers').get();
         const customers = revenueSnapshot.docs.map(doc => doc.data());
         
         // Group by service and tier
@@ -91,7 +91,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ type
         break;
 
       case 'pricing':
-        const pricingSnapshot = await db.collection('pricing_skus').get();
+        const pricingSnapshot = await getDb().collection('pricing_skus').get();
         data = pricingSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -101,7 +101,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ type
         break;
 
       case 'audit':
-        const auditSnapshot = await db.collection('admin_audit_log').orderBy('created_at', 'desc').limit(limit).get();
+        const auditSnapshot = await getDb().collection('admin_audit_log').orderBy('created_at', 'desc').limit(limit).get();
         data = auditSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),

@@ -1,6 +1,6 @@
 // src/app/api/admin/webhooks/replay/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 
 // Internal webhook processing function
 async function processWebhookEvent(db: FirebaseFirestore.Firestore, eventData: any) {
@@ -17,7 +17,7 @@ async function processWebhookEvent(db: FirebaseFirestore.Firestore, eventData: a
     }
 
     // Get or create customer document
-    const customerRef = db.collection('customers').doc(email);
+    const customerRef = getDb().collection('customers').doc(email);
     const customerDoc = await customerRef.get();
     
     let customerData;
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Find the event in subscription_events collection
-    const eventDoc = await db.collection('subscription_events').doc(event_id).get();
+    const eventDoc = await getDb().collection('subscription_events').doc(event_id).get();
     
     if (!eventDoc.exists) {
       return NextResponse.json(
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
     console.log(`[webhook replay] Replaying event ${event_id}:`, eventData?.event_type);
 
     // Process the webhook event
-    const replayResult = await processWebhookEvent(db, eventData);
+    const replayResult = await processWebhookEvent(getDb(), eventData);
 
     // Log the replay result in the original event document
     await eventDoc.ref.update({
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Log replay action in admin audit log
-    await db.collection('admin_audit_log').add({
+    await getDb().collection('admin_audit_log').add({
       action: 'webhook_replay',
       actor: 'admin',
       target_email: replayResult.customer_email || 'unknown',

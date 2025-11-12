@@ -5,25 +5,37 @@ import * as admin from 'firebase-admin';
 
 let adminApp: admin.app.App | null = null;
 
-function requireEnv(name: string): string {
-  const v = process.env[name];
-  if (!v) throw new Error(`Missing env var: ${name}`);
-  return v;
+/**
+ * Cached credential loader - only loads env vars when actually needed
+ */
+function loadFirebaseCredentials() {
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error(`Missing Firebase credentials. Required env vars: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY`);
+  }
+
+  // Vercel stores newlines as \n; convert to real newlines
+  return {
+    projectId,
+    clientEmail,
+    privateKey: privateKey.replace(/\\n/g, '\n')
+  };
 }
 
 /** Get (singleton) Firebase Admin app for server code */
 export function getAdminApp(): admin.app.App {
-  if (!admin.apps.length) {
-    const projectId = requireEnv('FIREBASE_PROJECT_ID');
-    const clientEmail = requireEnv('FIREBASE_CLIENT_EMAIL');
-    // Vercel stores newlines as \n; convert to real newlines
-    const privateKey = requireEnv('FIREBASE_PRIVATE_KEY').replace(/\\n/g, '\n');
-
-    adminApp = admin.initializeApp({
-      credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
-    });
-  } else {
-    adminApp = admin.apps[0];
+  if (!adminApp) {
+    if (!admin.apps.length) {
+      const credentials = loadFirebaseCredentials();
+      adminApp = admin.initializeApp({
+        credential: admin.credential.cert(credentials),
+      });
+    } else {
+      adminApp = admin.apps[0];
+    }
   }
   return adminApp!;
 }
@@ -41,5 +53,10 @@ export function getFirestoreDb() {
   return admin.firestore(getAdminApp());
 }
 
-/** Direct Firestore export for convenience */
-export const db = getFirestoreDb();
+/** 
+ * Lazy Firestore DB accessor - replaces the eager `db` export
+ * Use this instead of importing `db` directly
+ */
+export function getDb() {
+  return getFirestoreDb();
+}

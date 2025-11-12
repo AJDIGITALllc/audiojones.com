@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getFirestore } from 'firebase-admin/firestore';
-import { db } from '@/lib/server/firebaseAdmin';
+import { getDb } from '@/lib/server/firebaseAdmin';
 import { deriveHoursFromPlan, isWithinWindow } from '@/lib/capacity';
 
 /**
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     // Get capacity settings from Firestore
     let capacitySettings: CapacitySettings;
     try {
-      const settingsDoc = await db.collection('capacity_settings').doc('default').get();
+      const settingsDoc = await getDb().collection('capacity_settings').doc('default').get();
       if (!settingsDoc.exists) {
         console.warn('⚠️ Capacity settings not found, using defaults');
         capacitySettings = {
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
 
     // Get active client contracts
     const activeStatuses = ['active', 'offboarding', 'pending_renewal'];
-    const contractsSnapshot = await db
+    const contractsSnapshot = await getDb()
       .collection('client_contracts')
       .where('status', 'in', activeStatuses)
       .get();

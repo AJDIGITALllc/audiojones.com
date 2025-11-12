@@ -1,18 +1,18 @@
 // src/app/api/test-data/route.ts
 import { NextResponse } from "next/server";
-import { db } from "@/lib/server/firebaseAdmin";
+import { getDb } from '@/lib/server/firebaseAdmin';
 
 export async function GET() {
   try {
     // Check customers
-    const customersSnapshot = await db.collection("customers").limit(5).get();
+    const customersSnapshot = await getDb().collection("customers").limit(5).get();
     const customers = customersSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
 
     // Check events  
-    const eventsSnapshot = await db.collection("subscription_events").limit(5).get();
+    const eventsSnapshot = await getDb().collection("subscription_events").limit(5).get();
     const events = eventsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
