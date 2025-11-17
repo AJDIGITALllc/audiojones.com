@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { portalLinks, getBookingUrl } from "@/config/links";
 
 export const metadata: Metadata = {
   title: "For Businesses | Audio Jones",
@@ -200,7 +201,7 @@ export default function BusinessPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="https://client.audiojones.com/login"
+                href={getBookingUrl()}
                 className="px-8 py-4 rounded-full bg-gradient-to-r from-[#008080] to-[#FFD700] text-white font-bold text-lg hover:opacity-90 transition"
               >
                 Book a Consultation
