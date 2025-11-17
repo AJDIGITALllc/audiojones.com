@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { systemModules, funnelStages } from "@/config/nav";
+import { modules } from "@/config/modules";
+import { funnelStages } from "@/config/nav";
 
 export const metadata: Metadata = {
   title: "Systems Overview | Audio Jones",
@@ -45,7 +46,7 @@ export default function SystemsPage() {
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
-              {systemModules.map((module) => (
+              {modules.map((module) => (
                 <Link
                   key={module.id}
                   href={module.href}
@@ -55,7 +56,7 @@ export default function SystemsPage() {
                   <div className="text-5xl mb-4">{module.icon}</div>
 
                   {/* Module Name */}
-                  <h3 className={`text-2xl font-bold mb-2 bg-gradient-to-r ${module.color} bg-clip-text text-transparent`}>
+                  <h3 className={`text-2xl font-bold mb-2 bg-gradient-to-r from-[${module.gradient.from}] to-[${module.gradient.to}] bg-clip-text text-transparent`}>
                     {module.name}
                   </h3>
 
@@ -63,7 +64,7 @@ export default function SystemsPage() {
                   <p className="text-lg text-white/60 mb-4">{module.tagline}</p>
 
                   {/* Description */}
-                  <p className="text-white/70 mb-6">{module.description}</p>
+                  <p className="text-white/70 mb-6">{module.shortDescription}</p>
 
                   {/* Learn More Arrow */}
                   <div className="flex items-center text-sm font-semibold text-white/80 group-hover:text-white transition">
@@ -112,7 +113,7 @@ export default function SystemsPage() {
                     {/* Mapped Modules */}
                     <div className="space-y-1">
                       {stage.modules.map((moduleId) => {
-                        const module = systemModules.find((m) => m.id === moduleId);
+                        const module = modules.find((m) => m.id === moduleId);
                         return module ? (
                           <div key={moduleId} className="text-xs text-white/50">
                             {module.icon} {module.name}

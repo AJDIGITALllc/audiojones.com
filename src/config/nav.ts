@@ -5,6 +5,8 @@
  * Used by Header, Footer, and any navigation components.
  */
 
+import { modules } from "./modules";
+
 export type NavItem = {
   label: string;
   href: string;
@@ -27,28 +29,11 @@ export const mainNav: NavItem[] = [
     label: "Systems",
     href: "/systems",
     description: "Integrated platform modules",
-    children: [
-      {
-        label: "Client Delivery",
-        href: "/systems/client-delivery",
-        description: "Project management and seamless delivery",
-      },
-      {
-        label: "Marketing Automation",
-        href: "/systems/marketing-automation",
-        description: "AI-powered marketing and content distribution",
-      },
-      {
-        label: "AI Optimization",
-        href: "/systems/ai-optimization",
-        description: "Intelligent optimization and performance tracking",
-      },
-      {
-        label: "Data Intelligence",
-        href: "/systems/data-intelligence",
-        description: "Analytics, insights, and data-driven decisions",
-      },
-    ],
+    children: modules.map(m => ({
+      label: m.name,
+      href: m.href,
+      description: m.shortDescription,
+    })),
   },
   {
     label: "For Creators",
@@ -85,48 +70,17 @@ export const portalNav: NavItem[] = [
   },
 ];
 
-export const systemModules = [
-  {
-    id: "client-delivery",
-    name: "Client Delivery",
-    tagline: "Seamless Project Management",
-    description: "Automated project management, real-time progress tracking, and transparent client communication.",
-    href: "/systems/client-delivery",
-    icon: "📦",
-    color: "from-[#008080] to-[#00CED1]",
-    funnelStage: "deliver",
-  },
-  {
-    id: "marketing-automation",
-    name: "Marketing Automation",
-    tagline: "AI-Powered Distribution",
-    description: "Intelligent content distribution, social media automation, and multi-channel campaign management.",
-    href: "/systems/marketing-automation",
-    icon: "🚀",
-    color: "from-[#FF4500] to-[#FFD700]",
-    funnelStage: "discover",
-  },
-  {
-    id: "ai-optimization",
-    name: "AI Optimization",
-    tagline: "Intelligent Performance",
-    description: "Real-time optimization, A/B testing, and machine learning-powered performance improvements.",
-    href: "/systems/ai-optimization",
-    icon: "🤖",
-    color: "from-[#9370DB] to-[#FFD700]",
-    funnelStage: "optimize",
-  },
-  {
-    id: "data-intelligence",
-    name: "Data Intelligence",
-    tagline: "Actionable Insights",
-    description: "Comprehensive analytics, custom dashboards, and data-driven decision making.",
-    href: "/systems/data-intelligence",
-    icon: "📊",
-    color: "from-[#4169E1] to-[#00CED1]",
-    funnelStage: "retain",
-  },
-];
+// Re-export modules from centralized config with legacy-compatible shape
+export const systemModules = modules.map(m => ({
+  id: m.id,
+  name: m.name,
+  tagline: m.tagline,
+  description: m.shortDescription,
+  href: m.href,
+  icon: m.icon,
+  color: `from-[${m.gradient.from}] to-[${m.gradient.to}]`,
+  funnelStage: m.funnelStage,
+}));
 
 export const funnelStages = [
   {

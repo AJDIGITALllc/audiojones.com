@@ -1,5 +1,8 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { getModuleById } from "@/config/modules";
+
+const module = getModuleById("client-delivery")!;
 
 export const metadata: Metadata = {
   title: "Client Delivery System | Audio Jones",
@@ -22,20 +25,19 @@ export default function ClientDeliverySystemPage() {
 
             {/* Main Headline */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-[#008080] to-[#00CED1] bg-clip-text text-transparent">
-                Client Delivery System
+              <span className={`bg-gradient-to-r from-[${module.gradient.from}] to-[${module.gradient.to}] bg-clip-text text-transparent`}>
+                {module.name}
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-white/80 mb-8">
-              Seamless project management from booking to delivery
+              {module.tagline}
             </p>
 
             {/* Description */}
             <div className="max-w-3xl mx-auto">
               <p className="text-lg text-white/70 leading-relaxed">
-                Automated project workflows ensure every client receives exceptional service with real-time progress tracking,
-                transparent communication, and on-time delivery. No more manual status updates or scattered communication.
+                {module.shortDescription}
               </p>
             </div>
           </div>

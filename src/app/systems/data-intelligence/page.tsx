@@ -1,5 +1,8 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { getModuleById } from "@/config/modules";
+
+const module = getModuleById("data-intelligence")!;
 
 export const metadata: Metadata = {
   title: "Data Intelligence System | Audio Jones",
@@ -22,20 +25,19 @@ export default function DataIntelligenceSystemPage() {
 
             {/* Main Headline */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-[#4169E1] to-[#00CED1] bg-clip-text text-transparent">
-                Data Intelligence System
+              <span className={`bg-gradient-to-r from-[${module.gradient.from}] to-[${module.gradient.to}] bg-clip-text text-transparent`}>
+                {module.name}
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-white/80 mb-8">
-              Turn data into actionable insights and strategic decisions
+              {module.tagline}
             </p>
 
             {/* Description */}
             <div className="max-w-3xl mx-auto">
               <p className="text-lg text-white/70 leading-relaxed">
-                Comprehensive analytics and custom dashboards transform raw data into clear insights.
-                Track everything that matters, understand what&apos;s working, and make data-driven decisions with confidence.
+                {module.shortDescription}
               </p>
             </div>
           </div>

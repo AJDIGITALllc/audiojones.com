@@ -1,5 +1,8 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { getModuleById } from "@/config/modules";
+
+const module = getModuleById("marketing-automation")!;
 
 export const metadata: Metadata = {
   title: "Marketing Automation System | Audio Jones",
@@ -22,20 +25,19 @@ export default function MarketingAutomationSystemPage() {
 
             {/* Main Headline */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-[#FF4500] to-[#FFD700] bg-clip-text text-transparent">
-                Marketing Automation System
+              <span className={`bg-gradient-to-r from-[${module.gradient.from}] to-[${module.gradient.to}] bg-clip-text text-transparent`}>
+                {module.name}
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-white/80 mb-8">
-              AI-powered distribution across every channel
+              {module.tagline}
             </p>
 
             {/* Description */}
             <div className="max-w-3xl mx-auto">
               <p className="text-lg text-white/70 leading-relaxed">
-                Intelligent marketing automation that distributes your content across social media, email, and paid channels
-                with perfect timing. No more manual posting or scattered campaigns—let AI optimize your reach.
+                {module.shortDescription}
               </p>
             </div>
           </div>

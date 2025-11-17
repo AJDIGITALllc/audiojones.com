@@ -1,5 +1,8 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { getModuleById } from "@/config/modules";
+
+const module = getModuleById("ai-optimization")!;
 
 export const metadata: Metadata = {
   title: "AI Optimization System | Audio Jones",
@@ -22,20 +25,19 @@ export default function AIOptimizationSystemPage() {
 
             {/* Main Headline */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-[#9370DB] to-[#FFD700] bg-clip-text text-transparent">
-                AI Optimization System
+              <span className={`bg-gradient-to-r from-[${module.gradient.from}] to-[${module.gradient.to}] bg-clip-text text-transparent`}>
+                {module.name}
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-white/80 mb-8">
-              Intelligent performance optimization that never stops learning
+              {module.tagline}
             </p>
 
             {/* Description */}
             <div className="max-w-3xl mx-auto">
               <p className="text-lg text-white/70 leading-relaxed">
-                Machine learning algorithms continuously test, analyze, and improve your content, campaigns, and systems.
-                Real-time A/B testing and predictive analytics ensure you&apos;re always performing at peak efficiency.
+                {module.shortDescription}
               </p>
             </div>
           </div>
