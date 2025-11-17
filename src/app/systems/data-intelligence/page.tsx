@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { getModuleById } from "@/config/modules";
+import { portalLinks, getBookingUrl } from "@/config/links";
 
 const module = getModuleById("data-intelligence")!;
 
@@ -120,6 +121,208 @@ export default function DataIntelligenceSystemPage() {
         </div>
       </div>
 
+      {/* How This Module Works Section */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              How This Module Works
+            </h2>
+            
+            <div className="space-y-6">
+              {/* Step 1: Data Collection */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">📥</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#4169E1]">1. Data Collection</h3>
+                  <p className="text-white/70">
+                    Aggregate data from all integrated sources: marketing platforms (MailerLite, social channels), sales systems (Whop, Stripe), customer touchpoints (website, portal logins), and operational tools (n8n workflows). Set up automated collection schedules and real-time event streaming.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2: Data Processing */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">🔧</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#4169E1]">2. Data Processing</h3>
+                  <p className="text-white/70">
+                    ETL pipelines via n8n clean, validate, and transform raw data. Deduplicate records, normalize schemas, handle missing values, and enrich with external data sources. Store processed data in centralized warehouse (Google Sheets for rapid prototyping, BigQuery for scale).
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3: Analysis & Modeling */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">📊</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#4169E1]">3. Analysis & Modeling</h3>
+                  <p className="text-white/70">
+                    Run automated analysis jobs: cohort analysis, trend detection, anomaly identification, and predictive modeling. Calculate business metrics (CAC, LTV, churn, conversion funnels) and segment performance by client, campaign, and time period.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 4: Insights & Reporting */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">📝</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#4169E1]">4. Insights & Reporting</h3>
+                  <p className="text-white/70">
+                    Generate actionable insights via automated reports. Surface key findings, trend alerts, and optimization recommendations. Create executive summaries with drill-down capabilities. Schedule weekly/monthly report distribution via email or portal notifications.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 5: Visualization & Dashboards */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">📊</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#4169E1]">5. Visualization & Dashboards</h3>
+                  <p className="text-white/70">
+                    Build custom dashboards in Google Data Studio (Looker Studio) with real-time data refresh. Create interactive visualizations (charts, tables, heatmaps) tailored to client goals. Enable self-service analytics with configurable filters and drill-through navigation.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Technology Stack Section */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              Technology Stack
+            </h2>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Google Sheets */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">📄</div>
+                <h3 className="text-xl font-bold mb-2">Google Sheets</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Rapid data prototyping, collaborative analysis, lightweight ETL target
+                </p>
+              </div>
+
+              {/* Data Studio (Looker Studio) */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">📊</div>
+                <h3 className="text-xl font-bold mb-2">Data Studio</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Custom dashboards, interactive visualizations, real-time reporting
+                </p>
+              </div>
+
+              {/* n8n ETL */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🔧</div>
+                <h3 className="text-xl font-bold mb-2">n8n ETL</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Data pipeline orchestration, scheduled jobs, multi-source aggregation
+                </p>
+              </div>
+
+              {/* Firebase/BigQuery */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🗄️</div>
+                <h3 className="text-xl font-bold mb-2">Firebase/BigQuery</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Data warehouse, SQL analytics, scalable data storage
+                </p>
+              </div>
+
+              {/* MailerLite/Whop APIs */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🔌</div>
+                <h3 className="text-xl font-bold mb-2">MailerLite/Whop APIs</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Source system integrations for marketing and sales data
+                </p>
+              </div>
+
+              {/* Client Portal */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">📱</div>
+                <h3 className="text-xl font-bold mb-2">Client Portal</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Embedded dashboards, report downloads, self-service analytics
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* What We Measure Section */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              What We Measure
+            </h2>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Data Quality Score */}
+              <div className="p-6 rounded-xl border border-[#4169E1]/30 bg-[#4169E1]/10 text-center">
+                <div className="text-4xl mb-3">✅</div>
+                <h3 className="text-xl font-bold mb-2 text-[#4169E1]">Data Quality Score</h3>
+                <p className="text-white/70 text-sm">
+                  Completeness, accuracy, consistency, and timeliness of data across sources
+                </p>
+              </div>
+
+              {/* Reporting Timeliness */}
+              <div className="p-6 rounded-xl border border-[#4169E1]/30 bg-[#4169E1]/10 text-center">
+                <div className="text-4xl mb-3">⏱️</div>
+                <h3 className="text-xl font-bold mb-2 text-[#4169E1]">Reporting Timeliness</h3>
+                <p className="text-white/70 text-sm">
+                  Data freshness, dashboard refresh rates, report delivery SLAs
+                </p>
+              </div>
+
+              {/* Insight Accuracy */}
+              <div className="p-6 rounded-xl border border-[#4169E1]/30 bg-[#4169E1]/10 text-center">
+                <div className="text-4xl mb-3">🎯</div>
+                <h3 className="text-xl font-bold mb-2 text-[#4169E1]">Insight Accuracy</h3>
+                <p className="text-white/70 text-sm">
+                  Validation rate of predictions, forecast error margins, alert precision
+                </p>
+              </div>
+
+              {/* Dashboard Adoption */}
+              <div className="p-6 rounded-xl border border-[#4169E1]/30 bg-[#4169E1]/10 text-center">
+                <div className="text-4xl mb-3">📊</div>
+                <h3 className="text-xl font-bold mb-2 text-[#4169E1]">Dashboard Adoption</h3>
+                <p className="text-white/70 text-sm">
+                  User engagement rates, dashboard views, self-service usage metrics
+                </p>
+              </div>
+
+              {/* Pipeline Reliability */}
+              <div className="p-6 rounded-xl border border-[#4169E1]/30 bg-[#4169E1]/10 text-center">
+                <div className="text-4xl mb-3">🔧</div>
+                <h3 className="text-xl font-bold mb-2 text-[#4169E1]">Pipeline Reliability</h3>
+                <p className="text-white/70 text-sm">
+                  ETL job success rates, error recovery time, data processing latency
+                </p>
+              </div>
+
+              {/* Business Impact */}
+              <div className="p-6 rounded-xl border border-[#4169E1]/30 bg-[#4169E1]/10 text-center">
+                <div className="text-4xl mb-3">💰</div>
+                <h3 className="text-xl font-bold mb-2 text-[#4169E1]">Business Impact</h3>
+                <p className="text-white/70 text-sm">
+                  Decisions driven by insights, cost savings from optimizations, ROI of analytics
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Visual Pipeline Section */}
       <div className="py-20 border-t border-white/10 bg-gradient-to-b from-transparent to-white/5">
         <div className="container mx-auto px-6 lg:px-8">
@@ -218,17 +421,18 @@ export default function DataIntelligenceSystemPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="https://client.audiojones.com/login"
+                href={getBookingUrl()}
                 className="px-8 py-4 rounded-full bg-gradient-to-r from-[#4169E1] to-[#00CED1] text-white font-bold text-lg hover:opacity-90 transition"
               >
                 Book a Session
               </Link>
               <Link
-                href="/systems/data-intelligence#portal-overview"
+                href={portalLinks.client}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="px-8 py-4 rounded-full border-2 border-white/20 text-white font-bold text-lg hover:border-white/40 transition"
               >
-                See Client Portal
-                {/* TODO: Create dedicated portal overview section or separate page */}
+                Visit Client Portal →
               </Link>
             </div>
           </div>

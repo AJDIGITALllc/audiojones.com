@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { getModuleById } from "@/config/modules";
+import { portalLinks, getBookingUrl } from "@/config/links";
 
 const module = getModuleById("client-delivery")!;
 
@@ -120,6 +121,134 @@ export default function ClientDeliverySystemPage() {
         </div>
       </div>
 
+      {/* How This Module Works */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              How This Module Works
+            </h2>
+            <div className="space-y-4">
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-white/5">
+                <div className="text-2xl">📝</div>
+                <div>
+                  <h3 className="font-bold mb-1">Client Onboarding & Requirements Gathering</h3>
+                  <p className="text-white/70 text-sm">Automated intake forms collect project specs, deliverable expectations, and timeline requirements</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-white/5">
+                <div className="text-2xl">📅</div>
+                <div>
+                  <h3 className="font-bold mb-1">Project Planning & Milestone Setup</h3>
+                  <p className="text-white/70 text-sm">Automated scheduling based on service templates with milestone tracking and deadline management</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-white/5">
+                <div className="text-2xl">👥</div>
+                <div>
+                  <h3 className="font-bold mb-1">Resource Allocation & Team Assignment</h3>
+                  <p className="text-white/70 text-sm">Smart task distribution to team members based on capacity and expertise</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-white/5">
+                <div className="text-2xl">📊</div>
+                <div>
+                  <h3 className="font-bold mb-1">Progress Tracking & Status Updates</h3>
+                  <p className="text-white/70 text-sm">Real-time dashboards for clients and team with automated notification triggers</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-white/5">
+                <div className="text-2xl">✅</div>
+                <div>
+                  <h3 className="font-bold mb-1">Delivery & Quality Assurance</h3>
+                  <p className="text-white/70 text-sm">Asset delivery with client approval workflows and satisfaction surveys</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Technology Stack */}
+      <div className="py-20 border-t border-white/10 bg-white/5">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              Technology Stack
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="p-6 rounded-xl border border-white/10 bg-black">
+                <h3 className="font-bold mb-2">Whop</h3>
+                <p className="text-white/70 text-sm">Payment processing triggers automated contract generation and project setup</p>
+              </div>
+              <div className="p-6 rounded-xl border border-white/10 bg-black">
+                <h3 className="font-bold mb-2">GBU (GetBizUp)</h3>
+                <p className="text-white/70 text-sm">Digital contract creation and e-signature management</p>
+              </div>
+              <div className="p-6 rounded-xl border border-white/10 bg-black">
+                <h3 className="font-bold mb-2">MailerLite</h3>
+                <p className="text-white/70 text-sm">Automated onboarding emails, milestone notifications, and review requests</p>
+              </div>
+              <div className="p-6 rounded-xl border border-white/10 bg-black">
+                <h3 className="font-bold mb-2">n8n</h3>
+                <p className="text-white/70 text-sm">Workflow automation connecting payment → contracts → onboarding → delivery</p>
+              </div>
+              <div className="p-6 rounded-xl border border-white/10 bg-black">
+                <h3 className="font-bold mb-2">Firebase</h3>
+                <p className="text-white/70 text-sm">Real-time database for project status, file storage, and client portal access</p>
+              </div>
+              <div className="p-6 rounded-xl border border-white/10 bg-black">
+                <h3 className="font-bold mb-2">Client Portal</h3>
+                <p className="text-white/70 text-sm">Custom Next.js dashboard at client.audiojones.com for project visibility</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* KPIs We Track */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              What We Measure
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="text-4xl mb-3">⏱️</div>
+                <h3 className="font-bold mb-2">On-Time Completion Rate</h3>
+                <p className="text-white/70 text-sm">Projects delivered within agreed timeline</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl mb-3">😊</div>
+                <h3 className="font-bold mb-2">Client Satisfaction (CSAT)</h3>
+                <p className="text-white/70 text-sm">Post-delivery feedback scores</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl mb-3">👥</div>
+                <h3 className="font-bold mb-2">Resource Utilization</h3>
+                <p className="text-white/70 text-sm">Team capacity and efficiency metrics</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl mb-3">💰</div>
+                <h3 className="font-bold mb-2">Budget Adherence</h3>
+                <p className="text-white/70 text-sm">Actual vs. estimated project costs</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl mb-3">🚀</div>
+                <h3 className="font-bold mb-2">Time-to-Delivery</h3>
+                <p className="text-white/70 text-sm">Booking to first deliverable speed</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl mb-3">🔄</div>
+                <h3 className="font-bold mb-2">Client Retention Rate</h3>
+                <p className="text-white/70 text-sm">Repeat bookings within 90 days</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Visual Pipeline Section */}
       <div className="py-20 border-t border-white/10 bg-gradient-to-b from-transparent to-white/5">
         <div className="container mx-auto px-6 lg:px-8">
@@ -218,17 +347,18 @@ export default function ClientDeliverySystemPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="https://client.audiojones.com/login"
+                href={getBookingUrl()}
                 className="px-8 py-4 rounded-full bg-gradient-to-r from-[#008080] to-[#00CED1] text-white font-bold text-lg hover:opacity-90 transition"
               >
                 Book a Session
               </Link>
               <Link
-                href="/systems/client-delivery#portal-overview"
+                href={portalLinks.client}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="px-8 py-4 rounded-full border-2 border-white/20 text-white font-bold text-lg hover:border-white/40 transition"
               >
-                See Client Portal
-                {/* TODO: Create dedicated portal overview section or separate page */}
+                Visit Client Portal →
               </Link>
             </div>
           </div>

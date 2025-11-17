@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { getModuleById } from "@/config/modules";
+import { portalLinks, getBookingUrl } from "@/config/links";
 
 const module = getModuleById("ai-optimization")!;
 
@@ -120,6 +121,208 @@ export default function AIOptimizationSystemPage() {
         </div>
       </div>
 
+      {/* How This Module Works Section */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              How This Module Works
+            </h2>
+            
+            <div className="space-y-6">
+              {/* Step 1: Data Ingestion */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">📥</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#9370DB]">1. Data Ingestion</h3>
+                  <p className="text-white/70">
+                    Continuously collect performance data from all integrated systems (marketing campaigns, website analytics, customer interactions, sales funnels). Stream real-time events into centralized data pipeline for immediate processing.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2: Feature Engineering */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">🔧</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#9370DB]">2. Feature Engineering</h3>
+                  <p className="text-white/70">
+                    Transform raw data into ML-ready features. Calculate derived metrics (conversion velocity, engagement scores, predictive LTV), normalize values, and create time-windowed aggregations. Auto-detect patterns and anomalies.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3: Model Training */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">🧠</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#9370DB]">3. Model Training</h3>
+                  <p className="text-white/70">
+                    Train ensemble ML models (gradient boosting, neural networks, time-series forecasting) on historical performance data. Optimize hyperparameters via automated grid search. Validate on holdout sets to prevent overfitting.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 4: Prediction & Optimization */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">🎯</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#9370DB]">4. Prediction & Optimization</h3>
+                  <p className="text-white/70">
+                    Deploy models to production serving layer. Generate real-time predictions (next best action, churn risk, conversion probability). Run A/B tests automatically to validate model-driven decisions. Trigger optimization rules based on prediction confidence.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 5: Monitoring & Retraining */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">📊</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#9370DB]">5. Monitoring & Retraining</h3>
+                  <p className="text-white/70">
+                    Track model accuracy, drift, and business impact in real-time. Alert via Slack when performance degrades below thresholds. Automatically retrain models on fresh data weekly or when concept drift detected. Version all models for rollback capability.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Technology Stack Section */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              Technology Stack
+            </h2>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* ML Pipeline */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🤖</div>
+                <h3 className="text-xl font-bold mb-2">ML Pipeline</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> scikit-learn, XGBoost, TensorFlow for model training and serving
+                </p>
+              </div>
+
+              {/* Feature Store */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🗄️</div>
+                <h3 className="text-xl font-bold mb-2">Feature Store</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Centralized feature management, versioning, and serving infrastructure
+                </p>
+              </div>
+
+              {/* n8n */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🔧</div>
+                <h3 className="text-xl font-bold mb-2">n8n</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Orchestrate data pipelines, trigger retraining workflows, deploy model updates
+                </p>
+              </div>
+
+              {/* Monitoring */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🚨</div>
+                <h3 className="text-xl font-bold mb-2">Monitoring</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Track model accuracy, drift detection, performance alerts via Slack
+                </p>
+              </div>
+
+              {/* Experimentation Platform */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🧪</div>
+                <h3 className="text-xl font-bold mb-2">Experimentation Platform</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> A/B testing framework, statistical significance calculation, variant management
+                </p>
+              </div>
+
+              {/* Client Portal */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">📱</div>
+                <h3 className="text-xl font-bold mb-2">Client Portal</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Live optimization dashboard, prediction insights, experiment results visualization
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* What We Measure Section */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              What We Measure
+            </h2>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Model Accuracy */}
+              <div className="p-6 rounded-xl border border-[#9370DB]/30 bg-[#9370DB]/10 text-center">
+                <div className="text-4xl mb-3">🎯</div>
+                <h3 className="text-xl font-bold mb-2 text-[#9370DB]">Model Accuracy</h3>
+                <p className="text-white/70 text-sm">
+                  Precision, recall, F1-score, AUC-ROC across all deployed models
+                </p>
+              </div>
+
+              {/* Prediction Confidence */}
+              <div className="p-6 rounded-xl border border-[#9370DB]/30 bg-[#9370DB]/10 text-center">
+                <div className="text-4xl mb-3">📈</div>
+                <h3 className="text-xl font-bold mb-2 text-[#9370DB]">Prediction Confidence</h3>
+                <p className="text-white/70 text-sm">
+                  Calibration score, confidence intervals, uncertainty quantification
+                </p>
+              </div>
+
+              {/* Efficiency Gains */}
+              <div className="p-6 rounded-xl border border-[#9370DB]/30 bg-[#9370DB]/10 text-center">
+                <div className="text-4xl mb-3">⚡</div>
+                <h3 className="text-xl font-bold mb-2 text-[#9370DB]">Efficiency Gains</h3>
+                <p className="text-white/70 text-sm">
+                  Time saved, cost reduction, automation rate from AI-driven decisions
+                </p>
+              </div>
+
+              {/* Model Drift */}
+              <div className="p-6 rounded-xl border border-[#9370DB]/30 bg-[#9370DB]/10 text-center">
+                <div className="text-4xl mb-3">🚨</div>
+                <h3 className="text-xl font-bold mb-2 text-[#9370DB]">Model Drift</h3>
+                <p className="text-white/70 text-sm">
+                  Concept drift detection, feature distribution shifts, retraining triggers
+                </p>
+              </div>
+
+              {/* A/B Test Win Rate */}
+              <div className="p-6 rounded-xl border border-[#9370DB]/30 bg-[#9370DB]/10 text-center">
+                <div className="text-4xl mb-3">🏆</div>
+                <h3 className="text-xl font-bold mb-2 text-[#9370DB]">A/B Test Win Rate</h3>
+                <p className="text-white/70 text-sm">
+                  Percentage of tests with statistically significant improvements
+                </p>
+              </div>
+
+              {/* AI Revenue Impact */}
+              <div className="p-6 rounded-xl border border-[#9370DB]/30 bg-[#9370DB]/10 text-center">
+                <div className="text-4xl mb-3">💰</div>
+                <h3 className="text-xl font-bold mb-2 text-[#9370DB]">AI Revenue Impact</h3>
+                <p className="text-white/70 text-sm">
+                  Incremental revenue attributed to AI-driven optimizations
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Visual Pipeline Section */}
       <div className="py-20 border-t border-white/10 bg-gradient-to-b from-transparent to-white/5">
         <div className="container mx-auto px-6 lg:px-8">
@@ -218,17 +421,18 @@ export default function AIOptimizationSystemPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="https://client.audiojones.com/login"
+                href={getBookingUrl()}
                 className="px-8 py-4 rounded-full bg-gradient-to-r from-[#9370DB] to-[#FFD700] text-white font-bold text-lg hover:opacity-90 transition"
               >
                 Book a Session
               </Link>
               <Link
-                href="/systems/ai-optimization#portal-overview"
+                href={portalLinks.client}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="px-8 py-4 rounded-full border-2 border-white/20 text-white font-bold text-lg hover:border-white/40 transition"
               >
-                See Client Portal
-                {/* TODO: Create dedicated portal overview section or separate page */}
+                Visit Client Portal →
               </Link>
             </div>
           </div>

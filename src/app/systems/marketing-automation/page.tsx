@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { getModuleById } from "@/config/modules";
+import { portalLinks, getBookingUrl } from "@/config/links";
 
 const module = getModuleById("marketing-automation")!;
 
@@ -120,6 +121,208 @@ export default function MarketingAutomationSystemPage() {
         </div>
       </div>
 
+      {/* How This Module Works Section */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              How This Module Works
+            </h2>
+            
+            <div className="space-y-6">
+              {/* Step 1: Lead Generation */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">🎯</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#FF4500]">1. Lead Generation</h3>
+                  <p className="text-white/70">
+                    Capture leads across multiple touchpoints (landing pages, social media, email campaigns) and automatically route them into MailerLite segments. Track source attribution and campaign performance in real-time.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2: Segmentation */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">🎛️</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#FF4500]">2. Segmentation</h3>
+                  <p className="text-white/70">
+                    AI-powered segmentation engine analyzes lead behavior, engagement patterns, and firmographic data to create dynamic audience groups. Automatically update segments based on real-time interactions.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3: Campaign Execution */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">🚀</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#FF4500]">3. Campaign Execution</h3>
+                  <p className="text-white/70">
+                    Deploy multi-channel campaigns with automated content personalization. Schedule email sequences, social posts, and paid ads from a unified calendar with optimal send-time optimization.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 4: Performance Tracking */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">📊</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#FF4500]">4. Performance Tracking</h3>
+                  <p className="text-white/70">
+                    Monitor engagement metrics (opens, clicks, conversions) across all channels. Track lead progression through funnel stages and identify high-performing content and messaging.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 5: ROI Analysis */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5 flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">💰</div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-[#FF4500]">5. ROI Analysis</h3>
+                  <p className="text-white/70">
+                    Tie marketing spend to revenue outcomes via Whop purchase data. Calculate customer acquisition costs (CAC), return on marketing investment (ROMI), and lifetime value (LTV) at campaign level.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Technology Stack Section */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              Technology Stack
+            </h2>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* MailerLite */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">📧</div>
+                <h3 className="text-xl font-bold mb-2">MailerLite</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Email marketing automation, subscriber management, campaign analytics
+                </p>
+              </div>
+
+              {/* Whop */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">💳</div>
+                <h3 className="text-xl font-bold mb-2">Whop</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Payment processing, customer lifecycle tracking, revenue attribution
+                </p>
+              </div>
+
+              {/* n8n */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🔧</div>
+                <h3 className="text-xl font-bold mb-2">n8n</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Workflow orchestration, multi-platform integrations, automated lead routing
+                </p>
+              </div>
+
+              {/* Social Platforms */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🌐</div>
+                <h3 className="text-xl font-bold mb-2">Social Platforms</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Multi-channel distribution (LinkedIn, Twitter, Instagram), paid ad management
+                </p>
+              </div>
+
+              {/* AI Content Engine */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">🤖</div>
+                <h3 className="text-xl font-bold mb-2">AI Content Engine</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Automated content generation, personalization, A/B test creation
+                </p>
+              </div>
+
+              {/* Client Portal */}
+              <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                <div className="text-4xl mb-4">📱</div>
+                <h3 className="text-xl font-bold mb-2">Client Portal</h3>
+                <p className="text-white/70">
+                  <strong>Role:</strong> Campaign dashboard, content approval workflows, real-time analytics
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* What We Measure Section */}
+      <div className="py-20 border-t border-white/10">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              What We Measure
+            </h2>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Conversion Rate */}
+              <div className="p-6 rounded-xl border border-[#FF4500]/30 bg-[#FF4500]/10 text-center">
+                <div className="text-4xl mb-3">📈</div>
+                <h3 className="text-xl font-bold mb-2 text-[#FF4500]">Conversion Rate</h3>
+                <p className="text-white/70 text-sm">
+                  Lead-to-customer conversion percentage across all campaign touchpoints
+                </p>
+              </div>
+
+              {/* MQLs Generated */}
+              <div className="p-6 rounded-xl border border-[#FF4500]/30 bg-[#FF4500]/10 text-center">
+                <div className="text-4xl mb-3">🎯</div>
+                <h3 className="text-xl font-bold mb-2 text-[#FF4500]">MQLs Generated</h3>
+                <p className="text-white/70 text-sm">
+                  Marketing-qualified leads meeting engagement and fit criteria
+                </p>
+              </div>
+
+              {/* CAC */}
+              <div className="p-6 rounded-xl border border-[#FF4500]/30 bg-[#FF4500]/10 text-center">
+                <div className="text-4xl mb-3">💰</div>
+                <h3 className="text-xl font-bold mb-2 text-[#FF4500]">CAC</h3>
+                <p className="text-white/70 text-sm">
+                  Customer acquisition cost per channel and campaign
+                </p>
+              </div>
+
+              {/* ROMI */}
+              <div className="p-6 rounded-xl border border-[#FF4500]/30 bg-[#FF4500]/10 text-center">
+                <div className="text-4xl mb-3">📊</div>
+                <h3 className="text-xl font-bold mb-2 text-[#FF4500]">ROMI</h3>
+                <p className="text-white/70 text-sm">
+                  Return on marketing investment with revenue attribution
+                </p>
+              </div>
+
+              {/* Email Engagement */}
+              <div className="p-6 rounded-xl border border-[#FF4500]/30 bg-[#FF4500]/10 text-center">
+                <div className="text-4xl mb-3">📧</div>
+                <h3 className="text-xl font-bold mb-2 text-[#FF4500]">Email Engagement</h3>
+                <p className="text-white/70 text-sm">
+                  Open rates, click rates, and sequence completion metrics
+                </p>
+              </div>
+
+              {/* Multi-Touch Attribution */}
+              <div className="p-6 rounded-xl border border-[#FF4500]/30 bg-[#FF4500]/10 text-center">
+                <div className="text-4xl mb-3">🔗</div>
+                <h3 className="text-xl font-bold mb-2 text-[#FF4500]">Multi-Touch Attribution</h3>
+                <p className="text-white/70 text-sm">
+                  Revenue credit distribution across campaign touchpoints
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Visual Pipeline Section */}
       <div className="py-20 border-t border-white/10 bg-gradient-to-b from-transparent to-white/5">
         <div className="container mx-auto px-6 lg:px-8">
@@ -218,17 +421,18 @@ export default function MarketingAutomationSystemPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="https://client.audiojones.com/login"
+                href={getBookingUrl()}
                 className="px-8 py-4 rounded-full bg-gradient-to-r from-[#FF4500] to-[#FFD700] text-black font-bold text-lg hover:opacity-90 transition"
               >
                 Book a Session
               </Link>
               <Link
-                href="/systems/marketing-automation#portal-overview"
+                href={portalLinks.client}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="px-8 py-4 rounded-full border-2 border-white/20 text-white font-bold text-lg hover:border-white/40 transition"
               >
-                See Client Portal
-                {/* TODO: Create dedicated portal overview section or separate page */}
+                Visit Client Portal →
               </Link>
             </div>
           </div>
