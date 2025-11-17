@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import IKImage from "@/components/IKImage";
 import { PublicStatusDot } from "@/components/status/PublicStatusDot";
 import { usePersona } from "@/hooks/usePersona";
+import { mainNav } from "@/config/nav";
 
 // Dynamically import auth navigation to prevent SSR issues
 const AuthNav = dynamic(() => import("@/components/AuthNav"), {
@@ -51,45 +52,41 @@ export default function Header() {
             </button>
           </div>
           <div className="hidden md:flex md:flex-1 md:items-center md:justify-end md:gap-x-10">
-            <Link href="/" className="text-sm font-semibold text-white/80 hover:text-white transition">Home</Link>
-            
-            {/* Persona-aware navigation */}
-            {personaDetection.persona === "artist" && (
-              <Link 
-                href="https://artisthub.audiojones.com" 
-                className="text-sm font-semibold text-[#FF4500] hover:text-[#FFD700] transition"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                ArtistHub
-              </Link>
-            )}
-            
-            <Link href="/services" className="text-sm font-semibold text-white/80 hover:text-white transition">Services</Link>
-            <Link href="/pricing" className="text-sm font-semibold text-white/80 hover:text-white transition">Pricing</Link>
-            
-            <Link 
-              href="/epm" 
-              className="text-sm font-semibold text-[#008080] hover:text-[#FFD700] transition"
-            >
-              EPM Theory
-            </Link>
-            
-            <Link href="/podcast" className="text-sm font-semibold text-white/80 hover:text-white transition">Podcast</Link>
-            <Link href="/insights" className="text-sm font-semibold text-white/80 hover:text-white transition">Insights</Link>
-            <Link href="/about" className="text-sm font-semibold text-white/80 hover:text-white transition">About</Link>
-            
-            {/* Admin/Consultant links */}
-            {personaDetection.persona === "consultant" && (
-              <Link 
-                href="https://admin.audiojones.com" 
-                className="text-sm font-semibold text-red-400 hover:text-red-300 transition"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Admin
-              </Link>
-            )}
+            {mainNav.map((item) => {
+              // Special handling for persona-aware items
+              if (item.label === "ArtistHub" && personaDetection.persona !== "artist") {
+                return null;
+              }
+              if (item.label === "Admin" && personaDetection.persona !== "consultant") {
+                return null;
+              }
+
+              // Apply special styling for certain nav items
+              const getLinkClassName = () => {
+                if (item.label === "EPM Theory") {
+                  return "text-sm font-semibold text-[#008080] hover:text-[#FFD700] transition";
+                }
+                if (item.label === "ArtistHub") {
+                  return "text-sm font-semibold text-[#FF4500] hover:text-[#FFD700] transition";
+                }
+                if (item.label === "Admin") {
+                  return "text-sm font-semibold text-red-400 hover:text-red-300 transition";
+                }
+                return "text-sm font-semibold text-white/80 hover:text-white transition";
+              };
+
+              return (
+                <Link 
+                  key={item.href} 
+                  href={item.href}
+                  className={getLinkClassName()}
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
             
             <PublicStatusDot />
             
@@ -103,48 +100,42 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-black border-t border-white/10">
           <div className="px-6 py-6 space-y-4">
-            <Link href="/" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-            
-            {/* Persona-aware mobile navigation */}
-            {personaDetection.persona === "artist" && (
-              <Link 
-                href="https://artisthub.audiojones.com" 
-                className="block text-base font-semibold text-[#FF4500] hover:text-[#FFD700]"
-                onClick={() => setMobileMenuOpen(false)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                ArtistHub
-              </Link>
-            )}
-            
-            <Link href="/services" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Services</Link>
-            <Link href="/pricing" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
-            
-            <Link 
-              href="/epm" 
-              className="block text-base font-semibold text-[#008080] hover:text-[#FFD700]"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              EPM Theory
-            </Link>
-            
-            <Link href="/podcast" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Podcast</Link>
-            <Link href="/insights" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Insights</Link>
-            <Link href="/about" className="block text-base font-semibold text-white/80 hover:text-white" onClick={() => setMobileMenuOpen(false)}>About</Link>
-            
-            {/* Admin/Consultant links */}
-            {personaDetection.persona === "consultant" && (
-              <Link 
-                href="https://admin.audiojones.com" 
-                className="block text-base font-semibold text-red-400 hover:text-red-300"
-                onClick={() => setMobileMenuOpen(false)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Admin
-              </Link>
-            )}
+            {mainNav.map((item) => {
+              // Special handling for persona-aware items
+              if (item.label === "ArtistHub" && personaDetection.persona !== "artist") {
+                return null;
+              }
+              if (item.label === "Admin" && personaDetection.persona !== "consultant") {
+                return null;
+              }
+
+              // Apply special styling for certain nav items
+              const getLinkClassName = () => {
+                if (item.label === "EPM Theory") {
+                  return "block text-base font-semibold text-[#008080] hover:text-[#FFD700]";
+                }
+                if (item.label === "ArtistHub") {
+                  return "block text-base font-semibold text-[#FF4500] hover:text-[#FFD700]";
+                }
+                if (item.label === "Admin") {
+                  return "block text-base font-semibold text-red-400 hover:text-red-300";
+                }
+                return "block text-base font-semibold text-white/80 hover:text-white";
+              };
+
+              return (
+                <Link 
+                  key={item.href} 
+                  href={item.href}
+                  className={getLinkClassName()}
+                  onClick={() => setMobileMenuOpen(false)}
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
             
             <div className="flex items-center py-2">
               <PublicStatusDot />
