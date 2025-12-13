@@ -9,7 +9,7 @@ import { GumroadConnector } from './packages/connectors/gumroad/dist/index.js';
 
 async function testAgentSystem() {
   console.log('🤖 Testing Agent Core System\n');
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
 
   // Test 1: Plan Generation
   console.log('\n📋 Test 1: Plan Generation');

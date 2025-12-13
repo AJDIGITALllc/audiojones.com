@@ -61,8 +61,6 @@ export class WhopConnector implements CommerceConnector {
   }
 
   async executeAction(action: Action): Promise<ActionResult> {
-    const startTime = Date.now();
-    
     // Stub mode - return fake success
     if (this.isStubMode) {
       return {

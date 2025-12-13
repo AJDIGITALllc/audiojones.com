@@ -12,24 +12,6 @@ export class GumroadConnector {
     constructor() {
         this.platform = 'gumroad';
         this.config = null;
-        // TODO: Implement OAuth flow
-        // async authenticateOAuth(code: string): Promise<{ accessToken: string; refreshToken: string }> {
-        //   throw new Error('OAuth not implemented');
-        // }
-        // TODO: Implement token refresh
-        // async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string }> {
-        //   throw new Error('Token refresh not implemented');
-        // }
-        // TODO: Implement Gumroad API client
-        // private async callGumroadAPI(endpoint: string, options?: RequestInit): Promise<any> {
-        //   // Gumroad API base: https://api.gumroad.com/v2
-        //   throw new Error('API client not implemented');
-        // }
-        // TODO: Map actions to Gumroad API endpoints
-        // - GET /products - List products
-        // - GET /sales - List sales
-        // - POST /licenses/verify - Verify a license
-        // - etc.
     }
     async initialize(config) {
         this.config = config;

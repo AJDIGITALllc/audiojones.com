@@ -53,7 +53,6 @@ export class WhopConnector {
         }
     }
     async executeAction(action) {
-        const startTime = Date.now();
         // Stub mode - return fake success
         if (this.isStubMode) {
             return {
