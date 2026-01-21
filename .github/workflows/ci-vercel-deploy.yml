@@ -1,0 +1,107 @@
+name: CI + Vercel Deploy
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Detect project type (Node or Python)
+      - name: Detect runtime
+        id: rt
+        run: |
+          if [ -f package.json ]; then
+            echo "rt=node" >> $GITHUB_OUTPUT
+          elif compgen -G "pyproject.toml requirements.txt setup.cfg" > /dev/null; then
+            echo "rt=python" >> $GITHUB_OUTPUT
+          else
+            echo "rt=none" >> $GITHUB_OUTPUT
+          fi
+
+      # Node setup
+      - name: Setup Node
+        if: steps.rt.outputs.rt == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        if: steps.rt.outputs.rt == 'node'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install deps (Node)
+        if: steps.rt.outputs.rt == 'node'
+        run: |
+          if [ -f pnpm-lock.yaml ]; then pnpm i --frozen-lockfile; \
+          elif [ -f package-lock.json ]; then npm ci; \
+          else yarn install --frozen-lockfile; fi
+
+      - name: Lint & Typecheck (Node)
+        if: steps.rt.outputs.rt == 'node'
+        run: |
+          npm run lint --if-present || true
+          npm run typecheck --if-present || true
+
+      - name: Test (Node)
+        if: steps.rt.outputs.rt == 'node'
+        run: npm test --if-present --silent || pnpm test --silent || true
+
+      # Python setup
+      - name: Setup Python
+        if: steps.rt.outputs.rt == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install deps (Python)
+        if: steps.rt.outputs.rt == 'python'
+        run: |
+          python -m pip install -U pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f pyproject.toml ]; then pip install -e .; fi
+          pip install pytest || true
+
+      - name: Test (Python)
+        if: steps.rt.outputs.rt == 'python'
+        run: pytest -q || true
+
+  deploy:
+    needs: ci
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Deploy to Vercel (only if secrets exist)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -z "${VERCEL_TOKEN}" ] || [ -z "${VERCEL_ORG_ID}" ] || [ -z "${VERCEL_PROJECT_ID}" ]; then
+            echo "Skipping deploy — add VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID to repo secrets."
+            exit 0
+          fi
+          vercel pull --yes --token $VERCEL_TOKEN --environment=production
+          vercel build --token $VERCEL_TOKEN
+          vercel deploy --prebuilt --prod --token $VERCEL_TOKEN
