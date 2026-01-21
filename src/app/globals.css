@@ -3,6 +3,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --aj-orange: #FF4500;
+  --aj-blue: #00A4FF;
+  --aj-dark: #1E2A3A;
+  --aj-light: #F5F5F5;
 }
 
 @theme inline {
@@ -47,3 +51,62 @@ body {
 .animate-scroll {
   animation: scroll-x 30s linear infinite;
 }
+
+/* Base */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.875rem 2rem;
+  border-radius: 8px; /* 6–8px max */
+  font-family: "Oswald", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  transition: opacity 180ms ease, border-color 180ms ease, color 180ms ease, background-color 180ms ease, transform 80ms ease;
+  outline: none;
+}
+
+.btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--aj-blue), 0 0 0 4px var(--aj-light);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Variants */
+.btn--primary {
+  background: var(--aj-orange);
+  color: #ffffff;
+}
+.btn--primary:hover { opacity: 0.92; }
+
+.btn--secondary {
+  background: transparent;
+  color: var(--aj-dark);
+  border-color: rgba(30, 42, 58, 0.40);
+}
+.btn--secondary:hover {
+  border-color: var(--aj-blue);
+  color: var(--aj-blue);
+}
+
+.btn--system {
+  background: transparent;
+  color: var(--aj-light);
+  border-color: rgba(245, 245, 245, 0.28);
+}
+.btn--system:hover {
+  border-color: var(--aj-blue);
+  color: var(--aj-blue);
+}
+
+/* Layout helper */
+.btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
