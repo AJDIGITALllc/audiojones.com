@@ -2,6 +2,43 @@
 
 This document summarizes the root causes of recent Vercel deployment failures and the comprehensive steps taken to resolve them.
 
+## Issue: Invalid `vercel.json` Environment Configuration
+
+**Date:** 2025-12-10
+
+**Symptom:** Every deployment triggered from GitHub failed immediately with schema validation errors before the build could start. Vercel reported:
+
+```
+The `vercel.json` schema validation failed with the following message: `env.FIREBASE_PROJECT_ID` should be string
+```
+
+### Root Cause Analysis
+
+`vercel.json` defined the `env` section using string arrays:
+
+```json
+{
+  "env": {
+    "FIREBASE_PROJECT_ID": ["production", "preview", "development"]
+  }
+}
+```
+
+The Vercel configuration schema expects each `env` entry to be a string value (for inline secrets or `@alias` references) or an object describing the value/targets. Arrays are not supported, so validation aborted before any build steps ran.
+
+### Resolution
+
+- Removed the invalid `env` block from `vercel.json`. Vercel already manages these variables through the project dashboard/CLI, so no JSON configuration is required.
+- Confirmed via the Vercel API that new deployments progress beyond the validation phase once the file only contains the `git.submodules` setting.
+
+### Recommended Follow-up
+
+1. Manage environment variables exclusively through `vercel env` CLI or the dashboard to avoid drifting configuration formats.
+2. If configuration-as-code is required in the future, use the documented structure with `@` aliases or `{ "value": "...", "target": [...] }` objects.
+3. Add `npm run lint` or a Vercel configuration validation step to CI to surface schema issues before deploy.
+
+---
+
 ## Issue: Environment Variable Access During Build Time
 
 **Date:** 2025-11-06

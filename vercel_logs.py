@@ -53,9 +53,16 @@ if logs_res.status_code != 200:
 
 logs_data = logs_res.json()
 
+# API responses can be either {"events": [...]} or a bare list
+if isinstance(logs_data, dict):
+    events = logs_data.get("events", [])
+elif isinstance(logs_data, list):
+    events = logs_data
+else:
+    events = []
+
 print("📄 Deployment Events:\n")
 
-events = logs_data.get("events", [])
 for event in events[:20]:  # only show first 20 for readability
     print(f"- [{event.get('type')}] {event.get('payload', {}).get('message', '')}")
 
