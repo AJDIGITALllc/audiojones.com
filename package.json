@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm -r build && next build",
+    "build": "pnpm packages:build && next build",
     "start": "next start",
     "lint": "eslint",
     "dx:init": "echo 'Setting up Doppler and environment...' && doppler setup --project ajdigital --config dev; doppler secrets download --no-file --format env > .env.development.local",
