@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { auth } from "@/lib/firebase/client";
-import { onAuthStateChanged, type User } from "firebase/auth";
+import { onAuthStateChanged, getAuth, type User } from "firebase/auth";
+import { getFirebaseApp } from "@/lib/firebase/client";
 
 interface AuthUser extends User {
   customClaims?: {
@@ -17,19 +17,32 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (u) => {
-      if (u) {
-        // Get fresh token to access custom claims
-        const tokenResult = await u.getIdTokenResult();
-        const authUser: AuthUser = {
-          ...u,
-          customClaims: tokenResult.claims
-        };
-        setUser(authUser);
-      } else {
-        setUser(null);
-      }
+    const app = getFirebaseApp();
+    if (!app) {
       setLoading(false);
+      return;
+    }
+
+    const auth = getAuth(app);
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      try {
+        if (u) {
+          // Get fresh token to access custom claims
+          const tokenResult = await u.getIdTokenResult();
+          const authUser: AuthUser = {
+            ...u,
+            customClaims: tokenResult.claims
+          };
+          setUser(authUser);
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.warn('[useAuth] Failed to get ID token result:', err);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     });
     return () => unsub();
   }, []);
