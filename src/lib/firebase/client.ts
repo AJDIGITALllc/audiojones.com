@@ -19,6 +19,8 @@ let firebaseApp: FirebaseApp | null = null;
 function createFirebaseApp(): FirebaseApp | null {
   if (firebaseApp) return firebaseApp;
 
+  if (typeof window === 'undefined') return null;
+
   if (!firebaseConfig.apiKey) {
     console.warn('[Firebase] Missing NEXT_PUBLIC_FIREBASE_* environment variables - Firebase features will be disabled');
     return null;

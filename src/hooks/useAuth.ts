@@ -25,18 +25,24 @@ export function useAuth() {
 
     const auth = getAuth(app);
     const unsub = onAuthStateChanged(auth, async (u) => {
-      if (u) {
-        // Get fresh token to access custom claims
-        const tokenResult = await u.getIdTokenResult();
-        const authUser: AuthUser = {
-          ...u,
-          customClaims: tokenResult.claims
-        };
-        setUser(authUser);
-      } else {
+      try {
+        if (u) {
+          // Get fresh token to access custom claims
+          const tokenResult = await u.getIdTokenResult();
+          const authUser: AuthUser = {
+            ...u,
+            customClaims: tokenResult.claims
+          };
+          setUser(authUser);
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.warn('[useAuth] Failed to get ID token result:', err);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
     return () => unsub();
   }, []);
