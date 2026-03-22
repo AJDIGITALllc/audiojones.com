@@ -43,7 +43,10 @@
     "multitenant:metrics": "tsx scripts/testMultiTenant.ts metrics"
   },
   "dependencies": {
+    "@aj/agent-core": "workspace:*",
     "@aj/config": "workspace:*",
+    "@aj/connector-gumroad": "workspace:*",
+    "@aj/connector-whop": "workspace:*",
     "@aj/whop": "workspace:*",
     "@dataconnect/generated": "file:src/dataconnect-generated",
     "@google-cloud/secret-manager": "^5.6.0",
