@@ -1,0 +1,12 @@
+name: Smoke Test (Preview)
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smoke_preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "Enable once we can fetch the Vercel preview URL via GitHub Deployment API."

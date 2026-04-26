@@ -1,0 +1,39 @@
+name: Smoke Test (Production)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *" # every 30 minutes
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check key pages return 200
+        run: |
+          set -e
+
+          URLS=(
+            "https://audiojones.com/"
+            "https://audiojones.com/modules/ai-optimization"
+            "https://audiojones.com/portal/billing"
+            "https://audiojones.com/ops/domains"
+            "https://audiojones.com/status"
+          )
+
+          for url in "${URLS[@]}"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -L "$url")
+            echo "$url -> $code"
+            if [ "$code" -lt 200 ] || [ "$code" -ge 400 ]; then
+              echo "FAILED: $url returned $code"
+              exit 1
+            fi
+          done
+
+      - name: Check sitemap exists
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" -L "https://audiojones.com/sitemap.xml")
+          echo "sitemap -> $code"
+          if [ "$code" -ne 200 ]; then exit 1; fi
