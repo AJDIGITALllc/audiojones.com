@@ -22,14 +22,9 @@ async function sendEmail({ leadId, input, scores }: NotifyArgs) {
   const html = renderEmail({ leadId, input, scores });
 
   try {
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ from, to, subject, html }),
-    });
+    const { Resend } = await import("resend");
+    const resend = new Resend(apiKey);
+    await resend.emails.send({ from, to, subject, html });
   } catch (err) {
     console.error("[applied-intelligence] email notification failed", err);
   }
