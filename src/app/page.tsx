@@ -1,5 +1,6 @@
 ﻿// Audio Jones Homepage - Modular sections based on canonical schema
 import HeroSection from '@/components/home/HeroSection';
+import Step2Section from '@/components/home/Step2Section';
 import ServicesSection from '@/components/home/ServicesSection';
 import RealBlockersSection from '@/components/home/RealBlockersSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
@@ -14,6 +15,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <Step2Section />
       <ServicesSection />
       <RealBlockersSection />
       <TestimonialsSection />
