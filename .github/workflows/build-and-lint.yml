@@ -29,8 +29,8 @@ jobs:
       - name: Type check
         run: pnpm exec tsc --noEmit
 
-      - name: Build project
-        run: pnpm build
+      - name: Build workspace packages
+        run: pnpm packages:build
 
       - name: Test Firebase Admin import
         run: |
