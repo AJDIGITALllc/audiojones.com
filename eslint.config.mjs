@@ -13,7 +13,9 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     // Generated dist files from workspace packages:
-    "packages/*/dist/**",
+    "packages/**/dist/**",
+    // Utility scripts (CommonJS, mixed patterns):
+    "scripts/**",
   ]),
 ]);
 

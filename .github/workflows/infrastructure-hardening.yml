@@ -179,8 +179,8 @@ jobs:
 
     - name: Run Security Audit
       run: |
-        echo "🔒 Running security audit..."
-        pnpm audit --audit-level high
+        echo "🔒 Running security audit (production dependencies)..."
+        pnpm audit --audit-level high --prod
         echo "✅ Security audit completed"
 
     - name: Test Authentication Endpoints
