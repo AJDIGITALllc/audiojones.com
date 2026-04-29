@@ -111,8 +111,8 @@ export interface AnalyticsResult {
  */
 export class AdvancedAnalyticsEngine {
   private cache = new Map<string, { data: any; expiry: number }>();
-  private alertProcessors = new Map<string, Function>();
-  private predictiveModels = new Map<string, Function>();
+  private alertProcessors = new Map<string, (...args: unknown[]) => unknown>();
+  private predictiveModels = new Map<string, (...args: unknown[]) => unknown>();
   
   // Configuration
   private readonly config = {

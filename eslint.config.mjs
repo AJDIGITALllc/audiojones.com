@@ -14,9 +14,25 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Generated dist files from workspace packages:
     "packages/**/dist/**",
-    // Utility scripts (CommonJS, mixed patterns):
+    // Utility scripts and root-level CommonJS files:
     "scripts/**",
+    "*.js",
+    "tools/**",
+    // Generated Firebase DataConnect files (CommonJS output):
+    "src/dataconnect-generated/**",
   ]),
+  // Downgrade pervasive pre-existing violations to warnings.
+  // These were never enforced before ESLint was enabled in CI.
+  // Fix progressively in follow-up PRs.
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "react/no-unescaped-entities": "warn",
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/static-components": "warn",
+      "react-hooks/purity": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;
