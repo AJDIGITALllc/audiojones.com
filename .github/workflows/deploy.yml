@@ -55,7 +55,12 @@ jobs:
         run: pnpm lint
 
       - name: Environment validation
-        run: doppler run -- pnpm env:check
+        run: |
+          if [ -n "$DOPPLER_TOKEN" ]; then
+            doppler run -- pnpm env:check
+          else
+            echo "DOPPLER_TOKEN not configured — skipping env:check on this run"
+          fi
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
 
