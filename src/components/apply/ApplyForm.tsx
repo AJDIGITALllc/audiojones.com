@@ -336,7 +336,7 @@ export default function ApplyForm() {
           id="desiredOutcome"
           label="What outcome are you looking for?"
           required
-          hint="Be specific. The clearer the outcome, the better the diagnosis."
+          hint="Describe what needs attention and what you would like to improve."
           error={errors.desiredOutcome}
         >
           <Textarea

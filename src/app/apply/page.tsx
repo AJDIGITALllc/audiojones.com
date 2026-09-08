@@ -9,26 +9,41 @@ import {
   organizationJsonLd,
   personJsonLd,
 } from "@/lib/seo/schema";
-import { founderIntelligenceFaqs } from "@/lib/seo/founder-intelligence-faq";
 import { siteConfig } from "@/lib/site";
 
+const DESCRIPTION =
+  "Tell Audio Jones what you need help with, from a specific service to broader business systems.";
+
+const inquiryFaqs = [
+  {
+    question: "Can I ask about one service?",
+    answer: "Yes. Describe the specific help you need. You do not need to request a broader systems engagement.",
+  },
+  {
+    question: "What if I don’t know which offer fits?",
+    answer: "Choose ‘Not sure yet’ and describe what needs attention.",
+  },
+  {
+    question: "Does sending an inquiry commit me to paid work?",
+    answer: "No. We agree on scope and next steps after reviewing your request.",
+  },
+];
+
 export const metadata: Metadata = {
-  title: "Diagnostic Review Application",
-  description:
-    "Apply for an Audio Jones engagement. Founder-led service businesses with more demand signal than capacity. Reviewed personally for fit.",
+  title: "Service Inquiry",
+  description: DESCRIPTION,
   alternates: { canonical: `${siteConfig.url}/apply` },
   openGraph: {
-    title: "Apply | Audio Jones",
-    description:
-      "Apply for a strategic engagement. Reviewed personally for fit.",
+    title: "Service Inquiry | Audio Jones",
+    description: DESCRIPTION,
     url: `${siteConfig.url}/apply`,
     siteName: siteConfig.name,
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Apply | Audio Jones",
-    description: "Apply for a strategic engagement. Reviewed personally for fit.",
+    title: "Service Inquiry | Audio Jones",
+    description: DESCRIPTION,
   },
 };
 
@@ -37,15 +52,14 @@ export default function ApplyPage() {
     <>
       <JsonLd data={organizationJsonLd()} />
       <JsonLd data={personJsonLd()} />
-      <JsonLd data={faqJsonLd(founderIntelligenceFaqs)} />
+      <JsonLd data={faqJsonLd(inquiryFaqs)} />
       <JsonLd
         data={{
           "@context": "https://schema.org",
           "@type": "WebPage",
-          name: "Apply | Audio Jones",
+          name: "Service Inquiry | Audio Jones",
           url: `${siteConfig.url}/apply`,
-          description:
-            "Application form for a strategic engagement with Audio Jones.",
+          description: DESCRIPTION,
           isPartOf: { "@type": "WebSite", url: siteConfig.url },
         }}
       />
@@ -55,12 +69,16 @@ export default function ApplyPage() {
           <header className="mx-auto mb-14 max-w-[640px]">
             <Eyebrow>Apply</Eyebrow>
             <h1 className="mt-4 t-h1 text-balance">
-              Bring me your real constraint.
+              Tell us what you need help with.
             </h1>
             <p className="mt-5 t-lead text-fg-2">
-              The diagnostic is the front door. This form is the deeper cut —
-              it&apos;s where the actual scoping starts. Be specific. The
-              clearer the picture, the faster the right answer.
+              You can ask about a specific service or broader business systems.
+              If you’re unsure which offer fits, choose “Not sure yet” and
+              describe what needs attention.
+            </p>
+            <p className="mt-4 t-body text-fg-2">
+              Sending an inquiry does not commit you to a paid engagement. We
+              agree on scope and next steps after reviewing your request.
             </p>
             <ul className="mt-6 grid grid-cols-1 gap-2 t-small text-fg-3 sm:grid-cols-3">
               <li>· Reviewed personally</li>
@@ -72,16 +90,14 @@ export default function ApplyPage() {
           <section className="mx-auto mb-14 max-w-[760px] rounded-xl border border-border-subtle bg-surface-1 p-6 sm:p-8">
             <Eyebrow>Direct Answer</Eyebrow>
             <h2 className="mt-4 t-h3 text-fg-0">
-              The application is for founder-led service businesses that need
-              a sharper operating diagnosis before a systems buildout.
+              Ask about a specific service or broader business systems.
             </h2>
             <p className="mt-4 t-body text-fg-2">
-              AJ Digital reviews the constraint, current stack, revenue leaks,
-              and implementation readiness before recommending a diagnostic,
-              engagement, or no-fit next step.
+              We review what you need help with before recommending an appropriate
+              next step.
             </p>
             <div className="mt-8">
-              <FAQ items={founderIntelligenceFaqs} />
+              <FAQ items={inquiryFaqs} />
             </div>
           </section>
 

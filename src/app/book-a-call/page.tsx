@@ -3,14 +3,13 @@ import {
   DarkSection,
   LightProofSection,
   SectionIntro,
-  SignalConsole,
   SignalHero,
 } from "@/components/marketing/DesignSystemSections";
 import { ButtonLink } from "@/components/ui/Button";
 import { buildMetadata } from "@/lib/seo/metadata";
 
 const DESCRIPTION =
-  "Schedule a diagnostic call to identify the highest-leverage AI system opportunity inside your business.";
+  "Request a conversation about a specific service or broader business systems.";
 
 export const metadata: Metadata = buildMetadata({
   title: "Book a Call",
@@ -22,38 +21,38 @@ export default function BookACallPage() {
   return (
     <>
       <SignalHero
-        title="Book the call after you know what system is missing."
+        title="Tell us what needs attention."
         description={DESCRIPTION}
         primaryHref="/apply"
-        primaryLabel="Apply for Engagement"
+        primaryLabel="Tell us what you need"
         secondaryHref="/ai-readiness-diagnostic"
-        secondaryLabel="Start the Diagnostic"
+        secondaryLabel="Explore AI readiness — optional"
       >
-        <SignalConsole />
+        {/* Explicitly suppress SignalHero's default systems illustration here. */}
+        {false}
       </SignalHero>
 
       <DarkSection>
         <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <SectionIntro
-            label="Call Criteria"
-            title="The best call starts with a clear operating question."
-            description="Audio Jones is selective by design. The call is most useful when the business has a real workflow, revenue, or response constraint to diagnose."
+            label="Before we talk"
+            title="A useful conversation starts with a specific need."
+            description="Tell us what needs attention, what you have already tried, and what help you are looking for."
           />
           <div className="aj-form-panel">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--aj-orange)]">
               Booking Path
             </p>
             <h2 className="mt-4 font-accent text-3xl font-bold tracking-[-0.03em] text-fg-0">
-              Apply first, then schedule.
+              Send your inquiry first.
             </h2>
             <p className="mt-4 text-sm leading-7 text-fg-2">
-              Calls are booked by application, not an open calendar — so every
-              conversation starts with context. Submit the engagement application
-              and you&apos;ll get a scheduling link matched to the right call path.
+              We review inquiries before scheduling calls. Describe the help you
+              need so we can determine the appropriate next step.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href="/apply" variant="glow">
-                Apply for Engagement
+                Tell us what you need
               </ButtonLink>
               <ButtonLink href="/roi-calculator" variant="secondary">
                 Calculate Lost Revenue
@@ -67,8 +66,8 @@ export default function BookACallPage() {
         <div className="grid gap-4 md:grid-cols-3">
           {[
             ["Founder-led", "Best fit for businesses where founder expertise still shapes sales, delivery, or operations."],
-            ["System constraint", "The conversation should center on an operating leak, not a generic AI wish list."],
-            ["Implementation path", "The output is a recommended diagnostic, service, workshop, or agent-system next step."],
+            ["Specific need", "You can ask about one service, such as Google Business Profile improvements, or a broader business problem."],
+            ["Agreed next step", "We review your request before recommending a service, further discovery, or another next step."],
           ].map(([title, copy]) => (
             <div key={title} className="aj-proof-card">
               <h3 className="font-accent text-2xl font-bold">{title}</h3>

@@ -634,3 +634,15 @@ export function offerById(id: string): Offer | undefined {
 }
 
 export const OFFERS_URL = `${SITE_URL}/pricing`;
+
+/** Local copy review only. Promotion requires the unchanged public proof gate. */
+export const A6_DRAFT = {
+  commercialId: "A6",
+  slug: "google-business-profile",
+  name: "Google Business Profile Foundation",
+  draftPath: "/services/google-business-profile",
+  status: "local-draft",
+  indexable: false,
+  proofAssetPaths: [],
+  cta: { label: "Discuss your Google profile", href: "/book-a-call" },
+} as const;

@@ -11,6 +11,15 @@ and commit history, not here. Use this file for:
 Entries are reverse chronological. Format follows
 [Keep a Changelog](https://keepachangelog.com/) loosely.
 
+## 2026-09-07 — A6 local draft (unreleased)
+
+- Add a development-only GBP service draft and supporting services link.
+- Preserve A6 commercial identity outside the published ten-offer registry.
+- Record intended delivery procedure, assumed cost worksheet, and release gates.
+- No numeric A6 price, proof exception, sitemap entry, or release authorization.
+- Apply the approved shorter A6 hero and inquiry-first booking/application copy
+  locally; preserve form behavior and use an application-local inquiry FAQ.
+
 ---
 
 ## Unreleased

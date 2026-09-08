@@ -258,3 +258,16 @@ Clean installs of every version tested build successfully. See #219.
   prod deploy time is a separate tradeoff and should be decided on its own.
 - A green `deploy_preview` on a dependency PR now means something. A green
   `smoke_preview` still does not (#216).
+
+## 2026-09-07 — A6 isolated local copy draft
+
+**Status:** approved for local implementation only; release held.
+**Decision:** Preserve A6 as the commercial identity in a separate A6_DRAFT
+record. Keep the ten public OFFERS, prices, ResponseOS, and proof gate unchanged.
+The draft route and hub link are development-only; the page is noindex/nofollow
+and has no sitemap entry. Intended procedure documentation is not proof.
+**Rationale:** Review a bounded GBP engagement without publishing an uncosted
+price, claiming delivered results, or bypassing commercial reconciliation.
+**Consequences:** Price, proof, response target, indexability, hosted access,
+commit, push, merge, and deployment need subsequent decisions. Before any hosted
+preview, approve explicit access and indexing controls. No provider changes.

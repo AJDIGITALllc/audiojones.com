@@ -4,7 +4,7 @@ import path from "node:path";
 import test from "node:test";
 
 import { APPLY_OFFERS } from "../src/lib/apply/apply-schema";
-import { OFFERS } from "../src/content/offers";
+import { A6_DRAFT, OFFERS } from "../src/content/offers";
 import {
   isPublishable,
   publicOffers,
@@ -22,6 +22,20 @@ import {
 } from "../src/content/pricing";
 
 const repoRoot = process.cwd();
+
+test("A6 remains an unpriced local draft outside every public offer projection", () => {
+  assert.equal(A6_DRAFT.commercialId, "A6");
+  assert.equal(A6_DRAFT.slug, "google-business-profile");
+  assert.equal(A6_DRAFT.indexable, false);
+  assert.deepEqual(A6_DRAFT.proofAssetPaths, []);
+  assert.equal("pricing" in A6_DRAFT, false);
+  assert.equal(A6_DRAFT.cta.href, "/book-a-call");
+  assert.equal(OFFERS.length, 10);
+  const output = JSON.stringify([pricingOffers, pricingServicesJsonLd(), publicOffers()]);
+  assert.equal(output.includes(A6_DRAFT.slug), false);
+  assert.equal(output.includes(A6_DRAFT.name), false);
+  assert.equal(readSource("src/app/sitemap.ts").includes(A6_DRAFT.slug), false);
+});
 
 function readSource(relativePath: string) {
   return readFileSync(path.join(repoRoot, relativePath), "utf8");

@@ -8,6 +8,7 @@ import { ctaLinks } from "@/config/links";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { founderIntelligenceFaqs } from "@/lib/seo/founder-intelligence-faq";
 import { faqJsonLd } from "@/lib/seo/schema";
+import { A6_DRAFT } from "@/content/offers";
 
 const TITLE = "Founder Intelligence Services";
 const DESCRIPTION =
@@ -183,6 +184,18 @@ export default function ServicesPage() {
               </article>
             ))}
           </div>
+          {process.env.NODE_ENV === "development" && (
+            <div className="mt-10 max-w-3xl border-t border-[var(--line-2)] pt-6">
+              <p className="t-body text-fg-2">
+                Need focused help with an existing Google Business Profile? Our
+                one-time foundation engagement covers approved profile improvements,
+                contact-path checks, and a documented handoff.
+              </p>
+              <Link href={A6_DRAFT.draftPath} className="mt-4 inline-flex text-aj-signal underline underline-offset-4">
+                Explore Google Business Profile Foundation →
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
