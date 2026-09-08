@@ -9,26 +9,28 @@ import {
   organizationJsonLd,
   personJsonLd,
 } from "@/lib/seo/schema";
-import { founderIntelligenceFaqs } from "@/lib/seo/founder-intelligence-faq";
+import { inquiryFaqs } from "@/content/inquiry-faq";
 import { siteConfig } from "@/lib/site";
 
+const DESCRIPTION = "Send Audio Jones an inquiry about a specific service or broader business systems. Offer selection is optional. Scope and next steps are agreed after review.";
+
 export const metadata: Metadata = {
-  title: "Diagnostic Review Application",
+  title: "Send an Inquiry",
   description:
-    "Apply for an Audio Jones engagement. Founder-led service businesses with more demand signal than capacity. Reviewed personally for fit.",
+    DESCRIPTION,
   alternates: { canonical: `${siteConfig.url}/apply` },
   openGraph: {
-    title: "Apply | Audio Jones",
+    title: "Send an Inquiry | Audio Jones",
     description:
-      "Apply for a strategic engagement. Reviewed personally for fit.",
+      DESCRIPTION,
     url: `${siteConfig.url}/apply`,
     siteName: siteConfig.name,
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Apply | Audio Jones",
-    description: "Apply for a strategic engagement. Reviewed personally for fit.",
+    title: "Send an Inquiry | Audio Jones",
+    description: DESCRIPTION,
   },
 };
 
@@ -37,15 +39,15 @@ export default function ApplyPage() {
     <>
       <JsonLd data={organizationJsonLd()} />
       <JsonLd data={personJsonLd()} />
-      <JsonLd data={faqJsonLd(founderIntelligenceFaqs)} />
+      <JsonLd data={faqJsonLd(inquiryFaqs)} />
       <JsonLd
         data={{
           "@context": "https://schema.org",
           "@type": "WebPage",
-          name: "Apply | Audio Jones",
+          name: "Send an Inquiry | Audio Jones",
           url: `${siteConfig.url}/apply`,
           description:
-            "Application form for a strategic engagement with Audio Jones.",
+            DESCRIPTION,
           isPartOf: { "@type": "WebSite", url: siteConfig.url },
         }}
       />
@@ -53,35 +55,31 @@ export default function ApplyPage() {
       <section className="bg-bg-0 py-24 sm:py-32">
         <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
           <header className="mx-auto mb-14 max-w-[640px]">
-            <Eyebrow>Apply</Eyebrow>
+            <Eyebrow>Your inquiry</Eyebrow>
             <h1 className="mt-4 t-h1 text-balance">
-              Bring me your real constraint.
+              Tell us what you need help with.
             </h1>
             <p className="mt-5 t-lead text-fg-2">
-              The diagnostic is the front door. This form is the deeper cut —
-              it&apos;s where the actual scoping starts. Be specific. The
-              clearer the picture, the faster the right answer.
+              Ask about a specific service or broader business systems. Describe what needs attention—you do not need to choose an offer first.
             </p>
             <ul className="mt-6 grid grid-cols-1 gap-2 t-small text-fg-3 sm:grid-cols-3">
               <li>· Reviewed personally</li>
-              <li>· No automated bot replies</li>
+              <li>· Offer selection is optional</li>
               <li>· Founder-led service businesses</li>
             </ul>
           </header>
 
           <section className="mx-auto mb-14 max-w-[760px] rounded-xl border border-border-subtle bg-surface-1 p-6 sm:p-8">
-            <Eyebrow>Direct Answer</Eyebrow>
+            <Eyebrow>Before you submit</Eyebrow>
             <h2 className="mt-4 t-h3 text-fg-0">
-              The application is for founder-led service businesses that need
-              a sharper operating diagnosis before a systems buildout.
+              Ask about focused service help or broader systems work.
             </h2>
             <p className="mt-4 t-body text-fg-2">
-              AJ Digital reviews the constraint, current stack, revenue leaks,
-              and implementation readiness before recommending a diagnostic,
-              engagement, or no-fit next step.
+              Submitting an inquiry does not commit you to a diagnostic or systems engagement. Scope and next steps are agreed after review.
             </p>
             <div className="mt-8">
-              <FAQ items={founderIntelligenceFaqs} />
+              <h2 className="mb-5 t-h3 text-fg-0">Questions about your inquiry</h2>
+              <FAQ items={inquiryFaqs} />
             </div>
           </section>
 

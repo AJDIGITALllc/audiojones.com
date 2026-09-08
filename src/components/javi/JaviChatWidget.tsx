@@ -115,7 +115,8 @@ function InlineCta({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex items-center justify-center gap-2 rounded h-9 px-4 text-[13px] font-headline font-bold tracking-[-0.01em] bg-signal-yellow text-bg-base border border-signal-yellow shadow-[0_10px_40px_-10px_rgba(232,255,90,0.55)] hover:bg-signal-soft hover:border-signal-soft transition-colors focus-visible:outline-none focus-visible:[box-shadow:0_0_0_2px_var(--signal-yellow)]"
+      style={{ color: "var(--aj-signal-ink)" }}
+      className="inline-flex shrink-0 items-center justify-center gap-2 rounded min-h-11 px-4 py-2 text-center text-[13px] leading-tight font-headline font-bold tracking-[-0.01em] bg-signal-yellow border border-signal-yellow shadow-[0_10px_40px_-10px_rgba(232,255,90,0.55)] hover:bg-signal-soft hover:border-signal-soft transition-colors focus-visible:outline-none focus-visible:[box-shadow:0_0_0_2px_var(--signal-yellow)]"
     >
       {label}
     </Link>
@@ -230,8 +231,8 @@ export default function JaviChatWidget() {
 
   return (
     <>
-      {/* Launcher — sits below the cookie banner (z-50) so consent UI
-          always wins on first load. */}
+      {/* Keep small-screen chat access in flow so it cannot cover page content. */}
+      <div className="mx-auto flex max-w-[1280px] justify-end px-5 py-6 sm:px-8 lg:p-0">
       <button
         ref={launcherRef}
         type="button"
@@ -239,13 +240,14 @@ export default function JaviChatWidget() {
         aria-label={open ? "Close Javi chat" : "Open Javi chat — AI Executive Assistant"}
         aria-expanded={open}
         aria-controls={open ? "javi-chat-panel" : undefined}
-        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-surface-1 border border-border-strong pl-1.5 pr-4 py-1.5 shadow-[0_10px_40px_-10px_rgba(232,255,90,0.45)] hover:border-signal-yellow transition-colors focus-visible:outline-none focus-visible:[box-shadow:0_0_0_2px_var(--signal-yellow)]"
+        className="lg:fixed lg:bottom-5 lg:right-5 z-40 inline-flex items-center gap-2 rounded-full bg-surface-1 border border-border-strong pl-1.5 pr-4 py-1.5 shadow-[0_10px_40px_-10px_rgba(232,255,90,0.45)] hover:border-signal-yellow transition-colors focus-visible:outline-none focus-visible:[box-shadow:0_0_0_2px_var(--signal-yellow)]"
       >
         <JaviAvatar size={32} />
         <span className="font-headline text-[13px] font-bold tracking-[-0.01em] text-text-primary">
           {open ? "Hide Javi" : "Ask Javi"}
         </span>
       </button>
+      </div>
 
       {open && (
         <div
@@ -253,7 +255,7 @@ export default function JaviChatWidget() {
           role="dialog"
           aria-modal="false"
           aria-label="Javi — AI Executive Assistant"
-          className="fixed bottom-20 right-3 z-40 w-[min(380px,calc(100vw-1.5rem))] max-h-[min(560px,calc(100vh-7rem))] flex flex-col rounded-lg bg-surface-1 border border-border-strong shadow-[0_30px_80px_-40px_rgba(0,0,0,0.7)] overflow-hidden"
+          className="fixed bottom-20 right-3 z-40 w-[min(380px,calc(100%-1.5rem))] max-h-[min(560px,calc(100vh-7rem))] flex flex-col rounded-lg bg-surface-1 border border-border-strong shadow-[0_30px_80px_-40px_rgba(0,0,0,0.7)] overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border-subtle bg-bg-base">
@@ -356,7 +358,7 @@ export default function JaviChatWidget() {
           </form>
 
           {/* Footer CTA — always visible offer line */}
-          <div className="border-t border-border-subtle bg-surface-2 px-4 py-3 flex items-center justify-between gap-3">
+          <div className="border-t border-border-subtle bg-surface-2 px-4 py-3 flex flex-col items-stretch gap-3">
             <div className="font-body text-[12px] text-text-muted leading-tight">
               Want a Javi for your business?
             </div>

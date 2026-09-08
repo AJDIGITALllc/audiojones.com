@@ -131,7 +131,7 @@ export default function ApplyForm() {
       onSubmit={onSubmit}
       noValidate
       className="mx-auto flex w-full max-w-[640px] flex-col gap-12"
-      aria-label="Apply for an Audio Jones engagement"
+      aria-label="Send an inquiry to Audio Jones"
     >
       {/* Honeypot — visually hidden, not focusable */}
       <div
@@ -153,14 +153,14 @@ export default function ApplyForm() {
 
       {/* ── Section 0: Engagement ── */}
       <section className="flex flex-col gap-5">
-        <Eyebrow>Engagement</Eyebrow>
+        <Eyebrow>Service or offer</Eyebrow>
         <FormField
           id="offer"
-          label="What are you applying for?"
+          label="Is there a service or offer you want to ask about?"
           hint={
             form.offer
-              ? "Prefilled from the offer you clicked. Change it if you landed on the wrong one."
-              : "Optional — pick one if you already know, or leave it open."
+              ? "Selected from the link you followed. You can change it or choose “Not sure yet.”"
+              : "Optional. Choose an offer if it fits, or leave “Not sure yet” selected and describe what you need below."
           }
           error={errors.offer}
         >
@@ -314,8 +314,8 @@ export default function ApplyForm() {
           </FormField>
           <FormField
             id="primaryConstraint"
-            label="Primary constraint"
-            hint="What's blocking growth right now? (optional)"
+            label="What needs attention?"
+            hint="Optional. Describe an issue or service you want help with."
             error={errors.primaryConstraint}
             className="md:col-span-2"
           >
@@ -331,12 +331,12 @@ export default function ApplyForm() {
 
       {/* ── Section 3: Engagement scope ── */}
       <section className="flex flex-col gap-5">
-        <Eyebrow>Engagement scope</Eyebrow>
+        <Eyebrow>What you need</Eyebrow>
         <FormField
           id="desiredOutcome"
-          label="What outcome are you looking for?"
+          label="What would you like help with or improve?"
           required
-          hint="Be specific. The clearer the outcome, the better the diagnosis."
+          hint="Describe the service you are asking about or what you would like to work better. You do not need a technical diagnosis."
           error={errors.desiredOutcome}
         >
           <Textarea
@@ -388,7 +388,7 @@ export default function ApplyForm() {
         <FormField
           id="notes"
           label="Notes"
-          hint="Anything I should know before reviewing — context, constraints, what you've already tried."
+          hint="Optional. Add context, practical limits, or anything you have already tried."
           error={errors.notes}
         >
           <Textarea
@@ -423,7 +423,7 @@ export default function ApplyForm() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <Button type="submit" variant="primary" size="lg" disabled={submitting}>
-          {submitting ? "Submitting…" : "Submit application"}
+          {submitting ? "Sending…" : "Send inquiry"}
         </Button>
         <p className="t-small text-fg-3">
           Reviewed personally by Audio Jones. Typical response: 1–3 business days.

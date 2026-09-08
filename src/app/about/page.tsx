@@ -4,9 +4,8 @@ import {
   FinalCta,
   LightProofSection,
   SectionIntro,
-  SignalConsole,
-  SignalHero,
 } from "@/components/marketing/DesignSystemSections";
+import { ButtonLink } from "@/components/ui/Button";
 import JsonLd from "@/components/seo/JsonLd";
 import { buildMetadata } from "@/lib/seo/metadata";
 import {
@@ -16,10 +15,10 @@ import {
 } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Audio Jones is the strategist and operator behind founder intelligence systems for founder-led businesses.";
+  "Audio Jones, founder of AJ Digital LLC, helps founder-led service businesses improve inquiries, follow-up, customer information, and reporting.";
 
 export const metadata: Metadata = buildMetadata({
-  title: "About Audio Jones - Founder Intelligence Systems",
+  title: "About Audio Jones",
   description: DESCRIPTION,
   path: "/about",
 });
@@ -36,29 +35,31 @@ export default function AboutPage() {
         ])}
       />
 
-      <SignalHero
-        title="Audio Jones builds signal systems for founder-led businesses."
-        description="The brand combines personal authority, applied AI infrastructure, business diagnosis, and operating-system design for teams that need clarity before scale."
-        primaryHref="/ai-readiness-diagnostic"
-        primaryLabel="Start the Diagnostic"
-        secondaryHref="/services"
-        secondaryLabel="See Services"
-      >
-        <SignalConsole />
-      </SignalHero>
+      <section className="border-b border-[var(--line-2)] bg-bg-0 py-16 sm:py-24">
+        <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
+          <div className="max-w-4xl">
+            <h1 className="break-words font-accent text-[clamp(2.55rem,6vw,5.6rem)] font-bold leading-[1.02] tracking-[-0.025em] text-fg-0">I’m Audio Jones, founder of AJ Digital LLC.</h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-fg-2">I help founder-led service businesses improve how inquiries, follow-up, customer information, and reporting work together. My work combines consulting with implementation around the tools and workflows the business already uses.</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <ButtonLink href="/ai-readiness-diagnostic" variant="glow">Start the AI Readiness Diagnostic</ButtonLink>
+              <ButtonLink href="/services" variant="secondary">See Services</ButtonLink>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <DarkSection>
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
           <SectionIntro
-            label="Founder Authority"
-            title="The work starts where strategy meets operations."
-            description="Audio Jones is not positioned as a generic AI agency. The operating thesis is simple: most businesses do not need more noise. They need a clearer signal path, a better follow-up system, and intelligence layers that support how work actually moves."
+            label="How I work"
+            title="Understand the work before recommending changes."
+            description="I start by reviewing how work happens today: where inquiries arrive, who responds, which tools hold the information, and where handoffs get stuck. That context helps define what needs to change and what should stay."
           />
           <div className="grid gap-4">
             {[
-              ["Strategist", "Clarifies the market, message, constraint, and system opportunity."],
-              ["Operator", "Turns diagnosis into workflows, handoffs, dashboards, and adoption paths."],
-              ["Builder", "Installs practical intelligence systems around the tools and team already in motion."],
+              ["Understand", "Review the current workflow and the people responsible for it."],
+              ["Agree", "Define the problem, the scope of work, and the outcome to measure."],
+              ["Implement", "Build the agreed workflows, automation, and reporting around the team’s existing tools."],
             ].map(([title, copy]) => (
               <div key={title} className="aj-product-card">
                 <h3 className="font-accent text-2xl font-bold tracking-[-0.02em] text-fg-0">
@@ -82,23 +83,22 @@ export default function AboutPage() {
             </h2>
           </div>
           <p className="text-lg leading-8 text-[#4b5563]">
-            The design language, content architecture, and product routes all point back to the same question: where is the signal, where is the leak, and what system fixes it?
+            Focus on information that helps you decide what to do next: which inquiries need a response, where follow-up stalls, and what outcomes are recorded.
           </p>
         </div>
       </LightProofSection>
 
       <DarkSection>
         <SectionIntro
-          label="Operating Principles"
-          title="What the site now has to communicate."
-          description="Audio Jones is a premium personal-brand and AI systems company website. It should feel like a systems platform, not a generic consultant portfolio."
+          label="Working principles"
+          title="Build around the people doing the work."
         />
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {[
-            ["Agents", "Deployable business infrastructure."],
-            ["ResponseOS", "The flagship revenue recovery wedge."],
-            ["Services", "Human advisory and implementation."],
-            ["Education", "Insights, workshops, ROI, and diagnostic entry points."],
+            ["Start with the current workflow.", "Understand how the business works before recommending another tool."],
+            ["Make responsibilities clear.", "Define who responds, who follows up, and when a person needs to step in."],
+            ["Keep the scope clear.", "Agree what the implementation includes before building it."],
+            ["Check the results.", "Review how the workflow is used and what outcomes are recorded."],
           ].map(([title, copy]) => (
             <div key={title} className="aj-card-signal">
               <div className="aj-card-inner">
@@ -113,12 +113,12 @@ export default function AboutPage() {
       </DarkSection>
 
       <FinalCta
-        title="Start with the signal."
-        description="Use the diagnostic, calculator, or service path to identify the operating constraint before building the next intelligence layer."
-        primaryLabel="Start the Diagnostic"
-        primaryHref="/ai-readiness-diagnostic"
-        secondaryLabel="Book a Call"
-        secondaryHref="/book-a-call"
+        title="Tell us what needs attention."
+        description="Ask about a specific service or a broader business-systems need. You do not need to choose an offer first."
+        primaryLabel="Send an inquiry"
+        primaryHref="/book-a-call"
+        secondaryLabel="Start the AI Readiness Diagnostic"
+        secondaryHref="/ai-readiness-diagnostic"
       />
     </>
   );
