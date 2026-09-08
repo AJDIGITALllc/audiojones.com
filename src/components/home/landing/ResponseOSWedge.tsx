@@ -4,15 +4,15 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 const pillars = [
   [
     "Capture",
-    "Every inbound lead routed and timestamped — no missed signal in the gap between channel and CRM.",
+    "Bring inquiries from the agreed channels into a shared workflow, with a record of when they arrived and who should respond.",
   ],
   [
     "Qualify",
-    "Intent scored against your ICP before a human touches it, so the team works the calls worth working.",
+    "Check each inquiry against your agreed customer-fit criteria and route it to the right next step, with human review where needed.",
   ],
   [
     "Recover",
-    "Stalled and ghosted leads re-engaged on a recovery cadence designed around your offer, not generic drip.",
+    "Follow up on stalled inquiries on an agreed schedule, with a clear booking, callback, or human handoff when appropriate.",
   ],
 ] as const;
 
@@ -63,11 +63,12 @@ export default function ResponseOSWedge() {
         <div className="min-w-0">
           <Eyebrow>Flagship - Revenue Recovery Infrastructure</Eyebrow>
           <h2 className="mt-4 t-h1 text-balance max-sm:text-[2rem]">
-            ResponseOS recovers the revenue your follow-up is losing.
+            ResponseOS helps your team follow up and move inquiries toward booking.
           </h2>
           <p className="mt-5 t-lead text-fg-2">
-            The leak is not just missed calls. It is scattered intent, slow
-            response, weak qualification, and no recovery memory.
+            Missed calls, scattered messages, and forgotten follow-up make it
+            hard to see who needs a response. ResponseOS connects the agreed
+            channels and next steps in one managed workflow.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {pillars.map(([label, description]) => (

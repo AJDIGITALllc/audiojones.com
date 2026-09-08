@@ -46,24 +46,24 @@ const serviceBuckets = [
 
 const processSteps = [
   {
-    title: "Map the operating system",
+    title: "Map how work moves",
     description:
-      "We document how work actually moves through the business: where requests enter, who touches them, which tools carry state, and where decisions stall.",
+      "We document where inquiries arrive, who responds, which tools hold the information, and where follow-up or decisions get stuck.",
   },
   {
-    title: "Prioritize leverage",
+    title: "Choose what to fix first",
     description:
-      "We separate high-signal constraints from noisy tool problems, then choose the workflows where founder intelligence can measurably improve speed, clarity, or conversion.",
+      "We review the evidence with you and agree which workflow needs attention first, along with how we will measure the change.",
   },
   {
-    title: "Build the system layer",
+    title: "Connect the workflow",
     description:
-      "We install the automation, agent, and reporting layer around your existing stack so the team gets a working operating rhythm, not another disconnected dashboard.",
+      "We build the agreed follow-up, handoffs, automation, and reporting around the tools your team uses, with clear responsibilities and human review.",
   },
   {
-    title: "Measure and harden",
+    title: "Check results and improve",
     description:
-      "We instrument adoption, cycle time, and business signal, then tighten the workflows until the system becomes durable enough to run without constant founder intervention.",
+      "We check whether the team is using the workflow, how long work takes, and what outcomes are recorded, then improve the gaps the evidence shows.",
   },
 ] as const;
 
@@ -101,8 +101,8 @@ export default function ServicesPage() {
             <Eyebrow>Audio Jones Services</Eyebrow>
             <h1 className="mt-5 t-h1 text-balance text-fg-0">{TITLE}</h1>
             <p className="mt-6 t-lead text-fg-2">
-              We don&apos;t sell tools. We build the systems your tools should
-              have been part of from day one.
+              We review how inquiries, follow-up, and handoffs work today,
+              then connect the workflows and reporting your team needs.
             </p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href={ctaLinks.roiCalculator} variant="glow">
@@ -125,23 +125,23 @@ export default function ServicesPage() {
           <div className="max-w-[var(--copy-max)]">
             <Eyebrow>The Method</Eyebrow>
             <h2 className="mt-4 t-h2 text-balance text-fg-0">
-              We diagnose your operating system, then install what is missing.
+              Find where work gets stuck, then build the agreed fix.
             </h2>
             <div className="mt-6 space-y-5">
               <p className="t-body-lg text-fg-1">
-                Founder-led businesses rarely need more isolated software. They
-                need the connective tissue between the tools they already use,
-                the workflows their team repeats, and the decisions that move
-                revenue.
+                Inquiries arrive through different channels. Your team needs
+                to know who should respond, what has already happened, and
+                when to follow up. We map those steps before recommending
+                changes to your tools.
               </p>
               <p className="t-body-lg text-fg-1">
-                We treat AI as a{" "}
+                We use AI to support{" "}
                 <span className="text-aj-orange">
-                  force multiplier on a working system
+                  a clearly defined workflow
                 </span>
-                , not a substitute for one. Every engagement starts by finding
-                the constraint, then builds only the automation and measurement
-                layer required to remove it.
+                . First we agree on the problem, the people responsible, and
+                the outcome to measure. Then we build only what that scope
+                requires.
               </p>
             </div>
           </div>
@@ -156,9 +156,9 @@ export default function ServicesPage() {
               How we work with founder-led businesses.
             </h2>
             <p className="mt-5 t-body-lg text-fg-2">
-              These engagements map into the canonical offer ladder — diagnose,
-              design, build, operate. Each path is scoped around operational
-              leverage, not product browsing or off-the-shelf packages.
+              Start with diagnosis, then agree on the design, build, and ongoing
+              support your business needs. Each engagement has a defined scope
+              based on your workflows and existing tools.
             </p>
             <Link
               href="/solutions"
@@ -195,9 +195,9 @@ export default function ServicesPage() {
                 Diagnostic first. Automation second. Measurement always.
               </h2>
               <p className="mt-5 t-body-lg text-fg-2">
-                The list is the diagram: understand the system, pick the
-                leverage point, install the layer, then prove the work changed
-                the operating rhythm.
+                Understand how work happens today, agree what to fix, put the
+                workflow into use, and compare the results with the starting
+                point.
               </p>
               <Link
                 href="/founder-intelligence"

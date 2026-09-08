@@ -7,7 +7,7 @@ const STEPS = [
   {
     n: "01",
     label: "Diagnose",
-    desc: "Find the real constraint. Map the existing system — surface noise, gaps, and false signals before touching tools.",
+    desc: "Find where inquiries stall. Review how calls, messages, and requests reach your team and what happens next.",
     accent: "#666666",
     border: "rgba(102,102,102,0.22)",
     bg: "linear-gradient(160deg, rgba(102,102,102,0.05) 0%, rgba(15,15,15,0.96) 100%)",
@@ -19,7 +19,7 @@ const STEPS = [
   {
     n: "02",
     label: "Attribute",
-    desc: "Identify what is actually creating outcomes. Apply the M.A.P. (Meaningful. Actionable. Profitable.) filter to every metric.",
+    desc: "Connect inquiry sources to recorded bookings and revenue. Use M.A.P. (Meaningful. Actionable. Profitable.) to decide which measures help you act.",
     accent: "#4DACFF",
     border: "rgba(77,172,255,0.45)",
     bg: "linear-gradient(160deg, rgba(77,172,255,0.09) 0%, rgba(15,15,15,0.96) 100%)",
@@ -31,7 +31,7 @@ const STEPS = [
   {
     n: "03",
     label: "Design",
-    desc: "Build the system around the signal. Architect the operating model — signal → process → output → feedback.",
+    desc: "Agree who does what next. Define the follow-up, handoffs, automation, and reporting around your existing workflow.",
     accent: "#666666",
     border: "rgba(102,102,102,0.22)",
     bg: "linear-gradient(160deg, rgba(102,102,102,0.05) 0%, rgba(15,15,15,0.96) 100%)",
@@ -43,7 +43,7 @@ const STEPS = [
   {
     n: "04",
     label: "Deploy",
-    desc: "Turn the system into repeatable execution. Instrument everything. Compound the loop.",
+    desc: "Put the agreed workflow into use. Check response times, follow-up, and recorded outcomes, then improve what needs attention.",
     accent: "#E8FF5A",
     border: "rgba(232,255,90,0.32)",
     bg: "linear-gradient(160deg, rgba(232,255,90,0.06) 0%, rgba(15,15,15,0.96) 100%)",
@@ -252,8 +252,8 @@ export default function ProcessPipeline() {
             Diagnose. Attribute. Design. Deploy.
           </h2>
           <p className="mt-5 t-lead text-fg-2">
-            Four steps. No tool list. Each phase builds on the last until the
-            loop is causal and the system compounds on its own.
+            We review how inquiries move through your business, agree what
+            needs to change, build the workflow, and check the results.
           </p>
         </div>
 
@@ -484,9 +484,9 @@ export default function ProcessPipeline() {
               letterSpacing: "-0.01em",
             }}
           >
-            The system is not built in phases.{" "}
+            Start with the problem.{" "}
             <span style={{ color: "var(--signal-yellow)", fontWeight: 600 }}>
-              It is built in sequence — and it compounds.
+              Build the agreed fix, then check the results.
             </span>
           </p>
         </div>

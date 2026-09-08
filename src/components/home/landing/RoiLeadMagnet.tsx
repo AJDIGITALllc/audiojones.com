@@ -6,9 +6,9 @@ const ROI_BG =
   "/assets/Homepage/09-roi-calculator/backgrounds/roi-light-bg-v2.webp";
 
 const inputs = [
-  ["Leads / mo", "84"],
-  ["Close rate", "18%"],
-  ["AOV", "$2,400"],
+  ["Monthly inquiries", "—"],
+  ["Close rate", "—"],
+  ["Average sale value", "—"],
 ] as const;
 
 export default function RoiLeadMagnet() {
@@ -51,10 +51,10 @@ export default function RoiLeadMagnet() {
         >
           <div className="flex items-center justify-between border-b border-[rgba(102,102,102,0.14)] pb-4">
             <p className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-fg-3">
-              Signal Output
+              Your inputs
             </p>
             <span className="rounded-full border border-[rgba(77,172,255,0.28)] bg-[rgba(77,172,255,0.10)] px-3 py-1 font-mono text-xs font-bold text-[var(--aj-blue)]">
-              ROI PREVIEW
+              CALCULATOR GUIDE
             </span>
           </div>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -82,14 +82,14 @@ export default function RoiLeadMagnet() {
               }}
             />
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--signal-yellow)]">
-              Lost revenue estimate
+              Your recovery estimate
             </p>
             <p className="mt-3 font-mono text-4xl font-black text-fg-0">
-              $28,224
+              Use your figures
             </p>
             <p className="mt-2 text-sm leading-6 text-fg-2">
-              Preview only. The calculator routes the result into your
-              recommended next step.
+              Open the calculator for a modeled estimate based on your inputs.
+              These are placeholders, not measured client results.
             </p>
           </div>
         </div>

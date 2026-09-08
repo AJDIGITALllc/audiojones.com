@@ -8,11 +8,11 @@ const COLUMNS = [
     label: "Noise",
     tone: "gold" as const,
     items: [
-      "Vanity metrics that feel good but predict nothing",
-      "Tool sprawl without system integration",
-      "Activity volume as a proxy for progress",
-      "Last-click attribution dressed as truth",
-      "Dashboards optimized for presentations",
+      "Likes and views without a link to customer inquiries",
+      "Tools that do not share inquiry status",
+      "Counting tasks without checking outcomes",
+      "Treating the last click as proof of what caused a sale",
+      "Reports that do not help anyone decide what to do",
     ],
   },
   {
@@ -20,10 +20,10 @@ const COLUMNS = [
     label: "Acceptable Noise",
     tone: "muted" as const,
     items: [
-      "Brand awareness campaigns without short-term conversion signal",
-      "Content with long attribution windows",
-      "Exploratory testing without clear hypothesis",
-      "Organic reach as a supplementary channel",
+      "Brand awareness that may take time to produce inquiries",
+      "Content people read long before they contact you",
+      "Small tests that need more observations",
+      "Unpaid reach that needs context before judging results",
     ],
   },
   {
@@ -31,11 +31,11 @@ const COLUMNS = [
     label: "Signal",
     tone: "blue" as const,
     items: [
-      "Causal inputs that predict qualified pipeline",
-      "Behavioral patterns that precede conversion",
-      "Constraint data that explains stalled growth",
-      "Attribution tied to revenue-generating actions",
-      "Decision data with repeatable predictive power",
+      "Inquiry sources linked to recorded bookings",
+      "Response times and follow-up outcomes",
+      "Handoffs where inquiries repeatedly stall",
+      "Evidence that helps test why results changed",
+      "Information your team can use to choose the next action",
     ],
   },
 ];
@@ -120,11 +120,12 @@ export default function SignalNoiseModel() {
         <div className="mb-14 max-w-3xl">
           <Eyebrow>Signal vs Noise Model</Eyebrow>
           <h2 className="mt-4 t-h1 text-balance">
-            Identify which noise reveals signal.
+            Know what helps you act.
           </h2>
           <p className="mt-5 t-lead text-fg-2">
-            Most businesses do not need more data. They need a system for
-            separating signal from noise.
+            Signal is information that helps you decide what to do next.
+            Noise gets in the way. Some information needs more time or context
+            before you can judge what it means.
           </p>
         </div>
 
@@ -335,9 +336,9 @@ export default function SignalNoiseModel() {
               letterSpacing: "-0.01em",
             }}
           >
-            The 20% noise often reveals the 80% signal —{" "}
+            Some information helps you decide what to do next.{" "}
             <span style={{ color: "var(--signal-yellow)", fontWeight: 600 }}>
-              if you know how to read the system.
+              Other information needs more context.
             </span>
           </p>
         </div>

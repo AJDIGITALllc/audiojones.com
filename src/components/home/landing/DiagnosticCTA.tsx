@@ -51,7 +51,7 @@ export default function DiagnosticCTA() {
             letterSpacing: "-0.035em",
           }}
         >
-          Build around what actually works.
+          Find the next step for your business.
         </h2>
         <p
           className="mt-4 text-fg-2 max-w-[56ch] mx-auto"
@@ -63,17 +63,18 @@ export default function DiagnosticCTA() {
             letterSpacing: "-0.01em",
           }}
         >
-          Run the diagnostic, identify the signal, and build the system that
-          turns it into measurable growth.
+          Start with a first look at your workflows, follow-up, and AI readiness
+          before deciding what to build.
         </p>
         <p className="mt-4 t-body text-fg-2 max-w-2xl mx-auto">
-          Choose the live call path when you are ready to scope the system.
-          Choose the diagnostic path when the leak still needs to be mapped.
+          Start the AI Readiness Diagnostic to share where work gets stuck.
+          If you want to discuss an engagement, request a call through the
+          application-led booking path.
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link href="/book-a-call" className="aj-btn-signal w-full sm:w-auto">
-            Book a Call
+            Request a Call
           </Link>
           <Link href="/ai-readiness-diagnostic" className="aj-btn-intel w-full sm:w-auto">
             Start the AI Readiness Diagnostic

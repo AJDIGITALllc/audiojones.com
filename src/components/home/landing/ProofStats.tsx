@@ -14,26 +14,26 @@ const BG =
 const stats = [
   {
     metric: "Response",
-    display: "On an SLA",
-    label: "Inbound answered on a defined clock, not when someone is free",
+    display: "Agreed target",
+    label: "Response-time targets are defined for the agreed channels and scope",
     accent: "#E8FF5A",
   },
   {
     metric: "Follow-up",
-    display: "Every lead",
-    label: "Recovery cadence runs without anyone remembering to run it",
+    display: "Agreed follow-up",
+    label: "A defined schedule and owner for inquiries in the managed workflow",
     accent: "#666666",
   },
   {
     metric: "Attribution",
-    display: "Causal",
-    label: "Revenue traced to the action that caused it, not to last click",
+    display: "Linked results",
+    label: "Connect inquiry sources, follow-up, and recorded outcomes. Test causal explanations where the evidence allows.",
     accent: "#4DACFF",
   },
   {
     metric: "Decision Clarity",
-    display: "1 Signal Map",
-    label: "One signal map, one model",
+    display: "Clear next steps",
+    label: "A shared view of what needs attention and who should act",
     accent: "#666666",
   },
 ];
@@ -125,14 +125,14 @@ export default function ProofStats() {
       >
         {/* Header */}
         <div className="mb-10 max-w-3xl">
-          <Eyebrow>Before / After</Eyebrow>
+          <Eyebrow>Illustrative Before / After</Eyebrow>
           <h2 className="mt-4 t-h1 text-balance">
-            From fragmented activity to measurable signal.
+            From scattered inquiries to clear next steps.
           </h2>
           <p className="mt-5 t-lead text-fg-2">
-            What changes once the system is installed. Engagement results are
-            published here only when a client consents and the numbers can be
-            sourced.
+            Example workflow, not a live customer dashboard. Channels and
+            response targets depend on the agreed scope. Client results are
+            published only with consent and supporting evidence.
           </p>
         </div>
 
@@ -161,7 +161,7 @@ export default function ProofStats() {
               background: "rgba(255,255,255,0.03)",
             }}
           >
-            Attribution Layer
+            Inquiry and outcome tracking
           </span>
           <span
             aria-hidden
@@ -177,36 +177,36 @@ export default function ProofStats() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <PerfCard
             kind="before"
-            title="Activity without leverage"
-            statusLabel="Noise"
+            title="Scattered inquiries and follow-up"
+            statusLabel="Illustrative"
             kpis={[
-              { label: "Pipeline Drift", value: "High", trend: "drivers unclear", trendUp: false },
-              { label: "Attribution Conf.", value: "Low", trend: "Last-click", trendUp: false },
+              { label: "Follow-up", value: "Unclear", trend: "owner not defined", trendUp: false },
+              { label: "Lead source", value: "Unlinked", trend: "outcome not recorded", trendUp: false },
             ]}
             chart={<ChaoticChart />}
-            range="Pre-engagement baseline"
+            range="Example before implementation"
             bullets={[
-              "Inconsistent pipeline with unclear drivers",
-              "Unclear attribution — last-click theatre",
-              "Disconnected tools, no operating model",
-              "Founder as the bottleneck for every decision",
+              "Inquiries spread across calls, forms, and messages",
+              "No clear record of which inquiries became work",
+              "Follow-up depends on someone remembering",
+              "Owner has to chase the next step",
             ]}
           />
           <PerfCard
             kind="after"
-            title="Causal system, compounding outcomes"
-            statusLabel="Signal · Live"
+            title="Example of a connected workflow"
+            statusLabel="Illustrative"
             kpis={[
-              { label: "Response", value: "On SLA", trend: "defined, not ad hoc", trendUp: true },
-              { label: "Attribution", value: "Causal", trend: "not last-click", trendUp: true },
+              { label: "Response", value: "Assigned", trend: "agreed owner and target", trendUp: true },
+              { label: "Outcomes", value: "Recorded", trend: "linked to inquiries", trendUp: true },
             ]}
             chart={<CleanChart />}
-            range="Post-system, in-flight"
+            range="Example after implementation"
             bullets={[
-              "Clearer decision inputs, revenue-linked metrics",
-              "Attribution as identification — not correlation",
-              "Systemized execution, diagnostic-ready growth loop",
-              "Founder freed from operations, focused on signal",
+              "Inquiries from agreed channels in a shared workflow",
+              "Follow-up and booking outcomes recorded together",
+              "Defined next steps and human escalation",
+              "Owner can see what needs attention",
             ]}
           />
         </div>

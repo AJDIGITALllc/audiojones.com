@@ -328,7 +328,7 @@ export default function HeroAllSignal() {
             margin: 0,
           }}
         >
-          You don&apos;t have<br />a growth problem.
+          Find where inquiries stall—
           <br />
           <span
             style={{
@@ -340,7 +340,7 @@ export default function HeroAllSignal() {
               WebkitBoxDecorationBreak: "clone",
             }}
           >
-            You have a signal problem.
+            and what to fix next.
           </span>
         </div>
 
@@ -355,9 +355,10 @@ export default function HeroAllSignal() {
             maxWidth: "42ch",
           }}
         >
-          Missed calls, slow follow-up, no clear read on which
-          marketing pays off. We build the system that closes the
-          gaps — a Founder Intelligence System.
+          Audio Jones helps owners of local service businesses find gaps in
+          inquiries, follow-up, booking, and reporting. AJ Digital then builds
+          the agreed workflows so your team knows what to do next and you can
+          see what is working.
         </p>
 
         <div
@@ -370,7 +371,7 @@ export default function HeroAllSignal() {
           }}
         >
           <ButtonLink href={ctaLinks.signalDiagnostic} variant="glow">
-            Book Your Diagnostic
+            Start the AI Readiness Diagnostic
           </ButtonLink>
           <a
             href="#process"
@@ -404,7 +405,7 @@ export default function HeroAllSignal() {
             marginTop: "32px",
           }}
         >
-          ↓ Data to Decisions &nbsp;·&nbsp; Clarity creates leverage.
+          ↓ Inquiries to next steps &nbsp;·&nbsp; Know what needs attention.
         </p>
       </div>
 
@@ -459,7 +460,7 @@ export default function HeroAllSignal() {
             maxWidth: "16ch",
           }}
         >
-          You don&apos;t have a growth problem.
+          Find where inquiries stall—
           <br />
           <span
             style={{
@@ -471,7 +472,7 @@ export default function HeroAllSignal() {
               WebkitBoxDecorationBreak: "clone",
             }}
           >
-            You have a signal problem.
+            and what to fix next.
           </span>
         </h1>
 
@@ -486,9 +487,10 @@ export default function HeroAllSignal() {
             maxWidth: "44ch",
           }}
         >
-          Missed calls, slow follow-up, no clear read on which
-          marketing pays off. We build the system that closes the
-          gaps — a Founder Intelligence System.
+          Audio Jones helps owners of local service businesses find gaps in
+          inquiries, follow-up, booking, and reporting. AJ Digital then builds
+          the agreed workflows so your team knows what to do next and you can
+          see what is working.
         </p>
 
         <div
@@ -501,7 +503,7 @@ export default function HeroAllSignal() {
           }}
         >
           <ButtonLink href={ctaLinks.signalDiagnostic} variant="glow">
-            Book Your Diagnostic
+            Start the AI Readiness Diagnostic
           </ButtonLink>
           <a
             href="#process"

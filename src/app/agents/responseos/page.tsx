@@ -102,10 +102,12 @@ export default function ResponseOsPage() {
           <div className="max-w-4xl">
             <p className="aj-data-label">Revenue Recovery System</p>
             <h1 className="mt-5 max-w-full break-words font-accent text-[clamp(2.55rem,9vw,5.6rem)] font-bold leading-[0.96] tracking-[-0.025em] text-fg-0 sm:tracking-[-0.045em]">
-              ResponseOS turns missed demand into an accountable recovery path.
+              ResponseOS helps your team follow up on inquiries and move them toward booking.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-fg-2 sm:text-xl">
-              {DESCRIPTION}
+              We connect inquiry capture, qualification, follow-up, and booking
+              around the workflow agreed after diagnosis. Your team gets clear
+              next steps, human escalation, and reporting on recorded outcomes.
             </p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <PricingCtaLink
@@ -139,6 +141,10 @@ export default function ResponseOsPage() {
             </dl>
           </div>
           <div className="min-w-0">
+            <p className="mb-4 text-sm leading-6 text-fg-2">
+              Illustrative workflow, not a live customer dashboard. Channels
+              and response targets depend on the agreed implementation scope.
+            </p>
             <SignalConsole />
           </div>
         </div>
