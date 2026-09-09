@@ -258,3 +258,39 @@ Clean installs of every version tested build successfully. See #219.
   prod deploy time is a separate tradeoff and should be decided on its own.
 - A green `deploy_preview` on a dependency PR now means something. A green
   `smoke_preview` still does not (#216).
+
+---
+
+## 2026-09-08 — audiojones.com DECISIONS.md is the register of record for commercial pricing
+
+**Status:** accepted
+
+**Decision:** This file is the register of record for commercial pricing and
+offer decisions across AJ Digital properties. The AJ Digital Master Pricing
+Matrix (`aj-digital-revops/docs/commercial/`) is the commercial-architecture
+working source — offer inventory, corridors, targets, catalog governance,
+proposals — and conforms to decisions ratified here.
+
+Tie-break: where the published registry (`src/content/offers.ts`) and the
+matrix disagree, neither silently wins. The divergence is recorded as a `C-`
+entry in the offer crosswalk and stays open until ratified here.
+
+**Context:** Both documents claimed canonical status without qualifying the
+domain. The 2026-07-31 decision retiring the productized ResponseOS tiers was
+ratified and shipped here, but the matrix carried the retired
+$397 / $797 / $1,297 rows unchanged through v1.0, v1.1 and v1.2, labelled
+"Previously established" — a label that predates this decision and never
+registered it. Five weeks of undetected drift, because no rule said which
+trail governed and nothing mapped the two offer taxonomies to each other.
+
+`aj-digital-revops/docs/decision-register.md` claims no primacy; it is scoped
+to the HubSpot catalog provisioning run and remains so.
+
+**Consequences:**
+- The matrix header drops "pricing governance" from its canonical claim and
+  states that it conforms to decisions ratified here.
+- A ratified decision is propagated to both the registry and the matrix in the
+  same change, or logged as an open `C-` conflict in the crosswalk.
+- Publication, merge, and HubSpot provisioning gates are unchanged. This
+  decides where decisions are recorded, not who approves them.
+- Nothing is retroactively re-decided. Prior ratifications stand.

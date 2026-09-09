@@ -2,7 +2,7 @@
 
 Status: commercial decisions approved for controlled testing; automatic preview approved for human QA; merge and production publication remain separately gated
 Authority: 2026-07-31 AJ Digital Pricing and Offer Architecture Website Update execution contract
-Public source of truth: `src/content/pricing.ts`
+Public source of truth: `src/content/offers.ts` (offer data), projected by `src/content/pricing.ts` and gated for publication by `src/lib/offers/public-view.ts`. Recorded as `pricing.ts` on 2026-07-31; the registry moved to `offers.ts` in #239.
 Evidence ledger: [`PRICE_VALIDATION_LEDGER.md`](./PRICE_VALIDATION_LEDGER.md)
 
 ## Why the commercial anchor changed
