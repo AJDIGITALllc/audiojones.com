@@ -1,10 +1,16 @@
 import "server-only";
+import { readCappedBody } from "@/lib/notifications/safe-body";
 import {
   FOUNDER_GRAVITY_ASSET,
   GRAVITY_LAYERS,
 } from "./content";
 import type { FounderGravityAuditLeadSchemaInput } from "./schema";
 import type { FounderGravityResult } from "./types";
+
+// Bound every notification request. A downstream that accepts the connection
+// and then stalls would otherwise hold the deferred `after` task open until
+// the platform kills it, and the status would never be logged.
+const NOTIFY_TIMEOUT_MS = 10_000;
 
 type NotifyArgs = {
   leadId: string;
@@ -37,14 +43,26 @@ async function sendEmail({ leadId, input, result }: NotifyArgs) {
   const html = renderEmail({ leadId, input, result });
 
   try {
-    await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "content-type": "application/json",
       },
       body: JSON.stringify({ from, to, subject, html }),
+      signal: AbortSignal.timeout(NOTIFY_TIMEOUT_MS),
     });
+
+    // fetch only rejects on a transport failure. A bad API key, an
+    // unverified sender or a rate limit all come back as a resolved 4xx,
+    // which without this check looks exactly like a delivered email.
+    if (!res.ok) {
+      console.error("[founder-gravity-audit] email notification rejected", {
+        status: res.status,
+        body: await readCappedBody(res),
+        leadId,
+      });
+    }
   } catch (err) {
     console.error("[founder-gravity-audit] email notification failed", err);
   }
@@ -103,11 +121,22 @@ async function sendN8nWebhook({ leadId, input, result }: NotifyArgs) {
   };
 
   try {
-    await fetch(url, {
+    const res = await fetch(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(NOTIFY_TIMEOUT_MS),
     });
+
+    // Same reasoning as the email call: a rejecting or misconfigured
+    // downstream returns a resolved 4xx/5xx, not a thrown error.
+    if (!res.ok) {
+      console.error("[founder-gravity-audit] n8n webhook rejected", {
+        status: res.status,
+        body: await readCappedBody(res),
+        leadId,
+      });
+    }
   } catch (err) {
     console.error("[founder-gravity-audit] n8n webhook failed", err);
   }
