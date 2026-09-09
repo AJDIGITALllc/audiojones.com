@@ -1,5 +1,7 @@
 import "server-only";
 
+import { readCappedBody } from "@/lib/notifications/safe-body";
+
 import { ctaLinks } from "@/config/links";
 import type { RoiLeadInput } from "./roi-calculator-schema";
 
@@ -24,6 +26,11 @@ function money(value: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
 }
 
+// Bound the request. A downstream that accepts the connection and then
+// stalls would otherwise hold the deferred `after` task open until the
+// platform kills it, taking the client's result email with it.
+const EMAIL_TIMEOUT_MS = 10_000;
+
 async function sendResendEmail(payload: { to: string; subject: string; html: string }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.FROM_EMAIL || process.env.RESEND_FROM_EMAIL || "Audio Jones <noreply@audiojones.com>";
@@ -36,11 +43,15 @@ async function sendResendEmail(payload: { to: string; subject: string; html: str
       "content-type": "application/json",
     },
     body: JSON.stringify({ from, ...payload }),
+    signal: AbortSignal.timeout(EMAIL_TIMEOUT_MS),
   });
 
   if (!response.ok) {
-    const errBody = await response.text().catch(() => "");
-    throw new Error(`Resend returned ${response.status}${errBody ? `: ${errBody.slice(0, 500)}` : ""}`);
+    // `response.text()` buffers the whole body before any slice, so a large
+    // or non-terminating error body could exhaust memory or hold the
+    // deferred `after` task open. readCappedBody stops at the limit.
+    const errBody = await readCappedBody(response);
+    throw new Error(`Resend returned ${response.status}${errBody ? `: ${errBody}` : ""}`);
   }
   return "sent" satisfies RoiEmailStatus;
 }

@@ -1,6 +1,6 @@
 export const runtime = "nodejs";
 
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { notifyFounderGravityAuditLead } from "@/lib/founder-gravity-audit/notifications";
 import { scoreFounderGravityAudit } from "@/lib/founder-gravity-audit/scoring";
@@ -84,11 +84,18 @@ export async function POST(req: NextRequest) {
       userAgent,
     });
 
-    void notifyFounderGravityAuditLead({
-      leadId: stored.id,
-      input,
-      result,
-    });
+    // `after` rather than a bare `void`: on serverless the invocation can be
+    // suspended as soon as the response is sent, which would drop the Resend
+    // and webhook requests mid-flight and leave a stored lead silently
+    // unannounced. `after` keeps the invocation alive until the work settles,
+    // without holding up the response.
+    after(() =>
+      notifyFounderGravityAuditLead({
+        leadId: stored.id,
+        input,
+        result,
+      }),
+    );
 
     return NextResponse.json({
       ok: true,

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { calculateRoiResult } from "@/lib/roi-calculator/calculations";
 import { sendAgencyRoiNotification, sendClientRoiResult } from "@/lib/roi-calculator/roi-calculator-email";
 import { roiLeadSchema } from "@/lib/roi-calculator/roi-calculator-schema";
@@ -89,9 +89,20 @@ export async function POST(req: NextRequest) {
   const submittedAt = new Date().toISOString();
   const agencyEmailStatus = await sendAgencyRoiNotification({ leadId: persisted.leadId, lead, submittedAt });
   await updateRoiLeadEmailStatus({ leadId: persisted.leadId, agencyEmailStatus });
-  void sendClientRoiResult({ leadId: persisted.leadId, lead, submittedAt }).then((clientEmailStatus) =>
-    updateRoiLeadEmailStatus({ leadId: persisted.leadId, clientEmailStatus }),
-  );
+  // `after` rather than a bare `void`: on serverless the invocation can be
+  // suspended as soon as the response is sent. That would drop two things —
+  // the result email the client is waiting for, and the status write that
+  // records whether it was sent — leaving the row claiming nothing happened.
+  // `after` keeps the invocation alive until both settle, without making the
+  // caller wait for them.
+  after(async () => {
+    const clientEmailStatus = await sendClientRoiResult({
+      leadId: persisted.leadId,
+      lead,
+      submittedAt,
+    });
+    await updateRoiLeadEmailStatus({ leadId: persisted.leadId, clientEmailStatus });
+  });
 
   return successResponse({
     leadId: persisted.leadId,
