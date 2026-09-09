@@ -67,15 +67,32 @@ test("every notifier request is bounded by a timeout", () => {
 
 // `fetch` resolves on 4xx/5xx, so a bad key or a rejecting webhook looks
 // exactly like success unless the status is checked.
+//
+// Counted per fetch, not merely present in the module. Three of these four
+// notifiers issue two requests, so a presence check stays green when one
+// request loses its status handling and the other still supplies the string —
+// deleting the n8n rejection block from the gravity-audit notifier would
+// restore silent webhook failure against a passing test.
 test("every notifier inspects the response status and caps the body it logs", () => {
   for (const file of NOTIFIER_MODULES) {
     const source = read(file);
-    assert.match(source, /\.ok\b/, `${file} never checks response.ok`);
-    assert.match(
-      source,
-      /readCappedBody\(/,
-      `${file} should read failed bodies through readCappedBody, not res.text()`,
+    const calls = source.split("fetch(").length - 1;
+    assert.ok(calls > 0, `${file} has no fetch calls; is the path list stale?`);
+
+    const checked = source.match(/\.ok\b/g)?.length ?? 0;
+    assert.equal(
+      checked,
+      calls,
+      `${file}: ${calls} fetch call(s) but ${checked} status check(s). An unchecked 4xx is indistinguishable from a delivered notification.`,
     );
+
+    const capped = source.match(/readCappedBody\(/g)?.length ?? 0;
+    assert.equal(
+      capped,
+      calls,
+      `${file}: ${calls} fetch call(s) but ${capped} readCappedBody call(s). Every failure path must report a bounded body.`,
+    );
+
     assert.equal(
       /await\s+res(ponse)?\.text\(\)/.test(source),
       false,
