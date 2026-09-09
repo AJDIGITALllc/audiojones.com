@@ -141,7 +141,7 @@ precisely the `displayConvention` decision left deliberately undefined at
 
 | Source | Figure | Detail |
 |---|---|---|
-| Website (`offers.ts`) | **From $15,000** | Founder Intelligence System. Published numeric floor. |
+| Website (`offers.ts`) | **From $15,000** | Founder Intelligence System. Published from-price. |
 | Matrix — **same name** | **$25,000–60,000+** | Integrated Founder Intelligence / RAG System. Status: **Scoped**. |
 | Matrix — **same figure** | **$15,000–20,000** | Core AI-Ready Business Knowledge System. A lower tier, different scope. |
 
@@ -153,17 +153,24 @@ Business Memory tier.
 cannot be determined from the documents. Both readings fit the evidence
 equally, and this draft does not choose between them.**
 
-A separate and independent point: Matrix §10.3 directs that *scoped* work carry
-a scoped or "from" treatment rather than a hard figure. The matrix marks this
-offer Scoped; the website publishes a number. That governance conflict stands
-regardless of which figure is correct.
+The **display convention is not itself a conflict.** Matrix §10.3 permits either
+a "from" or a scoped treatment for high-variance work, and the website publishes
+`From $15,000` — a from-price, which is allowed. The open question is which
+corridor that floor belongs in, not how it is displayed.
+
+Related, and already on the record: the 2026-09-01 offer-map redline notes that
+the matrix states **two** Core Business Memory figures — the $25,000 BM1–BM11
+target and the $15,000–20,000 typical corridor — without saying which governs.
+That ambiguity sits upstream of this row and may be what the website floor is
+tracking.
 
 **Decisions required:**
 
 1. Which matrix row is the website's Founder Intelligence System?
 2. If it is the Integrated FI/RAG row, does the $15,000 floor stand, or does it
    move into the $25,000+ corridor?
-3. Should a Scoped offer carry a published numeric floor at all?
+3. Which Core Business Memory figure governs — the $25,000 target or the
+   $15,000–20,000 corridor? Resolving this may resolve question 2.
 
 ---
 
@@ -217,12 +224,19 @@ than none:
    `/ecosystem` and similar routes was **not** reviewed for unpriced offer
    mentions. A matrix row marked "not on website" may still be described
    somewhere in page copy without a price.
-2. **A third pricing source exists and is excluded.**
+2. **A third pricing source exists and is excluded — but must be retained.**
    `data/catalog/services_pricing_catalog.json` (version `2025-11-07`) carries a
    different taxonomy — podcast production, personal brand, AI automation,
-   digital marketing, bilingual Miami — with Whop billing SKUs, and is read by
-   live `/api/whop` routes. It is not reconciled here and should be quarantined
-   or retired separately.
+   digital marketing, bilingual Miami — with Whop billing SKUs. It is read by
+   `src/lib/getPricing.ts` and depended on by the live `/api/whop` and
+   `/api/whop-base64` routes for SKU lookup.
+
+   It is not reconciled here, and it must **not** be superseded or deleted. The
+   2026-09-01 offer-map redline (§3, legacy-catalog row) requires marking it
+   non-authoritative for systems offers and excluding it from `/offers.json`,
+   while **retaining it as the interim pricing record for the podcast, media,
+   and personal-brand families** until matrix §12 item 13 integrates them.
+   Retiring it would break live Whop flows.
 3. **No live HubSpot state was verified.** The catalog column reflects
    `products.json`, not the live account. Whether the eight products exist in
    HubSpot is unknown.
